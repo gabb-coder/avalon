@@ -55,7 +55,7 @@ Ask before changing anything listed in `docs/HANDOFF.md` §10, "Expensive to cha
 
 - **Node.js 20+**, ES modules everywhere (`"type": "module"`), so the server and the browser share `shared/protocol.js`.
 - **Server:** Express 4 (health route; serves `public/` in local dev) + Socket.IO 4 + helmet (security headers, CSP).
-- **Client:** vanilla JS ES modules, HTML, CSS. No framework, no build step. *(Milestone 3.)*
+- **Client:** vanilla JS ES modules, HTML, CSS. No framework, no bundler. `npm run build:static` only copies two files into `public/` (the shared protocol and the Socket.IO browser client).
 - **Tests:** Node's built-in runner (`node --test`). No test framework dependency.
 - **Hosting:** Render, one `render.yaml` with a Static Site (`public/`) and a Web Service (game server). *(Milestone 7.)*
 - Dependencies are kept to a minimum: `express`, `socket.io`, `helmet`; `socket.io-client` for tests only; `redis` only if milestone 7 adds it.
@@ -64,10 +64,11 @@ Ask before changing anything listed in `docs/HANDOFF.md` §10, "Expensive to cha
 
 | Command | What it does | Status |
 |---|---|---|
-| `npm test` | All tests: engine units, leak tests, ~1,800-game simulation, socket integration. About 18 s. Must pass before every hand-off. | works |
-| `npm run dev` | Server + client on one origin at http://localhost:3000, restarting on file changes. | works (client is a placeholder until milestone 3) |
+| `npm test` | All tests: engine units, leak tests, ~1,800-game simulation, socket integration, client checks. About 20 s. Must pass before every hand-off. | works |
+| `npm run dev` | Server + client on one origin at http://localhost:3000 (and http://<your-computer's-IP>:3000 for phones on the same Wi-Fi), restarting on server changes. Client files need only a browser reload. | works |
 | `npm start` | Production server (Render): listens on `$PORT`, `0.0.0.0`. | works |
 | `npm run demo` | Bots play one full game over real sockets and print it, private info labelled. `npm run demo -- 10` for 10 players. | works |
+| `npm run build:static` | Copies `shared/protocol.js` and the Socket.IO browser client into `public/` (gitignored). The Render static site runs it; local dev doesn't need it. | works |
 
 Run one file: `node --test test/stateMachine.test.js`. Run tests by name: `node --test --test-name-pattern="Lady" test/*.test.js`.
 
@@ -95,7 +96,22 @@ server/
   config.js        environment variables (all listed in .env.example)
   log.js           structured JSON logs (room code + event name only)
 shared/protocol.js event names, payload shapes (JSDoc), code alphabet, error codes; used by server and client
-public/            client (placeholder index.html + config.js until milestone 3)
+public/            the client (served as a static site in production)
+  index.html       one page: fonts, rt.css, app.css, js/app.js; no inline scripts or styles (CSP)
+  config.js        GAME_TITLE and SERVER_URL (the one place to rename the game or point at the server)
+  css/rt.css       design/rt.css, unchanged (a test checks it)
+  css/app.css      production shell, the design's inline styles as classes (tokens only), button-typography fix
+  i18n/en.json     every string; copy-deck keys where they exist
+  js/app.js        shell: connection, session, routing, render loop, display prefs
+  js/net.js        Socket.IO connection + request() with acks; /healthz waking ping
+  js/i18n.js       t(key, params), ICU subset (plural/select/#) via Intl.PluralRules
+  js/dom.js        h() builder (textContent only), icon(), avatar(), replace() with focus restore
+  js/prefs.js      localStorage (name, token, session, text size, motion, vibration), failure-safe
+  js/share.js      copy code / share invite link (with an http fallback)
+  js/components/   ui (buttons, status, chips, rows, fields, toggles, seg), hold, peek, roleCard,
+                   codeInput, overlay (sheet/modal + focus trap), toast
+  js/screens/      splash A1, home A2, join A3–A5, waking A6, lobby B1–B3+G4, night C1–C3,
+                   ended G3, connection (G1 banner), board (placeholder until M4), sheets (B4, E3, E4, G5, G6)
 scripts/demo.js    the bot demo
 test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakSweep.js, socketClient.js are support
 ```
@@ -131,6 +147,16 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - Cross-origin sockets are refused unless the origin is in `ALLOWED_ORIGIN`. This is checked on the WebSocket upgrade too, because CORS doesn't cover WebSockets.
   - Logs carry room codes and event names only: no names, tokens, roles or votes.
 - **Storage.** `MemoryRoomStore` keeps plain-JSON records: engine state, hashed tokens, block list, last activity. Timers and sockets are never stored. A Redis store would keep the same synchronous interface (in-memory reads, write-through, `loadAll()` at boot).
+- **Client rendering.** No framework. `app.js` picks a screen key (`splash`, `home`, `join`, `waking`, `ended`, or, in a room, from the server phase: `lobby`, `night`, `board`). Each screen module exports `mount(app) → { el, update(), destroy() }`. A new key mounts a fresh screen; otherwise `update()` repaints its dynamic regions with `replace()`, which keeps keyboard focus on the element with the same `data-key`. Sheets and modals mount on top (one at a time, focus trapped). Toasts sit above the dock (`--dock-h` follows the dock's real height).
+- **Client privacy.**
+  - Role and night info exist in JS memory only, as the latest view.
+  - The DOM gets the card front (`roleFront`) or Peek sheet (`peekSheet`) only inside a hold's `onShow`, and they are removed in `onHide`. Hold hides on pointerup, cancel, leave, lost capture, blur, window blur and visibilitychange.
+  - The card's aria-label names the role only while held.
+  - `document.title` is always just the game title.
+  - Tests check that `roleFront`/`peekSheet` are only called from hold handlers. A browser check confirmed the front is absent from the DOM after release.
+- **Session on the phone.** `prefs.token` (one per phone) and `prefs.session = { code, playerId, active }`. On load, an active session goes straight back into the room (sleeping tabs reload all the time). Leaving mid-game (G5) keeps the session inactive, so Home offers "Back to room?" after a `room:check`. A failed resume shows G3 (`gone`/`seatGone`).
+- **Waking (A6).** The page pings `/healthz` on open. Create, join or resume while the socket is down shows A6 after 600 ms, runs the task as soon as the socket connects, and offers "Try again" after 45 s.
+- **Strings.** Every string goes through `t()`. A test scans the client for `t('…')` keys and checks them, plus every runtime-built key and every server error code, against en.json.
 - **Error codes** are i18n keys: copy-deck keys (`name.taken`, `pick.tooMany`, `fail.locked`, `start.tooManyEvil`…) for things players can trigger, `err.*` for things a well-behaved client never sends.
 
 ## Game rules as implemented
@@ -207,7 +233,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 
 - [x] **Milestone 1: engine and tests.** rules, roles, night info, state machine, viewFor, leak tests, simulation.
 - [x] **Milestone 2: server and rooms.** Express + Socket.IO, protocol, create/join/check/resume, tokens, reconnect, host transfer, kick + block, timers, rate limit, payload cap, origin check, /healthz, socket integration tests, bot demo.
-- [ ] Milestone 3: design foundation, home, join, lobby, role reveal.
+- [x] **Milestone 3: design foundation, home, join, lobby, role reveal.** rt.css shipped as-is, app.css, en.json, components (buttons, inputs, code input, player rows, chips, status bar, role card, hold-to-reveal, peek, sheet, modal, toast), screens A1–A6, B1–B4, C1–C3, plus G3, G4, G5, G6, a first G1 banner, E3 and part of E4. Checked in Chromium against the design files.
 - [ ] Milestone 4: core game loop.
 - [ ] Milestone 5: assassination, Lady, Play again, Menu, How to play.
 - [ ] Milestone 6: polish and system states.
@@ -215,4 +241,31 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 
 ### Additions to the design (screens or states the bundle didn't have)
 
-None yet.
+- **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
+- **A3 messages.** These are new:
+  - "Looking for that room…" while the code is checked.
+  - "You have a seat in room X. Join to take it back." when this phone is already seated.
+  - The disabled reason "Enter the 4-letter code and your name" before anything is typed.
+- **A5 copy.** "Room X is already playing" replaces the design's quest number, which `room:check` doesn't expose.
+- **Host hand-over picker** (G4 "Hand it on", E4 "Hand host to another player"). A sheet with a radio list of players, then "Make X host": the same select-then-confirm pattern.
+- **Home settings** (A2's sliders button). A "Settings" sheet with E4's Display section: text size, reduce motion, vibrate.
+- **G3 variants.**
+  - "You were removed" (kicked).
+  - "Your seat in room X was given up while you were away" (`seatGone`).
+  - The server-restart sentence for a resume that finds no room.
+  - Separate sentences for `hostEnded`, `seatExpired`, `idle` and `empty`.
+- **Night-info notes for every role and config.** The design shows one example per role. The new notes:
+  - Merlin, when nothing is hidden: "You see every Evil player at the table."
+  - Percival without Morgana gets the heading "Merlin is".
+  - Morgana without Percival: "Percival isn't in this game…".
+  - Any Evil player, when Oberon is in the game: "Oberon is in this game, but hidden from you."
+- **Lady results in Peek.** "The Lady showed you: Sana · Evil" (HANDOFF §9: the Lady result is kept in Peek).
+- **Temporary board** for phases after the night: the status bar names the phase and who we wait on, plus Peek. It is replaced in milestone 4.
+- **G1, first version.** A "Reconnecting… Your seat, role and vote are held." banner. The full G1 overlay and G2 come in milestone 6.
+
+### Deviations from the design (and why)
+
+- **Button typography.** rt.css's `.phone button { font: inherit; color: inherit; }` outranks single-class rules like `.btn-primary`. The design's screens mostly use `<a class="btn">`, but the build uses real `<button>`s (accessibility rule). app.css restores each component's own type and colour for buttons, exactly as rt.css defines them; otherwise primary buttons would show light text on gold and fail contrast. rt.css itself is untouched.
+- **Lobby back button** leaves right away. The design links it to G5, whose copy is about mid-game ("The table can't finish without you"); in the lobby leaving costs nothing, and the code lets you back in. G5 is used mid-game (Menu → Leave game).
+- **Menu (E4) is partial for now.** It has How to play, Roles, Display, Hand host and Leave. "Vote history" arrives with the history drawer (milestone 4), and "End game for everyone" in milestone 5.
+- **Copy.** "him" becomes "them" for arbitrary players (decision 11), e.g. Morgana's ability "pull them off course".

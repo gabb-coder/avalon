@@ -1,5 +1,6 @@
 node_modules/
 .env
 public/shared/
+public/vendor/
 *.log
 .DS_Store

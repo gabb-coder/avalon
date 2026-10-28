@@ -1,0 +1,263 @@
+/* =========================================================
+   AVALON: app.css
+   Everything the production app needs on top of rt.css (which ships as-is).
+   Only rt.css tokens are used here; no new colours.
+   Most rules are the design files' inline styles turned into classes, since
+   the Content Security Policy doesn't allow inline style attributes.
+   ========================================================= */
+
+/* ---------- Production shell (HANDOFF §1) ---------- */
+html, body { margin: 0; height: 100%; background: var(--ink); }
+body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+.phone {
+  width: 100%;
+  height: 100vh;
+  height: var(--vvh, 100dvh); /* follows the visual viewport, so the dock rides above the keyboard */
+  margin: 0 auto;
+}
+/* Until the tablet layout (S3, milestone 6), wide screens get a centred phone column. */
+@media (min-width: 600px) { .phone { max-width: 480px; box-shadow: 0 0 0 1px var(--line-quiet); } }
+@media (min-width: 414px) { .phone { --gutter: 20px; } }
+.phone .topbar { height: calc(56px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); padding-left: max(4px, env(safe-area-inset-left)); padding-right: max(4px, env(safe-area-inset-right)); }
+.phone .dock { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+.screen, .screen-body { display: contents; }
+/* Empty slots (no banner, no tabs for guests) must not add a gap. */
+.content > div:empty { display: none; }
+.topbar-spacer { width: 48px; flex: none; }
+.boot-error { padding: 40px 20px; }
+.offscreen { position: fixed; left: -9999px; top: 0; opacity: 0; }
+
+/* In-app Reduce motion (Menu): mirrors rt.css's prefers-reduced-motion rules. */
+.reduce-motion .anim-flip, .reduce-motion .anim-rise, .reduce-motion .anim-coin, .reduce-motion .anim-stamp,
+.reduce-motion .anim-sheet, .reduce-motion .anim-fade, .reduce-motion .anim-modal { animation: rt-fade 150ms linear both !important; }
+.reduce-motion .anim-pulse, .reduce-motion .anim-breathe, .reduce-motion .qnode.is-current .qnode-disc,
+.reduce-motion .dots i, .reduce-motion .code-cell.is-active::after { animation: none !important; }
+.reduce-motion .progress.is-indet > i { animation: none; width: 100%; opacity: .5; }
+.reduce-motion .btn, .reduce-motion .vote, .reduce-motion .qcard, .reduce-motion .switch::after { transition: none !important; }
+
+/* Sheets and toasts: slide up 24px + fade (HANDOFF §4); fade only when motion is reduced. */
+@keyframes app-sheet-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.anim-sheet { animation: app-sheet-in var(--d-base) var(--ease-out) both; }
+.anim-fade { animation: rt-fade var(--d-base) var(--ease-out) both; }
+/* Modals are centred with translateY(-50%) in rt.css, so their rise keeps it. */
+@keyframes app-modal-in { from { opacity: 0; transform: translateY(calc(-50% + 10px)) scale(.96); } to { opacity: 1; transform: translateY(-50%); } }
+.anim-modal { animation: app-modal-in var(--d-base) var(--ease-out) both; }
+@media (prefers-reduced-motion: reduce) { .anim-sheet, .anim-fade, .anim-modal { animation: rt-fade 150ms linear both !important; } }
+
+/* ---------- Small helpers ---------- */
+.gold-hi { color: var(--gold-hi); }
+.row-top { align-items: flex-start; }
+.between { justify-content: space-between; }
+.baseline { align-items: baseline; }
+.wrap { flex-wrap: wrap; }
+.chips { gap: 6px; }
+.full-width { width: 100%; }
+.text-left { text-align: left; }
+.narrow { max-width: 300px; }
+.inline-ic { vertical-align: -2px; }
+.title-caps { letter-spacing: .1em; color: var(--gold-hi); font-weight: 600; }
+.field-msg.evil { color: var(--evil); }
+.field-msg.warn { color: var(--warn); }
+.btn-44 { min-height: 44px; }
+.spinner-20 { width: 20px; height: 20px; }
+.spinner-warn { border-top-color: var(--warn); }
+.spinner-end { margin-right: 14px; }
+.crown-end { margin-right: 12px; }
+.phone button.link-btn { appearance: none; border: 0; background: transparent; padding: 0; cursor: pointer; color: var(--gold-hi); min-height: 32px; display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; font-size: var(--fs-label); font-weight: 700; }
+.link-btn > :first-child, .link-btn { text-decoration: underline; text-underline-offset: 2px; }
+.panel-rows { padding: 0 16px; }
+.toggle-row-56 { min-height: 56px; }
+.dock .status { margin: 0; }
+.dock-row { flex-direction: row; }
+.status-slot { flex: none; }
+.logo-112 { width: 112px; height: 112px; color: var(--gold-hi); }
+.logo-120 { width: 120px; height: 120px; color: var(--gold-hi); }
+.logo-120.faint { color: var(--text-3); }
+
+/* Centred content (A1, A2, A6, G2, G3) */
+.content-center { align-items: center; justify-content: center; text-align: center; gap: 18px; }
+
+/* ---------- A1 Splash ---------- */
+.splash-hit {
+  appearance: none; border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit;
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 32px; position: relative;
+}
+.splash-glow {
+  position: absolute; width: 340px; height: 340px; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -62%);
+  background: radial-gradient(circle, rgba(214,178,94,.20), rgba(214,178,94,0) 65%);
+}
+.splash-logo { width: 148px; height: 148px; color: var(--gold-hi); position: relative; }
+.splash-title { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
+.splash-rule { width: 160px; margin: 0; }
+.splash-tag { max-width: 260px; }
+.splash-foot { padding: 0 24px 32px; display: flex; justify-content: center; }
+
+/* ---------- A2 Home ---------- */
+.home { gap: 18px; }
+.home-intro { max-width: 290px; }
+.home-name, .home-rejoin { width: 100%; }
+.home-name:empty, .home-rejoin:empty { display: none; }
+.home-panel { width: 100%; text-align: left; }
+.home-name { margin-top: 10px; }
+.home-field { text-align: left; gap: 10px; }
+
+/* ---------- A3/A4 Join + the room-code input ---------- */
+.join { gap: 28px; padding-top: 20px; }
+.code-field { position: relative; display: block; }
+.code-cells { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+/* The one real input sits over the four drawn cells: transparent text and caret,
+   so the cells show the letters while typing, paste and autofill hit the input. */
+.code-input {
+  position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; border-radius: var(--r-md);
+  background: transparent; color: transparent; caret-color: transparent; font-size: 16px; letter-spacing: 2em; text-indent: -9999px;
+  outline: none; cursor: text;
+}
+.code-input:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.code-field.is-error .code-cell { border-color: var(--evil); color: var(--evil); }
+.field.is-ok .field-msg { color: var(--good); }
+
+/* ---------- A6 Waking ---------- */
+.logo-glow { position: relative; width: 148px; height: 148px; display: flex; align-items: center; justify-content: center; }
+.logo-glow .glow { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(circle, rgba(214,178,94,.22), rgba(214,178,94,0) 65%); }
+.logo-glow .logo-120 { position: relative; }
+.progress-240 { width: 240px; }
+.waking-steps { width: 100%; gap: 10px; text-align: left; }
+.step { gap: 10px; }
+.step-todo { width: 20px; height: 20px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--line-quiet); flex: none; }
+
+/* ---------- B Lobby ---------- */
+.lobby { gap: 14px; }
+.lobby-body { gap: 12px; }
+.code-panel { gap: 8px; padding: 12px 8px 12px 16px; }
+.code-panel-guest { padding: 10px 8px 10px 16px; }
+.code-copy { appearance: none; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; flex: 1; min-width: 0; padding: 0; font: inherit; }
+.code-eyebrow { font-size: 12px; display: block; }
+.room-code { font-size: calc(52px * var(--ts)); letter-spacing: .14em; color: var(--gold-hi); display: block; line-height: 1.05; }
+.room-code-sm { font-size: var(--fs-d-l); }
+.setup-summary { gap: 10px; }
+.oberon-setting { gap: 8px; }
+.prow-open { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(214,178,94,.35); }
+.av-open { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(214,178,94,.35); color: var(--gold); }
+.host-banner { gap: 14px; box-shadow: inset 0 0 0 1.5px var(--gold), 0 0 24px rgba(214,178,94,.2); }
+.host-banner-text { gap: 4px; }
+.host-banner-actions { gap: 8px; margin-top: 6px; }
+.host-banner-actions .btn { min-height: 44px; }
+.tok-44 { width: 44px; height: 44px; }
+.tok-56 { width: 56px; height: 56px; }
+
+/* ---------- C Night ---------- */
+.night { gap: 18px; padding-top: 18px; }
+.night.night-card { align-items: center; justify-content: center; gap: 14px; padding-top: 14px; }
+.hold-card {
+  appearance: none; border: 0; padding: 0; background: transparent; border-radius: var(--r-card); cursor: pointer;
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; color: inherit; font: inherit;
+}
+.hold-hint { gap: 6px; }
+.card-logo { width: 112px; height: 112px; color: var(--gold); }
+.card-title { letter-spacing: .1em; color: var(--gold-hi); font-size: calc(22px * var(--ts)); }
+.card-hint { margin-top: 18px; }
+.rcard-note { font-size: 13px; line-height: 1.35; color: var(--on-parchment-2); }
+.tips { gap: 10px; }
+.tips .row { gap: 10px; }
+.wcell.is-next { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+
+/* Peek sheet: sits just above whatever the dock is on this screen. */
+.peek-sheet { bottom: var(--dock-h, 92px); }
+.peek-private { align-self: center; }
+.peek-row { gap: 14px; }
+.peek-text { gap: 4px; }
+.peek-title { gap: 8px; flex-wrap: wrap; }
+.peek-intel { text-align: left; }
+.peek-sheet.good .rcard-emblem { color: var(--good-ink); background: rgba(23,99,108,.07); }
+.peek-sheet.evil .rcard-emblem { color: var(--evil-ink); background: rgba(150,32,54,.07); border-radius: 16px; transform: rotate(45deg) scale(.86); }
+.peek-sheet.evil .rcard-emblem .ic { transform: rotate(-45deg); }
+.ink-evil { color: var(--evil-ink); }
+.ink-maybe { color: var(--good-ink); }
+
+/* ---------- Overlays: sheets, modals ---------- */
+.overlay { position: absolute; inset: 0; z-index: 20; }
+.sheet-tall { max-height: 94%; height: 94%; }
+.sheet-tabs { padding: 0 20px 12px; flex: none; }
+.sheet .dock { background: transparent; }
+.sheet-center { align-items: center; text-align: center; padding-top: 18px; gap: 16px; }
+.modal-icon-72 { width: 72px; height: 72px; }
+.av-danger { box-shadow: 0 0 0 2.5px var(--evil); }
+.kick-block { gap: 12px; width: 100%; text-align: left; min-height: 48px; cursor: pointer; }
+
+/* B4 Glossary */
+.glossary-list { gap: 10px; }
+.glossary-entry { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 14px; }
+.glossary-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.glossary-top { gap: 8px; justify-content: space-between; }
+.glossary-name { font-family: var(--font-display); font-size: calc(24px * var(--ts)); line-height: 1.1; }
+
+/* E4 Menu */
+.menu-row .ic:first-child { margin-left: 4px; }
+.menu-chevron { margin-right: 8px; }
+.menu-eyebrow { font-size: 12px; margin-top: 8px; }
+.seg-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.seg-3 .seg-opt:nth-child(1) { font-size: 14px; }
+.seg-3 .seg-opt:nth-child(2) { font-size: 16px; }
+.seg-3 .seg-opt:nth-child(3) { font-size: 18px; }
+.menu-actions { display: flex; flex-direction: column; gap: 4px; padding: 6px 8px; }
+.menu-action { justify-content: flex-start; }
+.menu-leave { margin-top: 8px; }
+
+/* E3 How to play */
+.howto { gap: 18px; }
+.howto-dots { gap: 6px; }
+.howto-dot { height: 4px; flex: 1; border-radius: 2px; background: var(--surface-3); }
+.howto-dot.is-on { background: var(--gold); }
+.howto-page { gap: 16px; }
+.howto-art { height: 180px; display: flex; align-items: center; justify-content: center; gap: 22px; }
+.howto-team { align-items: center; gap: 8px; }
+.howto-track { width: 100%; }
+.howto-dock { flex-direction: row; gap: 10px; }
+.howto-back { flex: 1; min-height: 56px; }
+.howto-next { flex: 2; }
+.frame-72 { width: 72px; height: 72px; }
+.vm-72 { width: 72px; height: 72px; }
+.av-ring { box-shadow: 0 0 0 2.5px var(--gold); }
+
+/* G1 (first version): reconnecting banner */
+.conn-banner {
+  position: absolute; left: var(--gutter); right: var(--gutter); top: calc(64px + env(safe-area-inset-top)); z-index: 15;
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px;
+  background: linear-gradient(rgba(242,166,90,.12), rgba(242,166,90,.12)), var(--surface-1); box-shadow: inset 0 0 0 1px rgba(242,166,90,.55), var(--e-2);
+}
+.conn-banner[hidden] { display: none; }
+
+/* Toasts sit above the dock, whatever its height on this screen. */
+.toast-slot { z-index: 25; }
+
+/* ---------- Component typography on real <button>s ----------
+   rt.css resets `.phone button { font: inherit; color: inherit; }`, and that
+   selector outranks single-class component rules like .btn-primary. The
+   design's screens mostly use <a class="btn">, which the reset doesn't touch;
+   the build uses real <button>s (accessibility rule), so the component
+   classes' own type and colours are restored here exactly as rt.css defines them.
+   Without this, primary buttons would show light text on gold (fails contrast). */
+.phone button.btn { font-family: var(--font-ui); font-size: var(--fs-body-l); font-weight: 700; line-height: 1.2; }
+.phone button.btn-md { font-size: var(--fs-body); }
+.phone button.btn-primary { color: var(--on-gold); }
+.phone button.btn-secondary { color: var(--gold-hi); }
+.phone button.btn-ghost { color: var(--text-1); }
+.phone button.btn-ghost.gold-hi { color: var(--gold-hi); }
+.phone button.btn-danger { color: var(--on-evil-fill); }
+.phone button.btn-good { color: var(--on-good-fill); }
+.phone button.btn[disabled] { color: var(--text-3); }
+.phone button.btn.is-loading { color: transparent; }
+.phone button.seg-opt { font-size: var(--fs-label); font-weight: 700; line-height: 1.25; color: var(--text-2); }
+.phone button.seg-opt.is-on { color: var(--text-1); }
+.phone button.seg-opt[disabled] { opacity: .5; cursor: not-allowed; }
+.phone button.peek { font-size: var(--fs-body); font-weight: 700; color: var(--text-1); }
+.phone button.vote { font-size: var(--fs-title); font-weight: 700; }
+.phone button.vote-approve { color: var(--on-approve); }
+.phone button.vote-reject { color: var(--reject); }
+.phone button.qcard { font-family: var(--font-display); font-weight: 700; font-size: calc(30px * var(--ts)); line-height: 1; }
+.phone button.qcard-success { color: var(--good-ink); }
+.phone button.qcard-fail { color: var(--on-evil-fill); }
+.phone button.qcard.is-locked { color: var(--text-3); }
+.phone button.toast-action { font-size: var(--fs-body); font-weight: 700; color: var(--gold-hi); }
+.phone button.prow { font-size: var(--fs-body-l); color: var(--text-1); }
+.peek, .hold-card { -webkit-touch-callout: none; }

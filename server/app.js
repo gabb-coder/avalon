@@ -70,8 +70,13 @@ export function createServer(overrides = {}) {
     res.set('Cache-Control', 'no-store').json({ ok: true, rooms: store.size, uptime: Math.round(process.uptime()) });
   });
 
+  // Local dev: serve the client and the two files the static build copies in
+  // (see scripts/buildStatic.js), straight from their sources.
   if (config.serveClient) {
     app.use('/shared', express.static(path.join(root, 'shared')));
+    app.get('/vendor/socket.io.esm.min.js', (req, res) =>
+      res.sendFile(path.join(root, 'node_modules/socket.io-client/dist/socket.io.esm.min.js')),
+    );
     app.use(express.static(path.join(root, 'public')));
   }
 
