@@ -11,6 +11,7 @@ import { loadConfig } from './config.js';
 import { MemoryRoomStore } from './roomStore.js';
 import { RoomManager } from './roomManager.js';
 import { attachSocketHandlers } from './socketHandlers.js';
+import { log } from './log.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -27,7 +28,9 @@ function originAllowed(config, origin, host) {
   }
 }
 
-export function createServer(overrides = {}) {
+// `store`: where rooms live. Defaults to memory; index.js passes the Redis
+// store when REDIS_URL is set (see createRoomStore), already loaded.
+export function createServer(overrides = {}, { store = new MemoryRoomStore() } = {}) {
   const config = loadConfig(overrides);
   const app = express();
   app.disable('x-powered-by');
@@ -64,8 +67,6 @@ export function createServer(overrides = {}) {
     next();
   });
 
-  const store = new MemoryRoomStore();
-
   app.get('/healthz', (req, res) => {
     res.set('Cache-Control', 'no-store').json({ ok: true, rooms: store.size, uptime: Math.round(process.uptime()) });
   });
@@ -84,13 +85,20 @@ export function createServer(overrides = {}) {
   const io = new Server(server, {
     maxHttpBufferSize: config.maxPayloadBytes,
     cors: config.allowedOrigins.length ? { origin: config.allowedOrigins } : undefined,
-    allowRequest: (req, done) => done(null, originAllowed(config, req.headers.origin, req.headers.host)),
+    allowRequest: (req, done) => {
+      const ok = originAllowed(config, req.headers.origin, req.headers.host);
+      // Helps spot a mistyped ALLOWED_ORIGIN on Render. An origin is a site
+      // address, not a secret.
+      if (!ok) log.warn('socket.refusedOrigin', { origin: String(req.headers.origin).slice(0, 100) });
+      done(null, ok);
+    },
     serveClient: false,
   });
 
   const transport = { send: (connId, event, data) => io.to(connId).emit(event, data) };
   const manager = new RoomManager({ config, store, transport });
   attachSocketHandlers(io, manager, config);
+  if (store.size > 0) manager.restoreAfterRestart(); // rooms loaded from Redis
 
   return {
     app,
@@ -99,12 +107,20 @@ export function createServer(overrides = {}) {
     manager,
     store,
     config,
+    // Rejects if the port can't be used (e.g. already taken).
     listen(port = config.port, host = config.host) {
-      return new Promise((resolve) => server.listen(port, host, () => resolve(server.address().port)));
+      return new Promise((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(port, host, () => {
+          server.off('error', reject);
+          resolve(server.address().port);
+        });
+      });
     },
     async close() {
       manager.shutdown();
       await new Promise((resolve) => io.close(() => resolve()));
+      await store.close?.(); // Redis: finish pending writes, then disconnect
     },
   };
 }

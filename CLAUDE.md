@@ -57,8 +57,8 @@ Ask before changing anything listed in `docs/HANDOFF.md` §10, "Expensive to cha
 - **Server:** Express 4 (health route; serves `public/` in local dev) + Socket.IO 4 + helmet (security headers, CSP).
 - **Client:** vanilla JS ES modules, HTML, CSS. No framework, no bundler. `npm run build:static` only copies two files into `public/` (the shared protocol and the Socket.IO browser client).
 - **Tests:** Node's built-in runner (`node --test`). No test framework dependency.
-- **Hosting:** Render, one `render.yaml` with a Static Site (`public/`) and a Web Service (game server). *(Milestone 7.)*
-- Dependencies are kept to a minimum: `express`, `socket.io`, `helmet`; `socket.io-client` for tests only; `redis` only if milestone 7 adds it.
+- **Hosting:** Render, one `render.yaml` with a Static Site (`avalon`, serves `public/`) and a Web Service (`avalon-server`, the game server). Step-by-step setup: README → *Deploy to Render*.
+- Dependencies are kept to a minimum: `express`, `socket.io` and `helmet`. `socket.io-client` is for tests and the static build only. `@redis/client` is an optional dependency, loaded only when `REDIS_URL` is set (the core client, not the `redis` bundle, which adds modules we don't use).
 
 ## Commands
 
@@ -68,7 +68,7 @@ Ask before changing anything listed in `docs/HANDOFF.md` §10, "Expensive to cha
 | `npm run dev` | Server + client on one origin at http://localhost:3000 (and http://<your-computer's-IP>:3000 for phones on the same Wi-Fi), restarting on server changes. Client files need only a browser reload. | works |
 | `npm start` | Production server (Render): listens on `$PORT`, `0.0.0.0`. | works |
 | `npm run demo` | Bots play one full game over real sockets and print it, private info labelled. `npm run demo -- 10` for 10 players. | works |
-| `npm run build:static` | Copies `shared/protocol.js` and the Socket.IO browser client into `public/` (gitignored). The Render static site runs it; local dev doesn't need it. | works |
+| `npm run build:static` | Copies `shared/protocol.js` and the Socket.IO browser client into `public/` (gitignored). With `SERVER_URL` set (Render does this), it also writes the server address into `public/config.js` and an exact CSP `<meta>` into `index.html`; don't run it with `SERVER_URL` locally, or those two tracked files change. Local dev doesn't need it. | works |
 
 Run one file: `node --test test/stateMachine.test.js`. Run tests by name: `node --test --test-name-pattern="Lady" test/*.test.js`.
 
@@ -76,7 +76,9 @@ Run one file: `node --test test/stateMachine.test.js`. Run tests by name: `node 
 
 ```
 design/            design bundle: rt.css + screens/*.dc.html + screens/canvas.json (reference, never served)
-docs/              HANDOFF.md, SCREENS.md (design docs)
+docs/              HANDOFF.md, SCREENS.md (design docs); PLAYTEST.md (5-phone playtest checklist)
+render.yaml        Render Blueprint: the static site (with security headers) and the game server
+.env.example       every environment variable, with its default
 src/engine/        pure game engine, no I/O
   rules.js         tables (team sizes, quest sizes, Q4 two-fail), roles, default config, rulesConfig(), checkSetup()
   rng.js           seedable RNG (mulberry32); state is one number kept in the game state
@@ -91,7 +93,7 @@ server/
   socketHandlers.js  per socket: rate limit -> validate -> RoomManager -> ack; crashes are caught per event
   validate.js      shape checks for every intent (types, lengths); strips unknown fields
   roomManager.js   rooms, codes, tokens, seats, connections, timers; intents -> engine actions -> per-player views
-  roomStore.js     RoomStore interface + in-memory implementation
+  roomStore.js     RoomStore interface: in-memory, or Redis-backed (REDIS_URL); createRoomStore()
   rateLimit.js     token bucket per socket
   config.js        environment variables (all listed in .env.example)
   log.js           structured JSON logs (room code + event name only)
@@ -118,6 +120,7 @@ public/            the client (served as a static site in production)
                    lady D14–D16, assassin F1–F3, gameover F4, ended G3, connection (G1 overlay),
                    lost G2, sheets (B4, E1/E2 history, E3, E4 + End game, G5, G6)
 scripts/demo.js    the bot demo
+scripts/buildStatic.js  the static site's build (copies two files; fills in SERVER_URL and the CSP)
 test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakSweep.js, socketClient.js are support
 ```
 
@@ -151,7 +154,18 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - Payloads are capped (`maxHttpBufferSize`), and so is the number of open rooms (`MAX_ROOMS`).
   - Cross-origin sockets are refused unless the origin is in `ALLOWED_ORIGIN`. This is checked on the WebSocket upgrade too, because CORS doesn't cover WebSockets.
   - Logs carry room codes and event names only: no names, tokens, roles or votes.
-- **Storage.** `MemoryRoomStore` keeps plain-JSON records: engine state, hashed tokens, block list, last activity. Timers and sockets are never stored. A Redis store would keep the same synchronous interface (in-memory reads, write-through, `loadAll()` at boot).
+- **Storage.** `MemoryRoomStore` keeps plain-JSON records: engine state, hashed tokens, block list, last activity. Timers and sockets are never stored.
+  - With `REDIS_URL`, `RedisRoomStore` keeps the same synchronous interface. Reads come from memory. Every `set`/`delete` is also sent to Redis in the background (one connection keeps them in order; a failed write is logged, never thrown). Keys `avalon:room:<CODE>` expire after twice the idle limit.
+  - At boot, `createRoomStore()` loads every room, then `RoomManager.restoreAfterRestart()` marks everyone away. That holds their seats, starts the host grace, and restarts a reveal's fallback timer. Phones reconnect and resume with their tokens as usual.
+  - If Redis doesn't answer within 10 s at boot, the server starts with memory only and logs `redis.unavailable`.
+  - Redis holds the same secrets as memory, so it must be private to the server (Render Key Value's internal URL).
+- **Deployment (Render).**
+  - **Two services.** The static site `avalon` is always awake, so a sleeping game server still gets the A6 waking screen instead of a browser error. The game server is `avalon-server`.
+  - **Pointing them at each other.** The game server's `ALLOWED_ORIGIN` is the static site's address; a trailing slash is ignored, and refused origins are logged as `socket.refusedOrigin`. The static site's `SERVER_URL` is the game server's address, built into `config.js`, so changing it needs a rebuild.
+  - **Security headers.** The static site's CSP is a header in render.yaml. Its `connect-src` allows `*.onrender.com`, because the yaml can't know the address. The build narrows it with a `<meta>` CSP naming the exact server (browsers apply both). A test checks the yaml policy matches the server's.
+  - **Start-up.** The server listens on `$PORT` at `0.0.0.0`. If it can't listen, it exits with an error instead of running without serving, so Render restarts it. Health check: `/healthz` (CORS-enabled for the static site, so the page can wake the server).
+  - **Free-plan sleep.** The server sleeps after 15 minutes without traffic. During a game the sockets keep it awake. Without Redis, a sleep or redeploy drops the rooms, and phones then show G3.
+  - **Known limit with Redis.** During a deploy, Render briefly runs old and new instances side by side. An action on the old one in those seconds can be lost when phones move to the new one. The README says to update between games.
 - **Client rendering.** No framework. `app.js` picks a screen key (`splash`, `home`, `join`, `waking`, `ended`, or, in a room, from the server phase via `PHASE_SCREENS`: `lobby`, `night`, `propose`, `vote`, `reveal`, `quest`, `result`, `lady`, `assassin`, `gameover`). Each screen module exports `mount(app) → { el, update(), destroy() }`. A new key mounts a fresh screen; otherwise `update()` repaints its dynamic regions with `replace()`, which keeps keyboard focus on the element with the same `data-key`. Sheets and modals mount on top (one at a time, focus trapped). Toasts sit above the dock (`--dock-h` follows the dock's real height); while a sheet or dialog is open they move to the top of the screen, still in front, so they never cover its buttons.
 - **Client privacy.**
   - Role and night info exist in JS memory only, as the latest view.
@@ -285,7 +299,17 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
     - G1/G2 through a relay that cuts the connection;
     - wake lock and vibration with recorded calls;
     - full games at 390×844, 360×740 with 130% text, and 834×1194.
-- [ ] Milestone 7: deploy.
+- [x] **Milestone 7: deploy.**
+  - `render.yaml`: static site with security headers, plus the web service with a health check.
+  - The static build fills in `SERVER_URL` and an exact CSP.
+  - Optional Redis persistence, with restore after a restart.
+  - The server exits if it can't listen, and falls back to memory if Redis is down.
+  - Refused origins are logged.
+  - README *Deploy to Render* (step by step), `.env.example`, and `docs/PLAYTEST.md`.
+  - Checked:
+    - a real Redis restart mid-game: same phase and roles, played to the end;
+    - a local rehearsal of the two-origin setup: cold start with A6, CORS `/healthz`, CSP `<meta>`, no names in logs;
+    - tests for the build, the yaml CSP, the Redis store and a restart.
 
 ### Additions to the design (screens or states the bundle didn't have)
 

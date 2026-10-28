@@ -21,8 +21,8 @@ export async function closeAll() {
 
 // Bots move far faster than people, so test servers get a high rate limit
 // unless a test sets its own.
-export async function startServer(overrides = {}) {
-  const app = createServer({ serveClient: false, rateLimitPerSecond: 10000, rateLimitBurst: 10000, ...overrides });
+export async function startServer(overrides = {}, options = {}) {
+  const app = createServer({ serveClient: false, rateLimitPerSecond: 10000, rateLimitBurst: 10000, ...overrides }, options);
   const port = await app.listen(0, '127.0.0.1');
   openServers.add(app);
   return {

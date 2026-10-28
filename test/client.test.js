@@ -5,6 +5,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -196,8 +197,46 @@ describe('shipping rules', () => {
   });
 
   test('the static build copies everything the page imports', () => {
-    execFileSync(process.execPath, [path.join(root, 'scripts/buildStatic.js')], { stdio: 'ignore' });
+    const env = { ...process.env };
+    delete env.SERVER_URL; // without it the build must not touch config.js or index.html
+    execFileSync(process.execPath, [path.join(root, 'scripts/buildStatic.js')], { stdio: 'ignore', env });
     assert.equal(read('public/shared/protocol.js'), read('shared/protocol.js'));
     assert.ok(fs.statSync(path.join(root, 'public/vendor/socket.io.esm.min.js')).size > 10000);
+    assert.match(read('public/config.js'), /export const SERVER_URL = '';/);
+    assert.ok(!read('public/index.html').includes('Content-Security-Policy'));
+  });
+
+  test('the Render build writes SERVER_URL into config.js and an exact CSP into index.html', () => {
+    // A throwaway copy of just what the build reads.
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'avalon-build-'));
+    for (const f of ['public/config.js', 'public/index.html', 'shared/protocol.js', 'node_modules/socket.io-client/dist/socket.io.esm.min.js']) {
+      fs.mkdirSync(path.dirname(path.join(tmp, f)), { recursive: true });
+      fs.copyFileSync(path.join(root, f), path.join(tmp, f));
+    }
+    const build = (url) => execFileSync(process.execPath, [path.join(root, 'scripts/buildStatic.js')], { stdio: 'pipe', env: { ...process.env, BUILD_ROOT: tmp, SERVER_URL: url } });
+    build('https://avalon-server.onrender.com/');
+    build('https://avalon-server.onrender.com'); // running twice must not add a second policy
+    const config = fs.readFileSync(path.join(tmp, 'public/config.js'), 'utf8');
+    assert.match(config, /export const SERVER_URL = "https:\/\/avalon-server\.onrender\.com";/);
+    assert.match(config, /export const GAME_TITLE = 'Avalon';/);
+    const html = fs.readFileSync(path.join(tmp, 'public/index.html'), 'utf8');
+    assert.equal(html.match(/Content-Security-Policy/g).length, 1);
+    assert.match(html, /connect-src 'self' https:\/\/avalon-server\.onrender\.com wss:\/\/avalon-server\.onrender\.com;/);
+    assert.ok(!/unsafe-inline|unsafe-eval/.test(html));
+    assert.throws(() => build('http://example.com'), 'plain http is refused');
+    assert.throws(() => build('not a url'));
+    fs.rmSync(tmp, { recursive: true, force: true });
+  });
+
+  test("render.yaml's static-site CSP matches the server's policy", () => {
+    const yaml = read('render.yaml');
+    const csp = yaml.match(/name: Content-Security-Policy\n\s+value: "([^"]+)"/)[1];
+    for (const part of ["default-src 'self'", "script-src 'self'", "style-src 'self' https://fonts.googleapis.com", "font-src 'self' https://fonts.gstatic.com", "img-src 'self' data:", "object-src 'none'", "frame-ancestors 'none'"]) {
+      assert.ok(csp.includes(part), part);
+    }
+    assert.ok(!/unsafe-inline|unsafe-eval/.test(csp));
+    assert.match(yaml, /healthCheckPath: \/healthz/);
+    assert.match(yaml, /startCommand: npm start/);
+    assert.match(yaml, /staticPublishPath: \.\/public/);
   });
 });

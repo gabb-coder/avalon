@@ -17,7 +17,8 @@ export function loadConfig(overrides = {}) {
     host: process.env.HOST || '0.0.0.0',
     production: process.env.NODE_ENV === 'production',
     // The static site's URL(s), comma-separated. Empty = same origin only (local dev).
-    allowedOrigins: (process.env.ALLOWED_ORIGIN || '').split(',').map((s) => s.trim()).filter(Boolean),
+    // A trailing slash is dropped: a browser's Origin header never has one.
+    allowedOrigins: (process.env.ALLOWED_ORIGIN || '').split(',').map((s) => s.trim().replace(/\/+$/, '')).filter(Boolean),
     // Serve public/ from Express (local dev). On Render the Static Site serves it.
     serveClient: process.env.SERVE_CLIENT ? process.env.SERVE_CLIENT === 'true' : process.env.NODE_ENV !== 'production',
 

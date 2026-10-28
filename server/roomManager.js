@@ -235,7 +235,15 @@ export class RoomManager {
     if (!this.store.has(code) || this.connsOf(code, playerId).length > 0) return;
     this.dispatch(code, { type: 'SET_CONNECTED', playerId, connected: false, now: this.now() });
     if (!this.store.has(code)) return;
+    this.holdSeat(code, playerId);
+    this.broadcast(code);
+  }
+
+  // A player is away: keep their seat for `seatHoldMs`, and if they're the
+  // host, hand the crown on after `hostGraceMs`.
+  holdSeat(code, playerId) {
     const t = this.timersOf(code);
+    clearTimeout(t.seats.get(playerId));
     t.seats.set(playerId, this.later(this.config.seatHoldMs, () => this.seatExpired(code, playerId)));
     if (this.store.get(code).state.hostId === playerId) {
       clearTimeout(t.hostGrace);
@@ -243,7 +251,24 @@ export class RoomManager {
         if (this.dispatch(code, { type: 'HOST_AUTO' }).ok) this.broadcast(code);
       });
     }
-    this.broadcast(code);
+  }
+
+  // After a restart with a persistent store (REDIS_URL), rooms come back but
+  // no phone is connected yet, and timers didn't survive. Treat everyone as
+  // just gone: seats held, host grace, a reveal's fallback timer. Phones
+  // reconnect on their own and resume with their tokens.
+  restoreAfterRestart() {
+    for (const record of [...this.store.values()]) {
+      const code = record.code;
+      for (const p of record.state.players) {
+        if (p.connected) this.dispatch(code, { type: 'SET_CONNECTED', playerId: p.id, connected: false, now: this.now() });
+      }
+      if (!this.store.has(code)) continue;
+      for (const p of this.store.get(code).state.players) this.holdSeat(code, p.id);
+      const phase = this.store.get(code).state.phase;
+      if (phase === 'vote_reveal' || phase === 'quest_result') this.applyEffect(code, { type: 'phase', phase });
+      log.info('room.restored', { room: code, phase });
+    }
   }
 
   connsOf(code, playerId) {
