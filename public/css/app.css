@@ -227,8 +227,11 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 }
 .conn-banner[hidden] { display: none; }
 
-/* Toasts sit above the dock, whatever its height on this screen. */
+/* Toasts sit above the dock, whatever its height on this screen. While a
+   sheet or dialog is open they stay in front of it (an error from inside a
+   sheet must be seen) but move to the top, so they never cover its buttons. */
 .toast-slot { z-index: 25; }
+.phone.has-overlay .toast-slot { bottom: auto; top: calc(12px + env(safe-area-inset-top)); flex-direction: column; }
 
 /* ---------- Component typography on real <button>s ----------
    rt.css resets `.phone button { font: inherit; color: inherit; }`, and that
@@ -377,3 +380,63 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
    browser's button look, as the design's inline styles do. */
 .phone button.hhead { appearance: none; border: 0; background: transparent; cursor: pointer; font-family: var(--font-ui); font-size: 12px; font-weight: 700; color: var(--text-2); padding: 8px 0 6px; }
 .phone button.hhead.is-focus { background: rgba(214,178,94,.12); }
+
+/* ---------- Lady of the Lake (D14–D16) ---------- */
+.content.lady { gap: 8px; padding-top: 14px; }
+.content.lady.lady-watch { gap: 24px; padding-top: 0; }
+.row-lock { margin-right: 10px; }
+/* D15: the answer card. Parchment means secret; it exists only while shown. */
+.lady-slot { display: flex; justify-content: center; width: 100%; }
+.lady-slot:empty { display: none; }
+.content.lady.lady-answer { align-items: center; gap: 14px; padding-top: 16px; }
+.rcard.lady-card { height: 360px; }
+.lady-card-head { gap: 10px; margin-top: 4px; }
+.lady-card-head .ic { color: var(--good-ink); }
+.lady-card-head .rcard-intel-h { font-size: calc(13px * var(--ts)); }
+.lady-card-who { gap: 10px; }
+.lady-card-who .rcard-name { font-size: calc(34px * var(--ts)); }
+.av-parchment { background: var(--on-parchment); color: var(--parchment); }
+.lady-card-loyal { color: var(--on-parchment-2); }
+.lady-card .team-tag { font-size: calc(16px * var(--ts)); padding: 6px 16px; }
+.lady-pass { width: 100%; align-items: center; gap: 12px; }
+.lady-pass.text-left { text-align: left; }
+/* D16: holder · Lady · target */
+.lady-scene { gap: 18px; justify-content: center; }
+.lady-person { align-items: center; gap: 8px; min-width: 64px; }
+.lady-centre { position: relative; width: 112px; height: 112px; display: flex; align-items: center; justify-content: center; flex: none; }
+.lady-glow { position: absolute; inset: -14px; border-radius: 50%; background: radial-gradient(circle, rgba(111,208,218,.22), rgba(111,208,218,0) 68%); }
+.tok-88 { width: 88px; height: 88px; position: relative; }
+.tok-88 .ic { width: 48px; height: 48px; }
+.av.av-lady { box-shadow: 0 0 0 2.5px var(--good), 0 0 18px rgba(111,208,218,.4); }
+
+/* ---------- Assassination (F1–F3) ---------- */
+.phone.phone-tense { background: radial-gradient(120% 60% at 50% -10%, rgba(240,112,127,.16), rgba(240,112,127,0) 60%), var(--vignette), var(--bg); }
+.status.is-tense .status-phase { color: var(--evil); }
+.content.strike-pick { gap: 8px; padding-top: 14px; }
+.content.strike-wait { gap: 26px; }
+/* F1: the picked row turns crimson, not gold (a guess, not a team pick). */
+.prow.is-target { box-shadow: inset 0 0 0 1.5px var(--evil); background: var(--evil-wash); }
+.prow.is-target .tick { background: var(--evil-fill); color: var(--on-evil-fill); box-shadow: none; }
+.prow .chip-evil { margin-right: 8px; }
+/* F3: the dagger emblem. Reduced motion stops the pulse and keeps this static ring. */
+.strike-emblem { width: 196px; height: 196px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: none; background: radial-gradient(circle, rgba(140,29,48,.35), rgba(10,15,30,.4) 70%); box-shadow: inset 0 0 0 1.5px rgba(240,112,127,.5); }
+.strike-dagger { width: 96px; height: 96px; color: var(--evil); }
+.strike-text { gap: 8px; align-items: center; }
+.strike-chips { gap: 10px; justify-content: center; }
+/* F2: hold to strike. The fill sweeps across in 1.5s while held and resets
+   on release. It is a timer, not decoration, so reduced motion keeps it. */
+.frame-76 { width: 76px; height: 76px; }
+.strike-target { gap: 10px; justify-content: center; }
+.av.av-target { box-shadow: 0 0 0 2.5px var(--evil); }
+.btn-strike { position: relative; overflow: hidden; }
+.btn-strike > :not(.strike-fill) { position: relative; }
+.strike-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(255,233,236,.18); }
+.btn-strike.is-holding .strike-fill, .btn-strike.is-struck .strike-fill { animation: strike-fill 1500ms linear forwards; }
+.btn-strike.is-struck .strike-fill { animation-duration: 0s; }
+@keyframes strike-fill { from { width: 0; } to { width: 100%; } }
+.phone button.btn-strike[disabled] { color: var(--on-evil-fill); opacity: 1; }
+
+/* ---------- Menu: End game, and the status bar's offer after 2 minutes ---------- */
+.phone button.btn-ghost.menu-end { color: var(--evil); }
+.phone button.link-btn.status-end { color: var(--evil); margin-top: 4px; }
+.status-wait:has(.status-end) { flex-direction: column; align-items: flex-start; }

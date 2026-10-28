@@ -67,3 +67,33 @@ export function bindHold(el, { onShow, onHide }) {
     },
   };
 }
+
+// Hold to confirm (HANDOFF §5): used in one place only, the Assassin's strike,
+// because it ends the game and can't be undone. `onDone` fires after `ms` of
+// one unbroken hold. Built on bindHold, so every way of letting go (lifting
+// the finger, sliding off, switching apps, losing focus) cancels and resets.
+export function bindHoldToConfirm(el, { ms, onStart, onCancel, onDone }) {
+  let timer = null;
+  const hold = bindHold(el, {
+    onShow: () => {
+      onStart?.();
+      timer = setTimeout(() => {
+        timer = null;
+        onDone();
+      }, ms);
+    },
+    onHide: () => {
+      if (!timer) return; // already done: letting go afterwards changes nothing
+      clearTimeout(timer);
+      timer = null;
+      onCancel?.();
+    },
+  });
+  return {
+    destroy() {
+      clearTimeout(timer);
+      timer = null;
+      hold.destroy();
+    },
+  };
+}

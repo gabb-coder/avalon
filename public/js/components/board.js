@@ -157,16 +157,34 @@ export function awayInfo(view) {
 }
 
 // The chip and wait line the status bar shows while someone is offline.
-export function awayStatus(view) {
+// Once the table has waited `hostEndAfterMs` (2 minutes) on a player it
+// needs, the host also gets "End game for everyone" right there (decision 3).
+export function awayStatus(view, app) {
   const info = awayInfo(view);
   if (!info.off.length) return null;
   const g = view.game;
   const chipEl = chip(info.off.length === 1 ? t('board.offlineChip', { name: info.names[0] }) : t('board.offlineChipMany', { n: info.off.length }), { kind: 'warn', ic: 'wifioff' });
   chipEl.classList.add('chip-sm');
-  const wait = info.needed.length
+  let wait = info.needed.length
     ? t('board.waitingForAway', { names: list(info.needed.map((id) => g.names[id])), n: info.needed.length })
     : t('board.playContinues', { names: list(info.names), n: info.off.length });
+  if (app && endOfferDue(view, app) <= 0) {
+    wait = [
+      h('span', {}, wait),
+      h('button', { type: 'button', class: 'link-btn status-end', key: 'status-end', on: { click: () => app.confirmEndGame() } }, icon('cross', 'ic-16'), t('board.hostMayEnd')),
+    ];
+  }
   return { chip: chipEl, wait, needed: info.needed.length > 0 };
+}
+
+// Milliseconds until the host may end the game from the status bar (<= 0:
+// now), or Infinity when it doesn't apply (not the host, nobody needed away).
+export function endOfferDue(view, app) {
+  if (!view.game || view.hostId !== view.you || !app.hello) return Infinity;
+  const info = awayInfo(view);
+  const since = view.players.filter((p) => info.needed.includes(p.id) && p.disconnectedAt != null).map((p) => p.disconnectedAt);
+  if (!since.length) return Infinity;
+  return Math.min(...since) + app.hello.hostEndAfterMs - app.serverNow();
 }
 
 // Names of the players in `ids`, with "you" for the viewer (status lines).

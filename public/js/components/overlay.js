@@ -42,6 +42,7 @@ function open(host, build, { onClose } = {}) {
     closed = true;
     root.remove();
     if (current?.root === root) current = null;
+    if (!current) host.classList.remove('has-overlay');
     onClose?.();
     if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
   };
@@ -50,6 +51,7 @@ function open(host, build, { onClose } = {}) {
   const root = h('div', { class: 'overlay' }, scrim, dialog);
   root.addEventListener('keydown', trap(dialog, close));
   host.append(root);
+  host.classList.add('has-overlay'); // toasts move to the top, clear of the dialog's buttons
   current = { root, close, dialog };
   // Focus the first control (or the dialog itself) so screen readers land inside.
   requestAnimationFrame(() => {
@@ -77,7 +79,7 @@ export function openSheet(host, { title, subtitle, body, closeLabel, height, onC
   const close = open(
     host,
     (close) => {
-      bodyEl.append(...[].concat(typeof body === 'function' ? body(close) : body).filter(Boolean));
+      bodyEl.append(...[typeof body === 'function' ? body(close) : body].flat(Infinity).filter(Boolean));
       return h(
         'div',
         { class: ['sheet', 'anim-sheet', height && `sheet-${height}`], role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': titleId, tabindex: '-1' },

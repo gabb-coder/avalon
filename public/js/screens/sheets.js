@@ -148,7 +148,10 @@ function menuRow({ ic, title, meta, onClick }) {
   );
 }
 
-// E4 · Menu. "End game for everyone" arrives in milestone 5.
+// Mid-game means a game the host could end: not the lobby, not game over.
+const midGame = (v) => !!v.game && v.phase !== 'game_over';
+
+// E4 · Menu.
 export function openMenu(app) {
   const v = app.view;
   const isHost = v.hostId === v.you;
@@ -158,15 +161,18 @@ export function openMenu(app) {
     menuRow({ ic: 'cards', title: t('menu.roles'), meta: t('menu.rolesMeta'), onClick: () => openGlossary(app) }),
     v.game ? menuRow({ ic: 'history', title: t('menu.history'), meta: t('menu.historyMeta', { n: proposals }), onClick: () => openHistory(app) }) : null,
     ...displaySection(app),
-    isHost
+    ...(isHost
       ? [
           h('p', { class: 'eyebrow menu-eyebrow' }, t('menu.host')),
           panel(
-            button({ label: t('menu.handHost'), kind: 'ghost', md: true, ic: 'crown', extra: ['menu-action'], onClick: () => openHostPicker(app) }),
+            [
+              button({ label: t('menu.handHost'), kind: 'ghost', md: true, ic: 'crown', extra: ['menu-action'], onClick: () => openHostPicker(app) }),
+              midGame(v) ? button({ label: t('menu.endGame'), kind: 'ghost', md: true, ic: 'cross', extra: ['menu-action', 'menu-end'], onClick: () => openEndGameConfirm(app) }) : null,
+            ],
             { extra: ['menu-actions'] },
           ),
         ]
-      : null,
+      : []),
     button({
       label: t('menu.leave'),
       kind: 'danger',
@@ -177,7 +183,7 @@ export function openMenu(app) {
   ];
   openSheet(app.root, {
     title: t('menu.title'),
-    subtitle: t('menu.subtitle', { code: v.code, n: v.players.length }),
+    subtitle: t(midGame(v) ? 'menu.subtitleGame' : 'menu.subtitle', { code: v.code, n: v.players.length, q: (v.game?.questIndex ?? 0) + 1 }),
     closeLabel: t('menu.close'),
     body,
   });
@@ -394,6 +400,37 @@ export function openLeaveConfirm(app) {
     actions: (close) => [
       button({ label: t('leave.confirm'), kind: 'danger', ic: 'leave', onClick: () => { close(); closeOverlay(); app.stepAway(); } }),
       button({ label: t('leave.stay'), kind: 'ghost', onClick: close, attrs: { 'data-autofocus': '' } }),
+    ],
+  });
+}
+
+// ---------- End game for everyone (host; E4, and the status bar after 2 minutes) ----------
+// Decision 3: the host can always end a game from the Menu, with this confirm.
+// The server closes the room; everyone (the host too) lands on G3.
+
+export function openEndGameConfirm(app) {
+  const n = app.view.players.length;
+  openModal(app.root, {
+    danger: true,
+    top: h('span', { class: 'modal-icon' }, icon('cross', 'ic-28')),
+    title: t('endGame.title'),
+    text: t('endGame.text', { n }),
+    actions: (close) => [
+      button({
+        label: t('endGame.confirm'),
+        kind: 'danger',
+        ic: 'cross',
+        onClick: async () => {
+          app.endedByMe = true;
+          const ack = await app.request(C2S.GAME_END);
+          if (!ack.ok) {
+            app.endedByMe = false;
+            close();
+            toast(t(ack.code, ack.params), { kind: 'err' });
+          }
+        },
+      }),
+      button({ label: t('endGame.keep'), kind: 'ghost', onClick: close, attrs: { 'data-autofocus': '' } }),
     ],
   });
 }

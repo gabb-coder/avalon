@@ -6,7 +6,7 @@ For personal use with friends. The game title lives in one constant (`GAME_TITLE
 
 ## Status
 
-Milestones 1–4 of 7 are done: the game engine, the real-time server, and the phone screens for a whole game: home, join, lobby, roles, team building, votes, quests, history and game over. Lady of the Lake and the assassination screens come in milestone 5 (until then those two moments show a simple waiting screen). See `CLAUDE.md` → *Progress*.
+Milestones 1–5 of 7 are done: the game engine, the real-time server, and every phone screen a game needs: home, join, lobby, roles, team building, votes, quests, Lady of the Lake, the Assassin's guess, history, game over, and the Menu. Polish (motion, vibration, keeping the screen awake, tablets) comes in milestone 6, and putting it online in milestone 7. See `CLAUDE.md` → *Progress*.
 
 ## Try it
 
@@ -49,7 +49,8 @@ Then open http://localhost:3000 in your browser.
 5. With 5 players, the host taps **Start game · deal roles**. Everyone holds their card to see their role.
 
 Notes:
-- Until milestone 5 adds the Assassin's and the Lady's screens, a game stops at the Assassin's guess if Good wins three quests, and after Quest 2 if the Lady of the Lake is on. For now, play with the Lady off, and count three Good quests as a Good win.
+- The Lady of the Lake is off by default. The host turns it on in the lobby under **Roles & rules** (best with 7 or more players).
+- If a phone drops out mid-game, the game waits for it when that player is needed. After 2 minutes the host can end the game from the status bar, or at any time from the Menu.
 - Over plain `http://`, some phones can't open the share sheet, so the app copies the invite link instead.
 - If a phone can't connect, check that your computer's firewall allows Node.js on port 3000.
 

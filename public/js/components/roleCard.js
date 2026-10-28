@@ -137,3 +137,22 @@ export function peekSheet(view) {
       : null,
   );
 }
+
+// D15 · The Lady's private answer, on parchment: "Sana is loyal to Evil".
+// Team only, never role. The Lady screen inserts it only while it is shown
+// (right after looking, or while held) and removes it otherwise.
+export function ladyCard(view, result) {
+  const name = view.game.names[result.target];
+  const team = result.seenTeam;
+  const card = h(
+    'div',
+    { class: ['rcard', 'rcard-front', team, 'anim-flip', 'lady-card'], role: 'img', 'aria-label': t('lady.cardAria', { name, team: t(`team.${team}`) }) },
+    privateLabel(),
+    h('div', { class: 'row lady-card-head' }, icon('lady'), h('p', { class: 'rcard-intel-h' }, t('lady.reveals'))),
+    h('div', { class: 'row lady-card-who' }, h('span', { class: 'av av-48 av-parchment', 'aria-hidden': 'true' }, initial(name)), h('p', { class: 'rcard-name', text: name })),
+    h('p', { class: 't-body lady-card-loyal' }, t('lady.loyalTo')),
+    emblem(team),
+    teamTag(team),
+  );
+  return card;
+}

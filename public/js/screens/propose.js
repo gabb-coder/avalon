@@ -98,7 +98,7 @@ export function mount(app) {
 
   function boardStatus() {
     const game = g();
-    const away = awayStatus(v());
+    const away = awayStatus(v(), app);
     const n = game.seats.length;
     if (isLeader()) {
       return statusBar({

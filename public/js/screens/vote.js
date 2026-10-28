@@ -45,7 +45,7 @@ export function mount(app) {
     const game = g();
     const total = game.seats.length;
     const inCount = p().voted.length;
-    const away = awayStatus(v());
+    const away = awayStatus(v(), app);
     const right = away ? away.chip : h('span', { class: 't-label faint tnum' }, t('vote.inCount', { n: inCount, total }));
     const leaderName = game.names[p().leader];
     if (!locked()) {

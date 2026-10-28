@@ -11,6 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { format, setMessages, t } from '../public/js/i18n.js';
 import { ERR, ROLE_IDS, PHASES } from '../src/engine/index.js';
 import { SERVER_ERRORS } from '../shared/protocol.js';
+import { endOfferDue } from '../public/js/components/board.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -131,6 +132,47 @@ describe('shipping rules', () => {
           assert.ok(isDefinition || /onShow/.test(before), `${file} calls ${fn} outside a hold handler`);
           i = src.indexOf(fn, i + 1);
         }
+      }
+    }
+  });
+
+  test('the host is offered "End game" after 2 minutes waiting on a needed player (decision 3)', () => {
+    const MIN = 60000;
+    const now = 10 * MIN;
+    const app = { hello: { hostEndAfterMs: 2 * MIN }, serverNow: () => now };
+    const view = (over = {}) => ({
+      you: 'a',
+      hostId: 'a',
+      players: [
+        { id: 'a', connected: true, disconnectedAt: null },
+        { id: 'b', connected: false, disconnectedAt: now - 3 * MIN },
+        { id: 'c', connected: true, disconnectedAt: null },
+      ],
+      game: { seats: ['a', 'b', 'c'], waitingOn: ['b'], names: {} },
+      ...over,
+    });
+    assert.ok(endOfferDue(view(), app) <= 0, 'away 3 minutes and needed: offered now');
+    assert.equal(endOfferDue(view({ hostId: 'c' }), app), Infinity, 'only the host');
+    assert.equal(endOfferDue(view({ game: { seats: ['a', 'b', 'c'], waitingOn: ['c'], names: {} } }), app), Infinity, 'away but not needed: play continues');
+    const recent = view();
+    recent.players[1].disconnectedAt = now - 30000;
+    assert.equal(endOfferDue(recent, app), 90000, 'away 30 s: offered in 90 s');
+  });
+
+  test("the Lady's answer card is built only by the Lady screen, while shown", () => {
+    // D15's parchment card is secret. lady.js puts it on screen right after
+    // looking (`shown`) or inside a hold's onShow; no other file may build it.
+    for (const file of clientFiles()) {
+      const src = read(file);
+      let i = src.indexOf('ladyCard(');
+      while (i !== -1) {
+        const isDefinition = /export function\s*$/.test(src.slice(Math.max(0, i - 20), i));
+        if (!isDefinition) {
+          assert.ok(file.endsWith('screens/lady.js'), `${file} builds the Lady's answer`);
+          const before = src.slice(Math.max(0, i - 300), i);
+          assert.ok(/onShow|if \(shown && r\)/.test(before), `${file} builds the Lady's answer outside a shown/held branch`);
+        }
+        i = src.indexOf('ladyCard(', i + 1);
       }
     }
   });

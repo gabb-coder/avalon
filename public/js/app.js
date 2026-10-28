@@ -19,7 +19,8 @@ import * as waking from './screens/waking.js';
 import * as ended from './screens/ended.js';
 import * as lobby from './screens/lobby.js';
 import * as night from './screens/night.js';
-import * as board from './screens/board.js';
+import * as lady from './screens/lady.js';
+import * as assassin from './screens/assassin.js';
 import * as propose from './screens/propose.js';
 import * as vote from './screens/vote.js';
 import * as reveal from './screens/reveal.js';
@@ -27,12 +28,12 @@ import * as quest from './screens/quest.js';
 import * as result from './screens/result.js';
 import * as gameover from './screens/gameover.js';
 import { connectionBanner } from './screens/connection.js';
-import { ringSize, isShort } from './components/board.js';
+import { ringSize, isShort, endOfferDue } from './components/board.js';
+import { openEndGameConfirm } from './screens/sheets.js';
 
-const SCREENS = { splash, home, join, waking, ended, lobby, night, board, propose, vote, reveal, quest, result, gameover };
+const SCREENS = { splash, home, join, waking, ended, lobby, night, propose, vote, reveal, quest, result, gameover, lady, assassin };
 
-// Server phase -> screen. Lady and assassination are still the temporary
-// board until milestone 5.
+// Server phase -> screen.
 const PHASE_SCREENS = {
   lobby: 'lobby',
   night: 'night',
@@ -41,6 +42,8 @@ const PHASE_SCREENS = {
   vote_reveal: 'reveal',
   quest: 'quest',
   quest_result: 'result',
+  lady: 'lady',
+  assassination: 'assassin',
   game_over: 'gameover',
 };
 const SPLASH_MIN_MS = 900;
@@ -66,6 +69,7 @@ const app = {
   // the lobby, but this player keeps reading the game-over summary (F4, from
   // view.lastGame) until they press Play again or Leave themselves.
   holdSummary: false,
+  endedByMe: false, // this player pressed "End game for everyone" (G3 says "You ended…")
   net: null,
   listeners: new Set(), // open sheets that redraw when the view changes
   t,
@@ -91,6 +95,10 @@ const app = {
 
   update() {
     render();
+  },
+
+  confirmEndGame() {
+    openEndGameConfirm(this);
   },
 
   // Rebuild the current screen from scratch (e.g. to show a server's refusal
@@ -253,7 +261,18 @@ function onState(view) {
   if (view.phase === 'game_over') app.holdSummary = true;
   else if (view.phase !== 'lobby') app.holdSummary = false; // a new game started
   document.title = GAME_TITLE; // never encodes anything about the game
+  scheduleEndOffer();
   if (app.route === 'room') render();
+}
+
+// The host's status-bar "End game" appears 2 minutes into waiting on an
+// offline player (decision 3). No update arrives at that moment, so set a
+// timer to repaint then.
+let endOfferTimer = null;
+function scheduleEndOffer() {
+  clearTimeout(endOfferTimer);
+  const due = app.view ? endOfferDue(app.view, app) : Infinity;
+  if (due > 0 && due !== Infinity) endOfferTimer = setTimeout(render, due + 50);
 }
 
 function onNotice({ key, params }) {
@@ -283,7 +302,8 @@ function onNotice({ key, params }) {
 function onClosed({ reason, name }) {
   const code = prefs.session?.code;
   app.forgetRoom();
-  app.endedInfo = { reason, name, code };
+  app.endedInfo = { reason: reason === 'hostEnded' && app.endedByMe ? 'hostEndedYou' : reason, name, code };
+  app.endedByMe = false;
   closeOverlay();
   clearToasts();
   app.go('ended');
@@ -322,7 +342,7 @@ function currentKey() {
   const v = app.view;
   if (!v) return 'waking';
   if (v.phase === 'lobby' && app.holdSummary && v.lastGame) return 'gameover';
-  return PHASE_SCREENS[v.phase] || 'board';
+  return PHASE_SCREENS[v.phase];
 }
 
 let booted = false; // nothing renders until the strings have loaded

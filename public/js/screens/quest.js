@@ -53,7 +53,7 @@ export function mount(app) {
   function paintStatus() {
     const game = g();
     const size = qp().team.length;
-    const away = awayStatus(v());
+    const away = awayStatus(v(), app);
     const right = away ? away.chip : h('span', { class: 't-label faint tnum' }, t('quest.played', { n: qp().played.length, size }));
     const waiting = game.waitingOn.map((id) => game.names[id]);
     let main;
