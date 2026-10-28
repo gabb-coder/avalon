@@ -10,7 +10,7 @@ import { loadLocale, t } from './i18n.js';
 import { prefs } from './prefs.js';
 import { createNet, wakeServer } from './net.js';
 import { h } from './dom.js';
-import { mountToasts, toast, clearToasts } from './components/toast.js';
+import { mountToasts, toast, dismissToast, clearToasts } from './components/toast.js';
 import { closeOverlay } from './components/overlay.js';
 import * as splash from './screens/splash.js';
 import * as home from './screens/home.js';
@@ -21,17 +21,19 @@ import * as lobby from './screens/lobby.js';
 import * as night from './screens/night.js';
 import * as lady from './screens/lady.js';
 import * as assassin from './screens/assassin.js';
+import * as lost from './screens/lost.js';
 import * as propose from './screens/propose.js';
 import * as vote from './screens/vote.js';
 import * as reveal from './screens/reveal.js';
 import * as quest from './screens/quest.js';
 import * as result from './screens/result.js';
 import * as gameover from './screens/gameover.js';
-import { connectionBanner } from './screens/connection.js';
-import { ringSize, isShort, endOfferDue } from './components/board.js';
+import { connectionLayer } from './screens/connection.js';
+import { keepAwake, turnKey, buzz } from './device.js';
+import { ringSize, isShort, isTablet, endOfferDue } from './components/board.js';
 import { openEndGameConfirm } from './screens/sheets.js';
 
-const SCREENS = { splash, home, join, waking, ended, lobby, night, propose, vote, reveal, quest, result, gameover, lady, assassin };
+const SCREENS = { splash, home, join, waking, ended, lobby, night, propose, vote, reveal, quest, result, gameover, lady, assassin, lost };
 
 // Server phase -> screen.
 const PHASE_SCREENS = {
@@ -69,7 +71,9 @@ const app = {
   // the lobby, but this player keeps reading the game-over summary (F4, from
   // view.lastGame) until they press Play again or Leave themselves.
   holdSummary: false,
-  endedByMe: false, // this player pressed "End game for everyone" (G3 says "You ended…")
+  endedByMe: false,
+  offlineSince: null, // when this phone lost the room's connection (G1, then G2 after 30 s)
+  attempt: 0, // reconnect attempts since then (G1's banner) // this player pressed "End game for everyone" (G3 says "You ended…")
   net: null,
   listeners: new Set(), // open sheets that redraw when the view changes
   t,
@@ -95,6 +99,20 @@ const app = {
 
   update() {
     render();
+  },
+
+  // G2 shows once the connection has been down for `connectionLostMs`.
+  isLost() {
+    return this.offlineSince != null && Date.now() - this.offlineSince >= (this.hello?.connectionLostMs ?? 30000);
+  },
+
+  // G2 "Back to home": like Leave mid-game, but there's no connection to tell
+  // the server. The seat stays held, and Home offers "Back to room?".
+  homeKeepSeat() {
+    const s = prefs.session;
+    if (s) prefs.session = { ...s, active: false };
+    this.view = null;
+    this.go('home');
   },
 
   confirmEndGame() {
@@ -223,10 +241,20 @@ function joinErrors(ack) {
 
 // ---------- server events ----------
 
+let lostTimer = null;
+
 function onStatus(status) {
   const was = app.conn;
   app.conn = status;
+  if (status !== 'online' && app.everOnline && app.offlineSince == null) {
+    app.offlineSince = Date.now();
+    clearTimeout(lostTimer);
+    lostTimer = setTimeout(render, (app.hello?.connectionLostMs ?? 30000) + 50); // G1 -> G2
+  }
   if (status === 'online') {
+    app.offlineSince = null;
+    app.attempt = 0;
+    clearTimeout(lostTimer);
     app.everOnline = true;
     app.awake = true;
     if (app.pending) runPending();
@@ -242,6 +270,11 @@ function onStatus(status) {
     }
   }
   render();
+}
+
+function onAttempt(n) {
+  app.attempt = n;
+  connLayer?.update(app);
 }
 
 function onHello(hello) {
@@ -262,12 +295,18 @@ function onState(view) {
   else if (view.phase !== 'lobby') app.holdSummary = false; // a new game started
   document.title = GAME_TITLE; // never encodes anything about the game
   scheduleEndOffer();
+  // Buzz when a new turn of this player's starts (not on the first view after
+  // a load or reconnect: that turn may already have buzzed).
+  const turn = turnKey(view);
+  if (prev && turn && turn !== lastTurn) buzz();
+  lastTurn = turn;
   if (app.route === 'room') render();
 }
 
 // The host's status-bar "End game" appears 2 minutes into waiting on an
 // offline player (decision 3). No update arrives at that moment, so set a
 // timer to repaint then.
+let lastTurn = null;
 let endOfferTimer = null;
 function scheduleEndOffer() {
   clearTimeout(endOfferTimer);
@@ -288,10 +327,13 @@ function onNotice({ key, params }) {
     case 'notice.kicked':
       if (params.name !== myName()) toast(t('notice.kicked', params), { ic: 'kick' });
       break;
+    // The status bar keeps showing who is offline, so these are brief, and
+    // "X is back" withdraws "X lost connection".
     case 'notice.away':
-      if (inGame) toast(t('notice.away', params), { kind: 'warn', ic: 'wifioff', persist: true });
+      if (inGame) toast(t('notice.away', params), { kind: 'warn', ic: 'wifioff', id: `away:${params.name}` });
       break;
     case 'notice.back':
+      dismissToast(`away:${params.name}`);
       if (inGame) toast(t('notice.back', params), { kind: 'ok', ic: 'check' });
       break;
     default:
@@ -340,6 +382,7 @@ const screenHost = h('div', { class: 'screen' });
 function currentKey() {
   if (app.route !== 'room') return app.route;
   const v = app.view;
+  if (app.isLost()) return 'lost';
   if (!v) return 'waking';
   if (v.phase === 'lobby' && app.holdSummary && v.lastGame) return 'gameover';
   return PHASE_SCREENS[v.phase];
@@ -360,7 +403,11 @@ function render() {
   } else {
     screen.update?.(app);
   }
-  connBanner.update(app);
+  connLayer.update(app);
+  // Keep the screen on while a game is being played (released in the lobby,
+  // at game over and outside rooms).
+  const v = app.view;
+  keepAwake(app.route === 'room' && !!v?.game && v.phase !== 'game_over');
   trackDock();
   for (const fn of app.listeners) fn(app);
 }
@@ -383,6 +430,7 @@ function trackDock() {
 // Text size (100/115/130%) and Reduce motion, from the Menu or Home settings.
 export function applyDisplayPrefs() {
   root.style.setProperty('--ts', String(prefs.textScale));
+  root.classList.toggle('ts-lg', prefs.textScale >= 1.3); // a few grids go to one column (S5)
   const media = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   root.classList.toggle('reduce-motion', prefs.reduceMotion || media);
 }
@@ -397,10 +445,12 @@ function trackViewport() {
   set();
 }
 
-let connBanner;
+let connLayer;
 
 async function boot() {
   applyDisplayPrefs();
+  // Follow the phone's own Reduce motion setting if it changes mid-game.
+  window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change', applyDisplayPrefs);
   trackViewport();
   root.replaceChildren(screenHost);
   mountToasts(root);
@@ -417,18 +467,19 @@ async function boot() {
     return;
   }
   document.documentElement.lang = 'en';
-  connBanner = connectionBanner(root);
+  connLayer = connectionLayer(root, screenHost);
   booted = true;
   render();
-  // The board's ring and quest track have three sizes (S1, D1, S2). Rebuild
+  // The board's ring and quest track have three phone sizes (S1, D1, S2) and
+  // a tablet layout (S3). Rebuild
   // only when the size class changes: phones fire resize all the time
   // (address bar, keyboard), and a rebuild would interrupt a hold.
-  let sizeClass = `${ringSize(root)}:${isShort()}`;
+  let sizeClass = `${ringSize(root)}:${isShort()}:${isTablet()}`;
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      const next = `${ringSize(root)}:${isShort()}`;
+      const next = `${ringSize(root)}:${isShort()}:${isTablet()}`;
       if (next !== sizeClass && app.route === 'room') {
         sizeClass = next;
         app.remount();
@@ -436,7 +487,7 @@ async function boot() {
     }, 150);
   });
 
-  app.net = createNet({ onStatus, onHello, onState, onNotice, onClosed });
+  app.net = createNet({ onStatus, onAttempt, onHello, onState, onNotice, onClosed });
 
   // A share link (?room=KQVX) fills in the join screen.
   const linkCode = new URLSearchParams(location.search).get('room');

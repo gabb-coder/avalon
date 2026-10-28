@@ -12,6 +12,7 @@ import { format, setMessages, t } from '../public/js/i18n.js';
 import { ERR, ROLE_IDS, PHASES } from '../src/engine/index.js';
 import { SERVER_ERRORS } from '../shared/protocol.js';
 import { endOfferDue } from '../public/js/components/board.js';
+import { turnKey } from '../public/js/device.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -157,6 +158,23 @@ describe('shipping rules', () => {
     const recent = view();
     recent.players[1].disconnectedAt = now - 30000;
     assert.equal(endOfferDue(recent, app), 90000, 'away 30 s: offered in 90 s');
+  });
+
+  test('vibration: one buzz per new turn, only for turns the table can see are yours', () => {
+    const game = (over = {}) => ({ questIndex: 1, proposals: [{}, {}], proposal: { leader: 'b', voted: [] }, questPlay: null, lady: null, assassinId: null, ...over });
+    const view = (phase, g) => ({ you: 'a', phase, game: g });
+    assert.equal(turnKey(view('propose', game())), null, 'not the leader');
+    assert.ok(turnKey(view('propose', game({ proposal: { leader: 'a', voted: [] } }))), 'leader');
+    const vote = turnKey(view('vote', game()));
+    assert.ok(vote, 'everyone votes');
+    assert.equal(turnKey(view('vote', game({ proposal: { leader: 'b', voted: ['a'] } }))), null, 'already voted');
+    assert.notEqual(turnKey(view('vote', game({ proposals: [{}, {}, {}] }))), vote, 'the next vote is a new turn');
+    assert.equal(turnKey(view('quest', game({ questPlay: { team: ['b', 'c'], played: [] } }))), null, 'not on the team');
+    assert.ok(turnKey(view('quest', game({ questPlay: { team: ['a', 'c'], played: [] } }))), 'on the team');
+    assert.ok(turnKey(view('lady', game({ lady: { holder: 'a', target: null, afterQuest: 1 } }))), 'Lady holder');
+    assert.equal(turnKey(view('assassination', game({ assassinId: 'b' }))), null, 'not the Assassin');
+    assert.ok(turnKey(view('assassination', game({ assassinId: 'a' }))), 'the Assassin, who is public by then');
+    for (const phase of ['lobby', 'night', 'vote_reveal', 'quest_result', 'game_over']) assert.equal(turnKey(view(phase, game())), null, phase);
   });
 
   test("the Lady's answer card is built only by the Lady screen, while shown", () => {

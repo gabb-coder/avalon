@@ -18,12 +18,14 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 /* Until the tablet layout (S3, milestone 6), wide screens get a centred phone column. */
 @media (min-width: 600px) { .phone { max-width: 480px; box-shadow: 0 0 0 1px var(--line-quiet); } }
 @media (min-width: 414px) { .phone { --gutter: 20px; } }
-.phone .topbar { height: calc(56px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); padding-left: max(4px, env(safe-area-inset-left)); padding-right: max(4px, env(safe-area-inset-right)); }
+.phone .topbar { height: auto; min-height: calc(56px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); padding-left: max(4px, env(safe-area-inset-left)); padding-right: max(4px, env(safe-area-inset-right)); }
 .phone .dock { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
 .screen, .screen-body { display: contents; }
 /* Empty slots (no banner, no tabs for guests) must not add a gap. */
 .content > div:empty { display: none; }
 .topbar-spacer { width: 48px; flex: none; }
+/* At 130% a long room tag ("ROOM KQVX · GAME OVER") wraps; the bar grows rather than overlap. */
+.phone .topbar .room-tag { text-align: center; }
 .boot-error { padding: 40px 20px; }
 .offscreen { position: fixed; left: -9999px; top: 0; opacity: 0; }
 
@@ -219,13 +221,25 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .vm-72 { width: 72px; height: 72px; }
 .av-ring { box-shadow: 0 0 0 2.5px var(--gold); }
 
-/* G1 (first version): reconnecting banner */
+/* G1 · Reconnecting: the screen behind dims (and is inert), a banner counts
+   attempts, and "Hang tight" sits over the middle. Above sheets and toasts. */
+.conn-layer { position: absolute; inset: 0; z-index: 30; pointer-events: none; }
+.conn-layer[hidden] { display: none; }
+.phone.is-reconnecting .screen > .screen-body > *, .phone.is-reconnecting .toast-slot { opacity: .35; filter: saturate(.6); transition: opacity 160ms var(--ease-out); }
+.reduce-motion.phone.is-reconnecting .screen > .screen-body > * { transition: none; }
+.conn-modal { top: 56%; }
+.modal-icon-warn { background: rgba(242,166,90,.12); color: var(--warn); }
 .conn-banner {
-  position: absolute; left: var(--gutter); right: var(--gutter); top: calc(64px + env(safe-area-inset-top)); z-index: 15;
+  position: absolute; left: var(--gutter); right: var(--gutter); top: calc(64px + env(safe-area-inset-top)); z-index: 1;
   display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px;
   background: linear-gradient(rgba(242,166,90,.12), rgba(242,166,90,.12)), var(--surface-1); box-shadow: inset 0 0 0 1px rgba(242,166,90,.55), var(--e-2);
 }
-.conn-banner[hidden] { display: none; }
+
+/* G2 · Connection lost */
+.lost-icon { width: 132px; height: 132px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; background: rgba(242,166,90,.08); box-shadow: inset 0 0 0 1px rgba(242,166,90,.4); }
+.lost-ic { width: 64px; height: 64px; color: var(--warn); }
+.lost-text { max-width: 310px; }
+.lost-panel { gap: 12px; align-items: center; }
 
 /* Toasts sit above the dock, whatever its height on this screen. While a
    sheet or dialog is open they stay in front of it (an error from inside a
@@ -440,3 +454,34 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .phone button.btn-ghost.menu-end { color: var(--evil); }
 .phone button.link-btn.status-end { color: var(--evil); margin-top: 4px; }
 .status-wait:has(.status-end) { flex-direction: column; align-items: flex-start; }
+
+/* ---------- S3 · Tablet board (≥ 768 wide): ring + quest panel side by side,
+   vote history always open. Other screens stay a centred phone column. ---------- */
+.phone.board-tablet { max-width: 1024px; --gutter: 28px; }
+.topbar.topbar-tab { min-height: calc(72px + env(safe-area-inset-top)); padding-left: 20px; padding-right: 20px; }
+.topbar-group { gap: 8px; }
+.topbar-tab .room-tag { margin: 0; }
+.board-tablet .status-main { font-size: calc(22px * var(--ts)); }
+.content.board-tab { gap: 20px; padding-top: 20px; }
+.tab-grid { display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 24px; align-items: start; }
+.ring.ring-xl { width: 460px; height: 420px; margin: 0; }
+.ring-xl .ring-table { width: 220px; height: 220px; top: 210px; }
+.ring-xl .seat { width: 96px; }
+.ring-xl .seat-name { max-width: 96px; font-size: calc(16px * var(--ts)); }
+.ring-xl .table-size { font-size: var(--fs-d-l); }
+.tab-side { gap: 16px; }
+.tab-panel { gap: 14px; padding: 18px 16px; }
+.tab-panel .rule-flat { margin: 0; }
+.tab-info { gap: 12px; }
+.tab-history { gap: 10px; }
+.tab-history .hcol { --hg-first: 150px; --hg-cell: minmax(56px, 1fr); }
+.board-tablet .dock { padding: 16px 28px calc(28px + env(safe-area-inset-bottom)); }
+.dock-tab { justify-content: center; gap: 12px; }
+.phone button.peek.peek-tab { min-height: 56px; padding: 0 28px; width: auto; }
+
+/* ---------- S5 · 130% text ---------- */
+/* The status bar's top line wraps (S5) instead of squeezing the phase label. */
+.status-top { flex-wrap: wrap; row-gap: 4px; }
+/* Names wrap rather than ellipsize outside the ring and history header (HANDOFF §6),
+   so the two-column vote grid becomes one column at 130%. */
+.ts-lg .vote-grid { grid-template-columns: minmax(0, 1fr); }

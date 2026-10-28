@@ -108,14 +108,15 @@ public/            the client (served as a static site in production)
   js/dom.js        h() builder (textContent only), icon(), avatar(), replace() with focus restore
   js/prefs.js      localStorage (name, token, session, text size, motion, vibration), failure-safe
   js/share.js      copy code / share invite link (with an http fallback)
+  js/device.js     screen wake lock during a game; one fixed buzz when it becomes your turn
   js/components/   ui (buttons, status, chips, rows, fields, toggles, seg), hold, peek, roleCard,
                    codeInput, overlay (sheet/modal + focus trap), toast,
                    board (quest track, reject counter, seat ring in 3 sizes, game top bar, offline status),
                    history (vote grid, legend, follow-a-player), reveal (Skip + Continue dock)
   js/screens/      splash A1, home A2, join A3–A5, waking A6, lobby B1–B3+G4, night C1–C3,
                    propose D1–D4+D17, vote D5–D6, reveal D7–D8, quest D9–D11, result D12–D13,
-                   lady D14–D16, assassin F1–F3, gameover F4, ended G3, connection (G1 banner),
-                   sheets (B4, E1/E2 history, E3, E4 + End game, G5, G6)
+                   lady D14–D16, assassin F1–F3, gameover F4, ended G3, connection (G1 overlay),
+                   lost G2, sheets (B4, E1/E2 history, E3, E4 + End game, G5, G6)
 scripts/demo.js    the bot demo
 test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakSweep.js, socketClient.js are support
 ```
@@ -176,6 +177,21 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - A test checks that only `screens/lady.js` builds the card, and only in its shown or held branch.
 - **Assassination (F1–F3).** The phone turns crimson (`.phone-tense`) while this screen is mounted. The Assassin picks a non-Evil player (allies locked and marked Evil), then F2's dialog needs one unbroken 1.5 s hold (`bindHoldToConfirm` in `hold.js`, built on `bindHold`, so any way of letting go cancels; keyboard Space/Enter works too). Everyone else sees the Evil team (Oberon included) and who is choosing.
 - **Ending a game (decision 3).** The host's Menu has "End game for everyone" during a game, with a confirm. The status bar also offers it once the table has waited `hostEndAfterMs` on an offline player it needs (`endOfferDue()` in `board.js`; `app.js` sets a timer to repaint at that moment, because no update arrives then). The host's own G3 says "You ended the game".
+- **Connection (G1, G2).** `app.offlineSince` is set when a room's socket drops.
+  - **G1** (`screens/connection.js`): for the first `connectionLostMs` (30 s) the game screen dims and becomes `inert` (no taps, out of the tab order), open sheets close, a banner counts the attempts ("Attempt 2 · your seat, role and vote are held") and "Hang tight" sits over the middle.
+  - **G2** (`screens/lost.js`): after that, the "Connection lost" screen with Try again, Back to home, and the seat-hold countdown. The countdown starts when this phone lost the connection, which is no later than when the server noticed, so it can only err on the short side.
+  - The socket keeps retrying the whole time. When it gets through, the app resumes the seat and the game screen comes back by itself. "Back to home" keeps the seat (Home offers "Back to room?").
+- **Wake lock and vibration (`device.js`).** The screen wake lock is held while a game is on (not in the lobby or at game over) and taken again when the page comes back to the front. A short buzz (one fixed pattern) fires when a new turn of yours starts: leader, voter, team member, Lady holder, Assassin. These are all turns the table can already see are yours, so a buzz never carries a secret. Off via Menu → Vibrate on my turn.
+- **Tablet (S3).** At ≥ 768×700 the team-building board becomes two columns: the `xl` ring beside a panel with the quest track, rejects, leader and Lady lines, and the vote history always open underneath (follow-a-player works there too). The top bar has text buttons (Menu, Rules, Roles). Other screens, and the leader's picker, stay a centred phone column, which suits one-handed choices.
+- **Text size 130% (S5).** The status bar's top line wraps, the top bar grows instead of overlapping, and the vote-reveal grid becomes one column (`.ts-lg`), because names only ellipsize in the ring and history header (HANDOFF §6).
+- **Reduced motion** follows Menu → Reduce motion or the phone's setting, live (a media-query listener). The `.reduce-motion` mirror in app.css covers the app's own animations too. Hold to strike keeps its 1.5 s fill, because it is a timer, not decoration.
+- **Toasts with an id.** "X lost connection" is brief (the status bar already shows who is offline), and "X is back" withdraws it.
+- **Accessibility checks.** Besides the tests, each milestone's browser run audits every screen and dialog. It checks:
+  - every control has an accessible name, and radios, tabs and switches carry state;
+  - label and description ids exist, and no id is duplicated;
+  - there is no positive tabindex, and targets are at least 40 px;
+  - keyboard focus is visible;
+  - nothing sticks out sideways at 360 px with 130% text.
 - **History sheet.** It subscribes to view updates while open (`app.subscribe`), so votes appear live. Columns start with you, like the ring. Tapping a name follows that column.
 - **Session on the phone.** `prefs.token` (one per phone) and `prefs.session = { code, playerId, active }`. On load, an active session goes straight back into the room (sleeping tabs reload all the time). Leaving mid-game (G5) keeps the session inactive, so Home offers "Back to room?" after a `room:check`. A failed resume shows G3 (`gone`/`seatGone`).
 - **Waking (A6).** The page pings `/healthz` on open. Create, join or resume while the socket is down shows A6 after 600 ms, runs the task as soon as the socket connects, and offers "Try again" after 45 s.
@@ -259,7 +275,16 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - [x] **Milestone 3: design foundation, home, join, lobby, role reveal.** rt.css shipped as-is, app.css, en.json, components (buttons, inputs, code input, player rows, chips, status bar, role card, hold-to-reveal, peek, sheet, modal, toast), screens A1–A6, B1–B4, C1–C3, plus G3, G4, G5, G6, a first G1 banner, E3 and part of E4. Checked in Chromium against the design files.
 - [x] **Milestone 4: core game loop.** Board with ring (3 sizes), quest track and reject counter (D1, D4, D17, S1, S2), leader picker with live picks (D2, D3), vote with two-step lock (D5, D6), staggered vote reveal with Skip (D7, D8), quest cards for Good/Evil/not-on-team (D9–D11), coin-flip quest result with the Q4 rule (D12, D13), live history sheet with follow-a-player (E1, E2), game over with roles and all votes, Play again and Leave (F4). Checked in Chromium with full 7-player games at 390×844 and 360×740.
 - [x] **Milestone 5: assassination, Lady, Menu.** Lady of the Lake for holder and watchers (D14–D16), with the answer hidden on app switch and kept in Peek; assassination pick, hold-to-strike and the tense wait with Evil revealed (F1–F3); the full Menu with "End game for everyone" and its confirm, plus the host's status-bar offer after 2 minutes (E4, decision 3). Play again (F4) and How to play (E3) were already built in M4 and M3. Checked in Chromium with 7 browser phones at 390×844 and 360×740.
-- [ ] Milestone 6: polish and system states.
+- [x] **Milestone 6: polish and system states.**
+  - The full G1 overlay and G2 with its seat countdown; G3–G6 were already built in M3/M5.
+  - Wake lock, and vibrate on your turn.
+  - Reduced motion follows the phone's setting live.
+  - The S3 tablet board; S5 fixes at 130% text; S1/S2 rechecked.
+  - Accessibility audit of every screen and dialog.
+  - Checked in Chromium:
+    - G1/G2 through a relay that cuts the connection;
+    - wake lock and vibration with recorded calls;
+    - full games at 390×844, 360×740 with 130% text, and 834×1194.
 - [ ] Milestone 7: deploy.
 
 ### Additions to the design (screens or states the bundle didn't have)
@@ -303,10 +328,14 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - Your column comes first (like the ring).
   - A quest header for a quest still under way.
 - **Game-over reasons** for all four endings (F4 shows only the assassination miss).
-- **G1, first version.** A "Reconnecting… Your seat, role and vote are held." banner. The full G1 overlay and G2 come in milestone 6.
+- **G1 attempt count** and **G2 after the hold runs out:** "Your seat may have been given up. Try again to find out."
+- **Tablet info lines** (S3 shows two examples): "You lead · next: Jude", "Kofi holds the Lady · use after Quest 3" (the "use after" part is left out after Quest 4).
 
 ### Deviations from the design (and why)
 
 - **Button typography.** rt.css's `.phone button { font: inherit; color: inherit; }` outranks single-class rules like `.btn-primary`. The design's screens mostly use `<a class="btn">`, but the build uses real `<button>`s (accessibility rule). app.css restores each component's own type and colour for buttons, exactly as rt.css defines them; otherwise primary buttons would show light text on gold and fail contrast. rt.css itself is untouched.
 - **Lobby back button** leaves right away. The design links it to G5, whose copy is about mid-game ("The table can't finish without you"); in the lobby leaving costs nothing, and the code lets you back in. G5 is used mid-game (Menu → Leave game).
 - **Copy.** "him" becomes "them" for arbitrary players (decision 11), e.g. Morgana's ability "pull them off course".
+- **G1 dims the whole screen, dock included.** The design keeps the dock bright with a disabled "Vote · Waiting for connection" button. Here the whole screen is `inert` and dimmed, which disables every button in every phase in one place; the banner and "Hang tight" say why.
+- **Tablet layout only for team building.** S3 is the only tablet artboard. Votes, quests, reveals and the rest keep the phone column, centred.
+- **Chinese (S4)** is not built: the milestones above don't include it. Every string already goes through `t()` and en.json, so it is a matter of adding `zh-Hans.json`, a language switch and the CJK type rules from HANDOFF §6.

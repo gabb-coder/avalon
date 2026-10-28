@@ -16,11 +16,17 @@ const RINGS = {
   sm: { w: 320, h: 254, cx: 160, cy: 124, rx: 124, ry: 98, seat: 68, av: null, table: 124 },
   md: { w: 340, h: 300, cx: 170, cy: 146, rx: 132, ry: 120, seat: 76, av: 48, table: 160 },
   lg: { w: 390, h: 360, cx: 195, cy: 176, rx: 152, ry: 140, seat: 84, av: 48, table: 184 },
+  xl: { w: 460, h: 420, cx: 230, cy: 210, rx: 178, ry: 164, seat: 96, av: 56, table: 220 }, // S3 tablet
 };
 
 // "Short screens < 780px tall: .qtrack.compact, Peek joins primary row" (HANDOFF §2).
 export function isShort() {
   return window.innerHeight < 780;
+}
+
+// S3: tablets (≥ 768 wide) get the two-column board with history always open.
+export function isTablet() {
+  return window.innerWidth >= 768 && window.innerHeight >= 700;
 }
 
 export function ringSize(root) {

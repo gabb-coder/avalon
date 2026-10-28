@@ -19,6 +19,7 @@ export function createNet(handlers) {
   socket.on('connect', () => handlers.onStatus('online'));
   socket.on('disconnect', () => handlers.onStatus('offline'));
   socket.on('connect_error', () => handlers.onStatus('offline'));
+  socket.io.on('reconnect_attempt', (n) => handlers.onAttempt?.(n));
   socket.on(S2C.HELLO, handlers.onHello);
   socket.on(S2C.STATE, handlers.onState);
   socket.on(S2C.NOTICE, handlers.onNotice);

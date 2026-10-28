@@ -6,7 +6,7 @@ For personal use with friends. The game title lives in one constant (`GAME_TITLE
 
 ## Status
 
-Milestones 1–5 of 7 are done: the game engine, the real-time server, and every phone screen a game needs: home, join, lobby, roles, team building, votes, quests, Lady of the Lake, the Assassin's guess, history, game over, and the Menu. Polish (motion, vibration, keeping the screen awake, tablets) comes in milestone 6, and putting it online in milestone 7. See `CLAUDE.md` → *Progress*.
+Milestones 1–6 of 7 are done: the game engine, the real-time server, and every screen a game needs, on phones and tablets: home, join, lobby, roles, team building, votes, quests, Lady of the Lake, the Assassin's guess, history, game over, the Menu, and the reconnecting and connection-lost screens. The screen stays on during a game, and your phone buzzes when it's your turn. Putting it online comes in milestone 7. See `CLAUDE.md` → *Progress*.
 
 ## Try it
 
@@ -53,6 +53,8 @@ Notes:
 - If a phone drops out mid-game, the game waits for it when that player is needed. After 2 minutes the host can end the game from the status bar, or at any time from the Menu.
 - Over plain `http://`, some phones can't open the share sheet, so the app copies the invite link instead.
 - If a phone can't connect, check that your computer's firewall allows Node.js on port 3000.
+- Keeping the screen awake only works over `https://`, so phones will still dim and lock during Wi-Fi testing. It works once the game is online (milestone 7).
+- "Vibrate on my turn" works on Android phones. iPhones don't allow websites to vibrate, so there it does nothing.
 
 ## Docs
 

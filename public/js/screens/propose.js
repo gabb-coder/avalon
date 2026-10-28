@@ -4,6 +4,7 @@
 //   D4 · Watching the leader's picks appear live on the ring
 //   D17 · Mid-game, someone offline: the status bar names them
 //   S1 · Short screens: compact track, smaller ring, Peek joins the dock row
+//   S3 · Tablets: ring and quest panel side by side, vote history always open
 
 import { C2S } from '../../shared/protocol.js';
 import { h, icon, avatar, replace } from '../dom.js';
@@ -11,8 +12,9 @@ import { t, list } from '../i18n.js';
 import { toast } from '../components/toast.js';
 import { peekButton } from '../components/peek.js';
 import { button, blockedButton, iconButton, note, roomTag, statusBar, topbar } from '../components/ui.js';
-import { trackPanel, seatRing, gameTopbar, awayStatus, isShort, ringSize } from '../components/board.js';
-import { openMenu, openHistory } from './sheets.js';
+import { trackPanel, seatRing, gameTopbar, awayStatus, isShort, isTablet, ringSize, questTrack, rejectCounter } from '../components/board.js';
+import { historyGrid, historyLegend, focusSummary } from '../components/history.js';
+import { openMenu, openHistory, openHowTo, openGlossary } from './sheets.js';
 
 const SELECT_DEBOUNCE_MS = 150;
 
@@ -23,6 +25,7 @@ export function mount(app) {
   let selectTimer = null;
   let peek = null;
   let dockKey = null; // the dock is rebuilt only when its shape changes, so a held Peek isn't cut off
+  let focus = null; // S3: the history column being followed
 
   const bar = h('div', { class: 'topbar-slot' });
   const status = h('div', { class: 'status-slot' });
@@ -147,6 +150,91 @@ export function mount(app) {
     return [peek.el, note(t('board.nothingToTap', { name: leaderName }), { ic: 'users', extra: ['note-box'] })];
   }
 
+  // ---------- tablet (S3) ----------
+
+  function tabletTopbar() {
+    return h(
+      'div',
+      { class: 'topbar topbar-tab' },
+      h(
+        'div',
+        { class: 'row topbar-group' },
+        button({ label: t('tab.menu'), kind: 'ghost', md: true, block: false, ic: 'menu', onClick: openMenuSheet }),
+        button({ label: t('tab.rules'), kind: 'ghost', md: true, block: false, ic: 'book', onClick: () => openHowTo(app) }),
+      ),
+      h('div', { class: 'row topbar-group' }, icon('logo', 'gold', 'ic-28'), roomTag(v().code)),
+      button({ label: t('tab.roles'), kind: 'ghost', md: true, block: false, ic: 'cards', onClick: () => openGlossary(app) }),
+    );
+  }
+
+  // "Sana leads · next: Jude" and "You hold the Lady · use after Quest 3".
+  function tabletInfo() {
+    const game = g();
+    const nameOf = (id, cap) => (id === v().you ? t(cap ? 'board.youCap' : 'board.you') : game.names[id]);
+    const leader = game.proposal.leader;
+    const next = game.seats[(game.seats.indexOf(leader) + 1) % game.seats.length];
+    const rows = [
+      h('div', { class: 'row tab-info' }, h('span', { class: 'tok tok-leader' }, icon('standard')), h('p', { class: 't-body grow' }, h('b', { text: nameOf(leader, true) }), ' ', t(leader === v().you ? 'tab.youLead' : 'tab.leads', { next: nameOf(next) }))),
+    ];
+    if (game.lady) {
+      const holder = game.lady.holder;
+      const use = Math.max(game.questIndex, 1); // the Lady is used after Quests 2, 3 and 4
+      rows.push(
+        h(
+          'div',
+          { class: 'row tab-info' },
+          h('span', { class: 'tok tok-lady' }, icon('lady')),
+          h('p', { class: 't-body grow' }, h('b', { text: nameOf(holder, true) }), ' ', t(holder === v().you ? 'tab.youHoldLady' : 'tab.holdsLady'), use <= 3 ? t('tab.ladyUse', { q: use + 1 }) : ''),
+        ),
+      );
+    }
+    return h('div', { class: 'panel col tab-panel' }, rows);
+  }
+
+  function tabletHistory() {
+    const game = g();
+    const body = game.proposals.length
+      ? [historyGrid(game, { you: v().you, focus, onFocus: (id) => { focus = id; paint(); } }), historyLegend(), focus ? focusSummary(game, focus) : null]
+      : [h('p', { class: 't-body muted' }, t('history.empty'))];
+    return h(
+      'section',
+      { class: 'col tab-history', 'aria-labelledby': 'tab-history-t' },
+      h('div', { class: 'row between' }, h('h2', { class: 't-title', id: 'tab-history-t' }, t('history.title')), h('span', { class: 't-label muted' }, t('tab.alwaysOpen'))),
+      body,
+    );
+  }
+
+  function paintTablet() {
+    const team = isLeader() ? order : g().proposal.picks;
+    replace(bar, tabletTopbar());
+    replace(status, boardStatus());
+    replace(
+      content,
+      h(
+        'div',
+        { class: 'tab-grid' },
+        seatRing(app, { team, center: tableCenter(), size: 'xl' }),
+        h(
+          'div',
+          { class: 'col tab-side' },
+          h('div', { class: 'panel col tab-panel' }, h('p', { class: 'eyebrow eyebrow-12' }, t('board.quests')), questTrack(g(), { compact: false, phase: v().phase }), h('hr', { class: 'rule rule-flat' }), rejectCounter(g().rejects)),
+          tabletInfo(),
+        ),
+      ),
+      tabletHistory(),
+    );
+    const key = ['tab', isLeader(), size()].join('|');
+    if (key !== dockKey) {
+      dockKey = key;
+      peek?.destroy();
+      peek = peekButton(app, { extra: ['peek-tab'] });
+      replace(
+        dock,
+        h('div', { class: 'row dock-tab' }, peek.el, isLeader() ? button({ label: t('board.choose', { n: size() }), ic: 'standard', block: false, key: 'choose', onClick: () => { picking = true; paint(); } }) : null),
+      );
+    }
+  }
+
   // ---------- leader's list (D2, D3) ----------
 
   function pickStatus() {
@@ -210,6 +298,11 @@ export function mount(app) {
   function paint() {
     syncPicks();
     const showList = picking && isLeader();
+    const tablet = isTablet() && !showList;
+    // The tablet board uses the full width; everything else stays a phone column.
+    app.root.classList.toggle('board-tablet', tablet);
+    content.classList.toggle('board-tab', tablet);
+    if (tablet) return paintTablet();
     replace(
       bar,
       showList
@@ -245,6 +338,7 @@ export function mount(app) {
     destroy: () => {
       clearTimeout(selectTimer);
       peek?.destroy();
+      app.root.classList.remove('board-tablet');
     },
   };
 }
