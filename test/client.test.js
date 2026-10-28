@@ -60,6 +60,7 @@ describe('strings', () => {
     ...['percival', 'morgana', 'mordred', 'oberon', 'lady'].map((k) => `lobby.desc.${k}`),
     ...['percivalMaybe', 'percivalSure', 'oberonHidden', 'minion', 'assassin', 'morgana', 'morganaNoPercival', 'mordred', 'oberon', 'servant'].map((k) => `intel.note.${k}`),
     ...['left', 'away', 'handed'].map((r) => `host.reason.${r}`),
+    ...['assassinMiss', 'assassinHit', 'threeFails', 'fiveRejects'].map((r) => `over.reason.${r}`),
     // Every error code the engine or server can send back.
     ...Object.values(ERR),
     ...Object.values(SERVER_ERRORS),

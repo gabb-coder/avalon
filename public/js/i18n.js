@@ -118,7 +118,9 @@ function render(parts, params, lang, hashValue) {
 // Join names as "Kofi", "Kofi and Mei", "Kofi, Mei and Jude" (localised).
 export function list(names) {
   if (typeof Intl.ListFormat === 'function') {
-    return new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(names);
+    // British English, like the design's copy: "Kofi, Mei and Jude" (no Oxford comma).
+    const lang = locale === 'en' ? 'en-GB' : locale;
+    return new Intl.ListFormat(lang, { style: 'long', type: 'conjunction' }).format(names);
   }
   return names.join(', ');
 }

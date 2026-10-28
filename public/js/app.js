@@ -20,9 +20,29 @@ import * as ended from './screens/ended.js';
 import * as lobby from './screens/lobby.js';
 import * as night from './screens/night.js';
 import * as board from './screens/board.js';
+import * as propose from './screens/propose.js';
+import * as vote from './screens/vote.js';
+import * as reveal from './screens/reveal.js';
+import * as quest from './screens/quest.js';
+import * as result from './screens/result.js';
+import * as gameover from './screens/gameover.js';
 import { connectionBanner } from './screens/connection.js';
+import { ringSize, isShort } from './components/board.js';
 
-const SCREENS = { splash, home, join, waking, ended, lobby, night, board };
+const SCREENS = { splash, home, join, waking, ended, lobby, night, board, propose, vote, reveal, quest, result, gameover };
+
+// Server phase -> screen. Lady and assassination are still the temporary
+// board until milestone 5.
+const PHASE_SCREENS = {
+  lobby: 'lobby',
+  night: 'night',
+  propose: 'propose',
+  vote: 'vote',
+  vote_reveal: 'reveal',
+  quest: 'quest',
+  quest_result: 'result',
+  game_over: 'gameover',
+};
 const SPLASH_MIN_MS = 900;
 const WAKING_DELAY_MS = 600; // a fast server never flashes the waking screen
 
@@ -42,7 +62,12 @@ const app = {
   joinForm: { code: '', name: prefs.name, errors: {}, started: false },
   endedInfo: null, // { reason, name, code }
   hostBanner: null, // { prev, reason }: G4 "You're the host now"
+  // Decision 4: when someone else presses Play again, the room goes back to
+  // the lobby, but this player keeps reading the game-over summary (F4, from
+  // view.lastGame) until they press Play again or Leave themselves.
+  holdSummary: false,
   net: null,
+  listeners: new Set(), // open sheets that redraw when the view changes
   t,
 
   get session() {
@@ -134,6 +159,13 @@ const app = {
     prefs.session = null;
     this.view = null;
     this.hostBanner = null;
+    this.holdSummary = false;
+  },
+
+  // Sheets that show live data (History) subscribe while they're open.
+  subscribe(fn) {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
   },
 };
 
@@ -218,6 +250,8 @@ function onState(view) {
     app.hostBanner = { prev: prevHost ? prevHost.name : '', reason: app.lastHostReason || 'left' };
   }
   if (view.hostId !== view.you) app.hostBanner = null;
+  if (view.phase === 'game_over') app.holdSummary = true;
+  else if (view.phase !== 'lobby') app.holdSummary = false; // a new game started
   document.title = GAME_TITLE; // never encodes anything about the game
   if (app.route === 'room') render();
 }
@@ -287,9 +321,8 @@ function currentKey() {
   if (app.route !== 'room') return app.route;
   const v = app.view;
   if (!v) return 'waking';
-  if (v.phase === 'lobby') return 'lobby';
-  if (v.phase === 'night') return 'night';
-  return 'board';
+  if (v.phase === 'lobby' && app.holdSummary && v.lastGame) return 'gameover';
+  return PHASE_SCREENS[v.phase] || 'board';
 }
 
 let booted = false; // nothing renders until the strings have loaded
@@ -309,6 +342,7 @@ function render() {
   }
   connBanner.update(app);
   trackDock();
+  for (const fn of app.listeners) fn(app);
 }
 
 // Keep --dock-h (toasts and Peek sit just above the dock) in step with the dock.
@@ -366,6 +400,21 @@ async function boot() {
   connBanner = connectionBanner(root);
   booted = true;
   render();
+  // The board's ring and quest track have three sizes (S1, D1, S2). Rebuild
+  // only when the size class changes: phones fire resize all the time
+  // (address bar, keyboard), and a rebuild would interrupt a hold.
+  let sizeClass = `${ringSize(root)}:${isShort()}`;
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const next = `${ringSize(root)}:${isShort()}`;
+      if (next !== sizeClass && app.route === 'room') {
+        sizeClass = next;
+        app.remount();
+      }
+    }, 150);
+  });
 
   app.net = createNet({ onStatus, onHello, onState, onNotice, onClosed });
 

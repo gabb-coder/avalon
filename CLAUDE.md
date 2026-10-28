@@ -109,9 +109,13 @@ public/            the client (served as a static site in production)
   js/prefs.js      localStorage (name, token, session, text size, motion, vibration), failure-safe
   js/share.js      copy code / share invite link (with an http fallback)
   js/components/   ui (buttons, status, chips, rows, fields, toggles, seg), hold, peek, roleCard,
-                   codeInput, overlay (sheet/modal + focus trap), toast
+                   codeInput, overlay (sheet/modal + focus trap), toast,
+                   board (quest track, reject counter, seat ring in 3 sizes, game top bar, offline status),
+                   history (vote grid, legend, follow-a-player), reveal (Skip + Continue dock)
   js/screens/      splash A1, home A2, join A3–A5, waking A6, lobby B1–B3+G4, night C1–C3,
-                   ended G3, connection (G1 banner), board (placeholder until M4), sheets (B4, E3, E4, G5, G6)
+                   propose D1–D4+D17, vote D5–D6, reveal D7–D8, quest D9–D11, result D12–D13,
+                   gameover F4, ended G3, connection (G1 banner), board (placeholder for Lady and
+                   assassination until M5), sheets (B4, E1/E2 history, E3, E4, G5, G6)
 scripts/demo.js    the bot demo
 test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakSweep.js, socketClient.js are support
 ```
@@ -147,13 +151,25 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - Cross-origin sockets are refused unless the origin is in `ALLOWED_ORIGIN`. This is checked on the WebSocket upgrade too, because CORS doesn't cover WebSockets.
   - Logs carry room codes and event names only: no names, tokens, roles or votes.
 - **Storage.** `MemoryRoomStore` keeps plain-JSON records: engine state, hashed tokens, block list, last activity. Timers and sockets are never stored. A Redis store would keep the same synchronous interface (in-memory reads, write-through, `loadAll()` at boot).
-- **Client rendering.** No framework. `app.js` picks a screen key (`splash`, `home`, `join`, `waking`, `ended`, or, in a room, from the server phase: `lobby`, `night`, `board`). Each screen module exports `mount(app) → { el, update(), destroy() }`. A new key mounts a fresh screen; otherwise `update()` repaints its dynamic regions with `replace()`, which keeps keyboard focus on the element with the same `data-key`. Sheets and modals mount on top (one at a time, focus trapped). Toasts sit above the dock (`--dock-h` follows the dock's real height).
+- **Client rendering.** No framework. `app.js` picks a screen key (`splash`, `home`, `join`, `waking`, `ended`, or, in a room, from the server phase via `PHASE_SCREENS`: `lobby`, `night`, `propose`, `vote`, `reveal`, `quest`, `result`, `gameover`; `board` is the placeholder for Lady and assassination). Each screen module exports `mount(app) → { el, update(), destroy() }`. A new key mounts a fresh screen; otherwise `update()` repaints its dynamic regions with `replace()`, which keeps keyboard focus on the element with the same `data-key`. Sheets and modals mount on top (one at a time, focus trapped). Toasts sit above the dock (`--dock-h` follows the dock's real height).
 - **Client privacy.**
   - Role and night info exist in JS memory only, as the latest view.
   - The DOM gets the card front (`roleFront`) or Peek sheet (`peekSheet`) only inside a hold's `onShow`, and they are removed in `onHide`. Hold hides on pointerup, cancel, leave, lost capture, blur, window blur and visibilitychange.
   - The card's aria-label names the role only while held.
   - `document.title` is always just the game title.
   - Tests check that `roleFront`/`peekSheet` are only called from hold handlers. A browser check confirmed the front is absent from the DOM after release.
+- **Game screens.**
+  - Each phase screen repaints its status and content on every update. The dock is rebuilt only when its shape changes, so a held Peek is never cut off by a live update (picks, votes coming in).
+  - Screens that send a final action (vote, quest card) check they're still mounted before repainting, because the last vote or card moves the phase on before the ack returns.
+  - Reveal screens build their animated content once and only refresh the Continue dock.
+- **Board geometry.** The ring has three sizes, from the design:
+  - `sm`: S1 and any screen under 780 px tall, or narrower than 380 px.
+  - `md`: D1.
+  - `lg`: S2, at least 430×900.
+  
+  Seats go clockwise from you at the bottom (D1 maths), so the leader token moves to the next seat each proposal. Short screens also get `.qtrack.compact` and Peek in the dock row. The board rebuilds only when its size class changes, not on every resize (phones resize constantly).
+- **Play again (decision 4) on the client.** `app.holdSummary` is set when the view shows `game_over`. If the room goes back to the lobby before this player presses Play again, F4 keeps rendering from `view.lastGame`. It clears on their own Play again or Leave, or when a new game starts.
+- **History sheet.** It subscribes to view updates while open (`app.subscribe`), so votes appear live. Columns start with you, like the ring. Tapping a name follows that column.
 - **Session on the phone.** `prefs.token` (one per phone) and `prefs.session = { code, playerId, active }`. On load, an active session goes straight back into the room (sleeping tabs reload all the time). Leaving mid-game (G5) keeps the session inactive, so Home offers "Back to room?" after a `room:check`. A failed resume shows G3 (`gone`/`seatGone`).
 - **Waking (A6).** The page pings `/healthz` on open. Create, join or resume while the socket is down shows A6 after 600 ms, runs the task as soon as the socket connects, and offers "Try again" after 45 s.
 - **Strings.** Every string goes through `t()`. A test scans the client for `t('…')` keys and checks them, plus every runtime-built key and every server error code, against en.json.
@@ -234,7 +250,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - [x] **Milestone 1: engine and tests.** rules, roles, night info, state machine, viewFor, leak tests, simulation.
 - [x] **Milestone 2: server and rooms.** Express + Socket.IO, protocol, create/join/check/resume, tokens, reconnect, host transfer, kick + block, timers, rate limit, payload cap, origin check, /healthz, socket integration tests, bot demo.
 - [x] **Milestone 3: design foundation, home, join, lobby, role reveal.** rt.css shipped as-is, app.css, en.json, components (buttons, inputs, code input, player rows, chips, status bar, role card, hold-to-reveal, peek, sheet, modal, toast), screens A1–A6, B1–B4, C1–C3, plus G3, G4, G5, G6, a first G1 banner, E3 and part of E4. Checked in Chromium against the design files.
-- [ ] Milestone 4: core game loop.
+- [x] **Milestone 4: core game loop.** Board with ring (3 sizes), quest track and reject counter (D1, D4, D17, S1, S2), leader picker with live picks (D2, D3), vote with two-step lock (D5, D6), staggered vote reveal with Skip (D7, D8), quest cards for Good/Evil/not-on-team (D9–D11), coin-flip quest result with the Q4 rule (D12, D13), live history sheet with follow-a-player (E1, E2), game over with roles and all votes, Play again and Leave (F4). Checked in Chromium with full 7-player games at 390×844 and 360×740.
 - [ ] Milestone 5: assassination, Lady, Play again, Menu, How to play.
 - [ ] Milestone 6: polish and system states.
 - [ ] Milestone 7: deploy.
@@ -260,7 +276,22 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - Morgana without Percival: "Percival isn't in this game…".
   - Any Evil player, when Oberon is in the game: "Oberon is in this game, but hidden from you."
 - **Lady results in Peek.** "The Lady showed you: Sana · Evil" (HANDOFF §9: the Lady result is kept in Peek).
-- **Temporary board** for phases after the night: the status bar names the phase and who we wait on, plus Peek. It is replaced in milestone 4.
+- **Temporary board** for the Lady and assassination phases: the status bar names the phase and who we wait on, plus Peek. It is replaced in milestone 5.
+- **Reveals after Continue.** Decision 1 needs this state: "Waiting for N more players to finish reading" with dots, in the dock.
+- **Endings from a reveal.**
+  - After a 5th rejection: the status bar turns tense, says "Five teams in a row were rejected. Evil wins.", and the button reads "See how it ended".
+  - After a third failed quest, the result screen's button also reads "See how it ended".
+- **Vote, last chance.** At 4 rejections the Reject explanation reads: "this would be the 5th rejected team in a row, and Evil wins."
+- **Leader picker.** For teams of 4–5, the button says "Send these N knights to the vote", since naming everyone would overflow.
+- **Table centre (third line).**
+  - Before the first result: "1 Fail sinks it".
+  - On a two-fail quest: "Needs 2 Fails to sink".
+  - Otherwise, once results exist, the score: "Good 1 · Evil 1" (D17).
+- **History.**
+  - An empty state: "No votes yet…".
+  - Your column comes first (like the ring).
+  - A quest header for a quest still under way.
+- **Game-over reasons** for all four endings (F4 shows only the assassination miss).
 - **G1, first version.** A "Reconnecting… Your seat, role and vote are held." banner. The full G1 overlay and G2 come in milestone 6.
 
 ### Deviations from the design (and why)

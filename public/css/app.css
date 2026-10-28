@@ -261,3 +261,119 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .phone button.toast-action { font-size: var(--fs-body); font-weight: 700; color: var(--gold-hi); }
 .phone button.prow { font-size: var(--fs-body-l); color: var(--text-1); }
 .peek, .hold-card { -webkit-touch-callout: none; }
+
+/* =========================================================
+   Milestone 4: the board and the game loop (D1–D17, E1–E2, F4, S1–S2)
+   ========================================================= */
+.topbar-slot, .topbar-right { flex: none; }
+.eyebrow-12 { font-size: 12px; }
+.text-1 { color: var(--text-1); }
+.warn { color: var(--warn); }
+.ml-auto { margin-left: auto; }
+.lh-1 { line-height: 1; }
+.chip-sm { min-height: 24px; }
+.status-gap { margin-top: 10px; }
+.modal-icon-52 { width: 52px; height: 52px; flex: none; }
+.frame-56 { width: 56px; height: 56px; }
+.note-box { min-height: 56px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--line-quiet); }
+.btn-pill { border-radius: var(--r-pill); }
+.btn-ring { box-shadow: inset 0 0 0 1px var(--line-quiet); }
+.dock-pair { gap: 10px; }
+.peek-short { min-height: 56px; padding: 0 14px; }
+.phone button.btn-skip { color: var(--gold-hi); min-height: 48px; padding: 0 12px; }
+
+/* Board (D1, D4, D17) */
+.board { gap: 12px; padding-top: 12px; }
+.board.pick { gap: 10px; padding-top: 14px; }
+.track-panel { display: flex; flex-direction: column; gap: 12px; padding: 14px 12px; }
+.track-panel-sm { gap: 10px; padding: 12px 10px; }
+.rule-flat { margin: 0; }
+.rejects-warn { white-space: nowrap; }
+.table-stack { margin: 4px 0; }
+.table-size { line-height: 1; }
+.table-line { line-height: 1.2; }
+.av-empty { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(214,178,94,.6); color: var(--gold); }
+
+/* Ring sizes: S1 (short screens) and S2 (430 × 932); D1 is rt.css's default. */
+.ring-sm { width: 320px; height: 254px; }
+.ring-sm .ring-table { width: 124px; height: 124px; top: 124px; padding: 12px; }
+.ring-sm .seat { width: 68px; }
+.ring-sm .seat-name { max-width: 68px; }
+.ring-sm .table-size { font-size: calc(22px * var(--ts)); }
+.ring-lg { width: 390px; height: 360px; }
+.ring-lg .ring-table { width: 184px; height: 184px; top: 176px; }
+.ring-lg .seat { width: 84px; }
+.ring-lg .seat-name { max-width: 84px; }
+
+/* D3: the pick that made the team one too many */
+.prow.is-over { box-shadow: inset 0 0 0 1.5px var(--warn); background: rgba(242,166,90,.10); }
+.prow.is-over .prow-meta { color: var(--warn); }
+.prow.is-selected.is-over .tick { background: var(--warn); }
+
+/* Vote (D5, D6) */
+.vote-content { gap: 12px; padding-top: 14px; }
+.dock-vote { gap: 12px; }
+.vote-team { gap: 18px; }
+.vote-member { gap: 10px; }
+.vote-explain { gap: 8px; }
+.vote-explain .row { gap: 10px; }
+.approve-ink { color: var(--approve); }
+.reject-ink { color: var(--reject); }
+.locked-panel { gap: 14px; padding: 18px 16px; }
+
+/* Vote reveal (D7, D8) */
+.reveal { gap: 14px; padding-top: 14px; }
+.banner-row { flex-direction: row; justify-content: center; gap: 14px; padding: 16px; }
+.banner-approve { background: radial-gradient(circle at 50% 0%, rgba(226,196,110,.25), rgba(26,36,64,.85) 70%); box-shadow: inset 0 0 0 1.5px rgba(226,196,110,.6); }
+.banner-reject { background: radial-gradient(circle at 50% 0%, rgba(169,177,209,.18), rgba(26,36,64,.85) 70%); box-shadow: inset 0 0 0 1.5px rgba(169,177,209,.6); }
+.vm-44 { width: 44px; height: 44px; }
+.vm-44 .ic { width: 26px; height: 26px; }
+.vm-20 { width: 20px; height: 20px; }
+.vm-20 .ic { width: 12px; height: 12px; }
+.vote-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.wcell.on-team-ring { box-shadow: inset 0 0 0 1.5px var(--gold); }
+.team-swatch { width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px var(--gold); display: inline-block; }
+.reject-panel { gap: 10px; box-shadow: inset 0 0 0 1px rgba(242,194,90,.35); }
+.stamp-late { animation-delay: 1.1s; }
+
+/* Quest (D9, D10, D11) */
+.quest { gap: 12px; padding-top: 14px; justify-content: flex-end; }
+.quest.quest-away { align-items: center; justify-content: center; gap: 22px; text-align: center; padding-top: 8px; }
+.evil-panel { gap: 12px; box-shadow: inset 0 0 0 1px rgba(240,112,127,.35); }
+.quest-emblem { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; flex: none; }
+.quest-glow { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(214,178,94,.18), rgba(214,178,94,0) 68%); }
+.quest-ring { width: 150px; height: 150px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(214,178,94,.55), inset 0 0 0 10px rgba(10,15,30,.6), inset 0 0 0 11px rgba(214,178,94,.2); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2px; position: relative; }
+.quest-number { font-size: calc(64px * var(--ts)); color: var(--gold-hi); }
+.team-progress { gap: 8px; text-align: left; }
+.qcard-sub.sub-good { color: var(--good-ink); }
+.qcard-sub.sub-evil { color: var(--on-evil-fill); }
+
+/* Quest result (D12, D13) */
+.result { gap: 16px; }
+.result-cards { gap: 10px; justify-content: center; flex-wrap: wrap; }
+.tag-lg { font-size: 14px; padding: 6px 10px; flex: none; }
+.evil-ring-panel { gap: 12px; align-items: center; box-shadow: inset 0 0 0 1.5px rgba(240,112,127,.45); }
+.assassin-warn { gap: 10px; justify-content: center; }
+.qnode.is-unneeded .qnode-disc { opacity: .4; }
+
+/* Game over (F4) */
+.gameover { gap: 14px; padding-top: 4px; }
+.gameover-body { gap: 12px; }
+.qtrack-mini { width: 100%; margin-top: 6px; }
+.qtrack-mini .qnode-disc { width: 40px; height: 40px; font-size: calc(20px * var(--ts)); }
+.qtrack-mini .qnode.is-fail .qnode-disc { border-radius: 10px; }
+.prow-named { box-shadow: inset 0 0 0 1.5px rgba(240,112,127,.5); }
+.prow-you { box-shadow: inset 0 0 0 1.5px var(--gold); }
+.chip-end { margin-right: 4px; flex: none; }
+.over-leave { flex: 1; }
+.over-again { flex: 2; }
+
+/* History sheet (E1, E2) */
+.sheet-full { max-height: 95%; height: 95%; }
+.sheet-body.history-sheet { padding: 0 12px 16px; gap: 12px; }
+.history-body { gap: 12px; }
+.focus-summary { gap: 4px; }
+/* History column headers are real buttons (tap to follow a player): strip the
+   browser's button look, as the design's inline styles do. */
+.phone button.hhead { appearance: none; border: 0; background: transparent; cursor: pointer; font-family: var(--font-ui); font-size: 12px; font-weight: 700; color: var(--text-2); padding: 8px 0 6px; }
+.phone button.hhead.is-focus { background: rgba(214,178,94,.12); }

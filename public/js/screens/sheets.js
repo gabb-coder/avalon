@@ -10,6 +10,7 @@ import { openSheet, openModal, closeOverlay } from '../components/overlay.js';
 import { toast } from '../components/toast.js';
 import { button, seg, toggleRow, panel, teamChip, note } from '../components/ui.js';
 import { ROLE_TEAM } from '../components/roleCard.js';
+import { historyGrid, historyLegend, focusSummary } from '../components/history.js';
 
 // ---------- B4 · Role glossary ----------
 
@@ -147,14 +148,15 @@ function menuRow({ ic, title, meta, onClick }) {
   );
 }
 
-// E4 · Menu. Items for later milestones (vote history, ending the game) are
-// added when those features land.
+// E4 · Menu. "End game for everyone" arrives in milestone 5.
 export function openMenu(app) {
   const v = app.view;
   const isHost = v.hostId === v.you;
+  const proposals = v.game?.proposals.length || 0;
   const body = (close) => [
     menuRow({ ic: 'book', title: t('menu.howTo'), meta: t('menu.howToMeta'), onClick: () => openHowTo(app) }),
     menuRow({ ic: 'cards', title: t('menu.roles'), meta: t('menu.rolesMeta'), onClick: () => openGlossary(app) }),
+    v.game ? menuRow({ ic: 'history', title: t('menu.history'), meta: t('menu.historyMeta', { n: proposals }), onClick: () => openHistory(app) }) : null,
     ...displaySection(app),
     isHost
       ? [
@@ -178,6 +180,43 @@ export function openMenu(app) {
     subtitle: t('menu.subtitle', { code: v.code, n: v.players.length }),
     closeLabel: t('menu.close'),
     body,
+  });
+}
+
+// ---------- E1/E2 · Vote history ----------
+// Live: redraws while open as votes are revealed. Tapping a name follows that
+// player's column and shows a one-line summary.
+
+export function openHistory(app) {
+  let focus = null;
+  const body = h('div', { class: 'col history-body' });
+  const paint = () => {
+    const g = app.view?.game;
+    if (!g) return;
+    const done = g.quests.filter((q) => q.result).length;
+    sub.textContent = t('history.subtitle', { n: g.proposals.length, q: done });
+    if (!g.proposals.length) {
+      replace(body, h('p', { class: 't-body muted' }, t('history.empty')), historyLegend());
+      return;
+    }
+    replace(
+      body,
+      historyGrid(g, { you: app.view.you, focus, onFocus: (id) => { focus = id; paint(); } }),
+      historyLegend(),
+      focus ? focusSummary(g, focus) : null,
+    );
+  };
+  const sub = h('span');
+  const unsubscribe = app.subscribe(paint);
+  paint();
+  openSheet(app.root, {
+    title: t('history.title'),
+    closeLabel: t('history.close'),
+    subtitle: sub,
+    body,
+    height: 'full',
+    bodyClass: 'history-sheet',
+    onClose: unsubscribe,
   });
 }
 
