@@ -1,0 +1,75 @@
+# Render Blueprint: the whole deployment in one file.
+# Step-by-step instructions: README.md -> "Deploy to Render".
+#
+#   avalon-server  Web Service: the game server (Node). Free plan: it sleeps
+#                  after 15 minutes without visitors; the page wakes it (A6).
+#   avalon         Static Site: the page itself (public/). Always awake, so
+#                  phones get the waking screen instantly instead of an error.
+#
+# Two settings point the services at each other. Render asks for them when
+# the Blueprint is created; fill them in once you know both addresses:
+#   ALLOWED_ORIGIN (on avalon-server) = the static site's address
+#   SERVER_URL     (on avalon)        = the game server's address
+
+services:
+  - type: web
+    name: avalon-server
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      # The static site's address, e.g. https://avalon.onrender.com
+      # (no slash at the end). Sockets from any other site are refused.
+      - key: ALLOWED_ORIGIN
+        sync: false
+      # Optional, added by hand later: REDIS_URL keeps games through
+      # restarts and redeploys (README -> "Optional: keep games through
+      # restarts"). Without it, rooms live in memory only.
+
+  - type: web
+    name: avalon
+    runtime: static
+    buildCommand: npm ci && npm run build:static
+    staticPublishPath: ./public
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # The game server's address, e.g. https://avalon-server.onrender.com
+      # It is written into the page when the site is built, so after
+      # changing it, redeploy the static site.
+      - key: SERVER_URL
+        sync: false
+    headers:
+      # The same policy the game server sends (server/app.js). connect-src
+      # allows any onrender.com server because this file can't know the
+      # address; the build adds a <meta> policy with the exact server, and
+      # browsers apply both (decision 13 in CLAUDE.md).
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.onrender.com wss://*.onrender.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=(), payment=()
+      # Files are small: always check for a newer version, so an update
+      # reaches every phone on its next load.
+      - path: /*
+        name: Cache-Control
+        value: no-cache

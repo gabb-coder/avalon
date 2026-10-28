@@ -1,0 +1,28 @@
+{
+  "name": "avalon",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Real-time mobile web version of a hidden-role game of Arthurian loyalty, for 5-10 friends in one room.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch server/index.js",
+    "start": "node server/index.js",
+    "test": "node --test test/*.test.js",
+    "demo": "node scripts/demo.js",
+    "build:static": "node scripts/buildStatic.js"
+  },
+  "dependencies": {
+    "express": "^4.22.3",
+    "helmet": "^7.2.0",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.4"
+  },
+  "optionalDependencies": {
+    "@redis/client": "^6.2.1"
+  }
+}
