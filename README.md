@@ -6,17 +6,37 @@ For personal use with friends. The game title lives in one constant (`GAME_TITLE
 
 ## Status
 
-Milestone 1 of 7 is done: the game engine and its tests. There is no server or UI yet. See `CLAUDE.md` → *Progress*.
+Milestones 1 and 2 of 7 are done: the game engine and the real-time server. The phone screens come in milestone 3. See `CLAUDE.md` → *Progress*.
 
 ## Try it
 
 You need Node.js 20 or newer (`node -v` to check).
 
+First time only, install the dependencies:
+
+```bash
+npm install
+```
+
+Run all the tests (about 20 seconds; it should end with `# fail 0`):
+
 ```bash
 npm test
 ```
 
-This runs every engine test: the rules tables, role dealing and night info, the state machine, the information-leak tests, and a simulation of about 1,800 random games. It takes about 20 seconds and should end with `# fail 0`.
+Watch bots play a full game over real network connections. Change the number for 5–10 players:
+
+```bash
+npm run demo -- 7
+```
+
+Start the server for development (stop it with Ctrl+C):
+
+```bash
+npm run dev
+```
+
+Then open http://localhost:3000/healthz in your browser. It should say `{"ok":true,...}`.
 
 ## Docs
 

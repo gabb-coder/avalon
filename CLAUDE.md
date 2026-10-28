@@ -54,7 +54,7 @@ Ask before changing anything listed in `docs/HANDOFF.md` §10, "Expensive to cha
 ## Stack
 
 - **Node.js 20+**, ES modules everywhere (`"type": "module"`), so the server and the browser share `shared/protocol.js`.
-- **Server:** Express (health route; serves `public/` in local dev) + Socket.IO. *(Milestone 2.)*
+- **Server:** Express 4 (health route; serves `public/` in local dev) + Socket.IO 4 + helmet (security headers, CSP).
 - **Client:** vanilla JS ES modules, HTML, CSS. No framework, no build step. *(Milestone 3.)*
 - **Tests:** Node's built-in runner (`node --test`). No test framework dependency.
 - **Hosting:** Render, one `render.yaml` with a Static Site (`public/`) and a Web Service (game server). *(Milestone 7.)*
@@ -64,9 +64,10 @@ Ask before changing anything listed in `docs/HANDOFF.md` §10, "Expensive to cha
 
 | Command | What it does | Status |
 |---|---|---|
-| `npm test` | All tests: engine units, leak tests, ~1,800-game simulation. About 17 s. Must pass before every hand-off. | works |
-| `npm run dev` | Server + client on one origin (http://localhost:3000). | milestone 2–3 |
-| `npm start` | Production server (Render). | milestone 2 |
+| `npm test` | All tests: engine units, leak tests, ~1,800-game simulation, socket integration. About 18 s. Must pass before every hand-off. | works |
+| `npm run dev` | Server + client on one origin at http://localhost:3000, restarting on file changes. | works (client is a placeholder until milestone 3) |
+| `npm start` | Production server (Render): listens on `$PORT`, `0.0.0.0`. | works |
+| `npm run demo` | Bots play one full game over real sockets and print it, private info labelled. `npm run demo -- 10` for 10 players. | works |
 
 Run one file: `node --test test/stateMachine.test.js`. Run tests by name: `node --test --test-name-pattern="Lady" test/*.test.js`.
 
@@ -83,8 +84,20 @@ src/engine/        pure game engine, no I/O
   views.js         viewFor(state, playerId): the only way state leaves the server
   errors.js        error codes (copy-deck keys where a player can trigger them)
   index.js         public entry point
-test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakSweep.js are shared support
-server/ shared/ public/   (milestones 2–3)
+server/
+  index.js         starts the server; logs crashes instead of dying
+  app.js           createServer(): Express (helmet CSP, /healthz, static in dev) + Socket.IO (origin check, payload cap)
+  socketHandlers.js  per socket: rate limit -> validate -> RoomManager -> ack; crashes are caught per event
+  validate.js      shape checks for every intent (types, lengths); strips unknown fields
+  roomManager.js   rooms, codes, tokens, seats, connections, timers; intents -> engine actions -> per-player views
+  roomStore.js     RoomStore interface + in-memory implementation
+  rateLimit.js     token bucket per socket
+  config.js        environment variables (all listed in .env.example)
+  log.js           structured JSON logs (room code + event name only)
+shared/protocol.js event names, payload shapes (JSDoc), code alphabet, error codes; used by server and client
+public/            client (placeholder index.html + config.js until milestone 3)
+scripts/demo.js    the bot demo
+test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakSweep.js, socketClient.js are support
 ```
 
 ## Architecture notes
@@ -99,6 +112,25 @@ server/ shared/ public/   (milestones 2–3)
   - Quest cards are shuffled at the reveal, and the per-player card map is wiped from the state at that moment.
   - Night info is `{ kind, seen: [ids] }` with neutral kinds (`evil`, `maybe`, `sure`, `none`), so payloads never name a role the player couldn't know. View keys never collide with role or team words (`assassinId`, `evilIds`), which keeps string-search leak tests exact.
   - The leak tests (`test/leakCheck.js`) check every player's serialized view after every accepted action in hundreds of random games, across every phase × role. A self-test plants seven kinds of leak and checks each one is caught.
+- **Server flow.** socket event → rate limit (token bucket; 50 refusals in a row cuts the socket) → `validate.js` (shape) → `RoomManager` → engine `reduce` (rules) → every connection in the room gets its own `viewFor()` → ack `{ ok }` or `{ ok:false, code, params }`. The acting player is always taken from the connection's session, never from the payload.
+- **Identity.** No accounts. A session token (32 random bytes) is issued on create/join and kept in localStorage. The server stores only its SHA-256, mapped to a player id per room. The same token rejoining a room it has a seat in is a resume, which makes refreshes, sleeping tabs and A5's "same phone" case work. Player ids are public and random; tokens are never sent to anyone but their owner.
+- **Connections.** A player is connected while at least one socket is attached to their seat. When the last one goes, the server sends `SET_CONNECTED false` and starts the seat-hold timer.
+  - Seat expiry in the lobby or at game over removes the player; mid-game it closes the room (`seatExpired`).
+  - If the away player is the host, a grace timer sends `HOST_AUTO`.
+- **Timers live in RoomManager, never in the engine:** seat hold, host grace, reveal fallback (`ADVANCE` with `revealSeq`, so stale timers are harmless), the live-picks throttle, and the idle sweep. All of them are configurable, and tests shrink them to milliseconds.
+- **Room lifecycle.** Codes: 4 letters from `CODE_ALPHABET` (no I or O), with collision checks. A room is deleted when:
+  - the host ends the game;
+  - a seat expires mid-game;
+  - nobody has played for `ROOM_IDLE_MINUTES`;
+  - the last player leaves.
+  
+  Connected players get `room:closed { reason }` (`hostEnded`, `seatExpired`, `idle`, `kicked`, `empty`). A resume to a deleted room gets `code.notFound`, which the client shows as G3.
+- **Robustness.**
+  - Every handler and timer is wrapped, so a bug is logged and acked as `err.server` without touching other rooms. `uncaughtException` is logged, not fatal.
+  - Payloads are capped (`maxHttpBufferSize`), and so is the number of open rooms (`MAX_ROOMS`).
+  - Cross-origin sockets are refused unless the origin is in `ALLOWED_ORIGIN`. This is checked on the WebSocket upgrade too, because CORS doesn't cover WebSockets.
+  - Logs carry room codes and event names only: no names, tokens, roles or votes.
+- **Storage.** `MemoryRoomStore` keeps plain-JSON records: engine state, hashed tokens, block list, last activity. Timers and sockets are never stored. A Redis store would keep the same synchronous interface (in-memory reads, write-through, `loadAll()` at boot).
 - **Error codes** are i18n keys: copy-deck keys (`name.taken`, `pick.tooMany`, `fail.locked`, `start.tooManyEvil`…) for things players can trigger, `err.*` for things a well-behaved client never sends.
 
 ## Game rules as implemented
@@ -136,16 +168,30 @@ server/ shared/ public/   (milestones 2–3)
 - **Host:** the first player to join. The host can hand the role on. If the host disconnects, the server (after a grace period) sends `HOST_AUTO`, which gives it to the longest-seated connected player. If the host leaves the lobby, it passes immediately.
 - **Leaving and kicking:** leaving removes you only in the lobby or at game over; mid-game, leaving is treated as a disconnect. Kicking is for the host, in the lobby only.
 
+## Socket protocol (summary; the source of truth is `shared/protocol.js`)
+
+- **Client → server, entry:** `room:create {name, token?}`, `room:join {code, name, token?}`, `room:check {code, token?}`, `session:resume {code, token}`, `room:leave`.
+- **Client → server, game:**
+  - Lobby: `lobby:setConfig {config}`, `lobby:kick {playerId, block?}`, `host:transfer {playerId}`, `game:start`.
+  - Night and quests: `night:ack`, `team:select {team}`, `team:propose {team}`, `vote:cast {approve}`, `reveal:continue`, `quest:play {card}`.
+  - Lady and endgame: `lady:inspect {playerId}`, `lady:pass`, `assassin:guess {playerId}`, `game:rematch`, `game:end`.
+- **Server → client:**
+  - `server:hello`: timings plus `serverNow`.
+  - `state:update`: this player's `viewFor()`.
+  - `notice {key, params}`: toasts.
+  - `room:closed {reason, name?}`.
+- **Server-only error codes:** `code.notFound {code}`, `code.blocked`, `err.noSession`, `err.seatGone`, `err.badPayload`, `err.rateLimited`, `err.busy`, `err.server`.
+
 ## Decisions agreed with the owner (where the brief and the design differed)
 
-1. **Reveals:** each player taps Continue or Skip. The server advances when every connected player has continued, with a 20-second fallback timer. *(Engine done; timer in milestone 2.)*
+1. **Reveals:** each player taps Continue or Skip. The server advances when every connected player has continued, with a 20-second fallback timer.
 2. **Seat expiry:** a held seat expiring mid-game closes the room (G3, "X didn't come back"), as G5 says. In the lobby the player is simply removed.
 3. **Ending the game:** the host can always end it from the Menu (with a confirm). After 2 minutes waiting on an offline player, it is also offered in the status bar.
 4. **Play again:** the first tap moves the room to the lobby. Anyone still on F4 keeps reading the summary (`lastGame`).
 5. **The Lady and Oberon:** one setting drives both `merlinSeesOberon` and `ladySeesOberonAsEvil`, kept as two flags so they can be split later.
 6. **The Lady after a deciding quest:** skipped if that quest decided the game. The first holder is the seat before the first leader.
 7. **Assassination:** reveals all Evil (Oberon included) by team, and names the Assassin. Evil players can't be targeted.
-8. **Kick:** the G6 "block from rejoining" option blocks that session token and name for that room. *(Milestone 2.)*
+8. **Kick:** the G6 "block from rejoining" option blocks that session token and name for that room (`code.blocked`; needs an en.json string in milestone 3).
 9. **Rejoining:** seats are reclaimed only with the session token (same phone), never by retyping a name.
 10. **Timings** (all environment variables):
     - Rooms close after 120 minutes idle.
@@ -160,7 +206,7 @@ server/ shared/ public/   (milestones 2–3)
 ## Progress
 
 - [x] **Milestone 1: engine and tests.** rules, roles, night info, state machine, viewFor, leak tests, simulation.
-- [ ] Milestone 2: server and rooms.
+- [x] **Milestone 2: server and rooms.** Express + Socket.IO, protocol, create/join/check/resume, tokens, reconnect, host transfer, kick + block, timers, rate limit, payload cap, origin check, /healthz, socket integration tests, bot demo.
 - [ ] Milestone 3: design foundation, home, join, lobby, role reveal.
 - [ ] Milestone 4: core game loop.
 - [ ] Milestone 5: assassination, Lady, Play again, Menu, How to play.
