@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vote history — 10 players at 360 wide</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone sm">
+  <div class="topbar" style="height: 36px"><span></span></div>
+  <div class="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="h10-t" style="max-height: 96%; height: 96%">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head" style="padding-left: 16px">
+      <div class="grow"><h2 class="d-m" id="h10-t">Vote history</h2><p class="t-label muted">10 players · swipe sideways</p></div>
+      <button class="icon-btn" type="button" aria-label="Close history"><span class="ic i-cross" aria-hidden="true"></span></button>
+    </div>
+    <div class="sheet-body" style="padding: 0 12px 14px; gap: 10px">
+      <div style="position: relative">
+        <div class="hscroll" style="max-height: 520px" role="table" aria-label="Votes by proposal and player">
+          <div class="hcol" style="--cols: 10">
+            <div class="hrow head" role="row">
+              <div class="hstick" role="columnheader">Proposal</div>
+              <sc-for list="{{heads}}" as="h" hint-placeholder-count="10">
+                <div class="{{h.cls}}" role="columnheader"><span class="{{h.avCls}}">{{h.i}}</span><span>{{h.name}}</span></div>
+              </sc-for>
+            </div>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
+              <sc-if value="{{r.isQ}}" hint-placeholder-val="{{false}}">
+                <div class="hqrow" role="row"><div class="{{r.cls}}" role="cell"><span class="ic {{r.icon}}" aria-hidden="true"></span>{{r.text}}</div></div>
+              </sc-if>
+              <sc-if value="{{r.isP}}" hint-placeholder-val="{{true}}">
+                <div class="hrow" role="row" aria-label="{{r.aria}}">
+                  <div class="hstick" role="rowheader">
+                    <span class="hl1">{{r.l1}}</span>
+                    <span class="{{r.l2cls}}"><span class="{{r.vmCls}}"><span class="ic {{r.vmIcon}}" aria-hidden="true"></span></span>{{r.l2}}</span>
+                  </div>
+                  <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="10">
+                    <div class="{{c.cls}}" role="cell" aria-label="{{c.aria}}">
+                      <sc-if value="{{c.lead}}" hint-placeholder-val="{{false}}"><span class="lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if>
+                      <span class="{{c.vmCls}}"><span class="ic {{c.icon}}" aria-hidden="true"></span></span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+        </div>
+        <div aria-hidden="true" style="position: absolute; top: 1px; right: 1px; bottom: 1px; width: 36px; border-radius: 0 16px 16px 0; background: linear-gradient(90deg, rgba(10,15,30,0), rgba(10,15,30,.92)); pointer-events: none"></div>
+      </div>
+      <div class="row" style="justify-content: space-between">
+        <span class="chip chip-gold"><span class="ic i-arrow" aria-hidden="true"></span>3 more players</span>
+        <span class="t-label faint">Proposal column stays put</span>
+      </div>
+      <div class="legend">
+        <span><span class="vm vm-a" style="width: 20px; height: 20px"><span class="ic i-check" style="width: 12px; height: 12px" aria-hidden="true"></span></span>Approve</span>
+        <span><span class="vm vm-r" style="width: 20px; height: 20px"><span class="ic i-cross" style="width: 13px; height: 13px" aria-hidden="true"></span></span>Reject</span>
+        <span><span style="width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px #D6B25E; display: inline-block"></span>Team</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":740}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = ['Rowan', 'Ilse', 'Tomas', 'Kofi', 'Mei', 'Sana', 'Jude', 'Priya', 'Ana', 'Wen'];
+    const props = [
+      { q: 1, n: 1, lead: 0, team: [0, 1, 2], votes: 'AAARAAARAR' },
+      { q: 2, n: 1, lead: 1, team: [1, 3, 4, 7], votes: 'RARAARRARR' },
+      { q: 2, n: 2, lead: 2, team: [2, 5, 6, 8], votes: 'ARAAARAAAR' },
+      { q: 3, n: 1, lead: 3, team: [3, 4, 9, 0], votes: 'RRRARAARRA' },
+      { q: 3, n: 2, lead: 4, team: [4, 0, 1, 5], votes: 'AAARARRAAR' },
+      { q: 4, n: 1, lead: 5, team: [5, 6, 7, 8, 9], votes: 'RRARRAARRR' }
+    ];
+    const quests = {
+      1: { cls: 's', icon: 'i-success', text: 'Quest 1 · Success' },
+      2: { cls: 'f', icon: 'i-fail', text: 'Quest 2 · Failed · 1 Fail' },
+      3: { cls: 's', icon: 'i-success', text: 'Quest 3 · Success' },
+      4: { cls: 'c', icon: 'i-hourglass', text: 'Quest 4 · In progress' }
+    };
+    const rows = []; let lastQ = 0;
+    props.forEach((p) => {
+      if (p.q !== lastQ) { rows.push(Object.assign({ isQ: true, isP: false }, quests[p.q])); lastQ = p.q; }
+      const a = p.votes.split('').filter(v => v === 'A').length, r = P.length - a, ok = a > r;
+      rows.push({
+        isQ: false, isP: true,
+        l1: 'Q' + p.q + '.' + p.n + ' ' + P[p.lead],
+        l2: (ok ? 'Yes ' : 'No ') + a + '–' + r, l2cls: 'hl2 ' + (ok ? 'ok' : 'no'),
+        vmCls: 'vm ' + (ok ? 'vm-a' : 'vm-r'), vmIcon: ok ? 'i-check' : 'i-cross',
+        aria: 'Quest ' + p.q + ' proposal ' + p.n + ' by ' + P[p.lead] + ', ' + (ok ? 'approved' : 'rejected') + ' ' + a + ' to ' + r,
+        cells: p.votes.split('').map((v, i) => {
+          const team = p.team.indexOf(i) > -1;
+          return { lead: i === p.lead, cls: 'hcell' + (team ? ' on-team' : ''), vmCls: 'vm ' + (v === 'A' ? 'vm-a' : 'vm-r'), icon: v === 'A' ? 'i-check' : 'i-cross', aria: P[i] + ': ' + (v === 'A' ? 'approve' : 'reject') + (team ? ', on team' : '') };
+        })
+      });
+    });
+    return {
+      heads: P.map((n, i) => ({ name: n, i: n.charAt(0), cls: 'hhead' + (i === 0 ? ' is-you' : ''), avCls: 'av' + (i === 0 ? ' is-you' : '') })),
+      rows
+    };
+  }
+}
+</script>
+</body>
+</html>

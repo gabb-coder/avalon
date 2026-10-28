@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Game over — Good prevails</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span style="width: 48px"></span>
+    <span class="room-tag">ROOM KQVX · GAME OVER</span>
+    <span style="width: 48px"></span>
+  </div>
+
+  <div class="content" style="gap: 14px; padding-top: 4px">
+    <div class="banner banner-good anim-stamp" role="status">
+      <span class="frame-good" style="width: 56px; height: 56px"><span class="ic i-good ic-32" aria-hidden="true"></span></span>
+      <p class="d-l">Good prevails</p>
+      <p class="t-body muted pretty">3 quests won, and the Assassin missed. Kofi named Ilse; Merlin was Rowan.</p>
+      <div class="qtrack" style="width: 100%; margin-top: 6px" aria-label="Quests: success, fail, success, success">
+        <div class="qnode is-success"><div class="qnode-disc" style="width: 40px; height: 40px"><span class="ic i-success ic-20" aria-hidden="true"></span></div></div>
+        <div class="qnode is-fail"><div class="qnode-disc" style="width: 40px; height: 40px; border-radius: 10px"><span class="ic i-fail ic-20" aria-hidden="true"></span></div></div>
+        <div class="qnode is-success"><div class="qnode-disc" style="width: 40px; height: 40px"><span class="ic i-success ic-20" aria-hidden="true"></span></div></div>
+        <div class="qnode is-success"><div class="qnode-disc" style="width: 40px; height: 40px"><span class="ic i-success ic-20" aria-hidden="true"></span></div></div>
+        <div class="qnode"><div class="qnode-disc" style="width: 40px; height: 40px; opacity: .4; font-size: 20px">5</div></div>
+      </div>
+    </div>
+
+    <div class="seg" role="tablist" aria-label="Game summary">
+      <button class="{{tabA}}" type="button" role="tab" aria-selected="{{onRoles}}" onClick="{{showRoles}}">Everyone's role</button>
+      <button class="{{tabB}}" type="button" role="tab" aria-selected="{{onVotes}}" onClick="{{showVotes}}">All votes</button>
+    </div>
+
+    <sc-if value="{{onRoles}}" hint-placeholder-val="{{true}}">
+      <div class="plist">
+        <sc-for list="{{roles}}" as="r" hint-placeholder-count="7">
+          <div class="prow" style="{{r.style}}">
+            <span class="{{r.frame}}"><span class="ic {{r.icon}}" aria-hidden="true"></span></span>
+            <span class="prow-name"><span>{{r.name}}</span><span class="prow-meta">{{r.role}}{{r.note}}</span></span>
+            <span class="{{r.chip}}" style="margin-right: 4px"><span class="ic {{r.teamIcon}}" aria-hidden="true"></span>{{r.team}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{onVotes}}" hint-placeholder-val="{{false}}">
+      <div class="hscroll" role="table" aria-label="All votes">
+        <div class="hcol" style="--cols: 7">
+          <div class="hrow head" role="row">
+            <div class="hstick" role="columnheader">Proposal</div>
+            <sc-for list="{{heads}}" as="h" hint-placeholder-count="7"><div class="{{h.cls}}" role="columnheader"><span class="{{h.avCls}}">{{h.i}}</span><span>{{h.name}}</span></div></sc-for>
+          </div>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+            <sc-if value="{{r.isQ}}" hint-placeholder-val="{{false}}"><div class="hqrow" role="row"><div class="{{r.cls}}" role="cell"><span class="ic {{r.icon}}" aria-hidden="true"></span>{{r.text}}</div></div></sc-if>
+            <sc-if value="{{r.isP}}" hint-placeholder-val="{{true}}">
+              <div class="hrow" role="row" aria-label="{{r.aria}}">
+                <div class="hstick" role="rowheader"><span class="hl1">{{r.l1}}</span><span class="{{r.l2cls}}"><span class="{{r.vmCls}}"><span class="ic {{r.vmIcon}}" aria-hidden="true"></span></span>{{r.l2}}</span></div>
+                <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="7"><div class="{{c.cls}}" role="cell" aria-label="{{c.aria}}"><sc-if value="{{c.lead}}" hint-placeholder-val="{{false}}"><span class="lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if><span class="{{c.vmCls}}"><span class="ic {{c.icon}}" aria-hidden="true"></span></span></div></sc-for>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div class="dock" style="flex-direction: row; gap: 10px">
+    <a class="btn btn-ghost" href="A2-Home.dc.html" style="flex: 1; box-shadow: inset 0 0 0 1px rgba(243,235,221,.12)"><span class="ic i-leave" aria-hidden="true"></span>Leave</a>
+    <a class="btn btn-primary" href="B1-LobbyHost.dc.html" style="flex: 2"><span class="ic i-refresh" aria-hidden="true"></span>Play again</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: 'roles' }; }
+  renderVals() {
+    const P = ['Rowan', 'Ilse', 'Tomas', 'Kofi', 'Mei', 'Sana', 'Jude'];
+    const R = [
+      ['Rowan', 'Merlin', 'i-merlin', 1, ' · the one Evil needed'],
+      ['Ilse', 'Percival', 'i-percival', 1, ' · named by the Assassin'],
+      ['Tomas', 'Loyal Servant', 'i-servant', 1, ''],
+      ['Kofi', 'Assassin', 'i-assassin', 0, ''],
+      ['Mei', 'Loyal Servant', 'i-servant', 1, ''],
+      ['Sana', 'Morgana', 'i-morgana', 0, ''],
+      ['Jude', 'Mordred', 'i-mordred', 0, '']
+    ];
+    const props = [
+      { q: 1, n: 1, lead: 0, team: [0, 1], votes: 'AAARAAR' },
+      { q: 2, n: 1, lead: 1, team: [1, 2, 3], votes: 'RARARAR' },
+      { q: 2, n: 2, lead: 2, team: [2, 4, 5], votes: 'RRAAAAR' },
+      { q: 3, n: 1, lead: 3, team: [3, 5, 6], votes: 'RRRARRA' },
+      { q: 3, n: 2, lead: 4, team: [4, 0, 1], votes: 'AARRARR' },
+      { q: 3, n: 3, lead: 5, team: [5, 0, 2], votes: 'ARAARAR' },
+      { q: 4, n: 1, lead: 6, team: [0, 1, 2, 3], votes: 'AAAARRA' }
+    ];
+    const quests = { 1: ['s', 'i-success', 'Quest 1 · Success'], 2: ['f', 'i-fail', 'Quest 2 · Failed · 1 Fail'], 3: ['s', 'i-success', 'Quest 3 · Success'], 4: ['s', 'i-success', 'Quest 4 · Success · 1 Fail (needed 2)'] };
+    const rows = []; let lastQ = 0;
+    props.forEach((p) => {
+      if (p.q !== lastQ) { const q = quests[p.q]; rows.push({ isQ: true, isP: false, cls: q[0], icon: q[1], text: q[2] }); lastQ = p.q; }
+      const a = p.votes.split('').filter(v => v === 'A').length, r = 7 - a, ok = a > r;
+      rows.push({ isQ: false, isP: true, l1: 'Q' + p.q + '.' + p.n + ' ' + P[p.lead], l2: (ok ? 'Yes ' : 'No ') + a + '–' + r, l2cls: 'hl2 ' + (ok ? 'ok' : 'no'), vmCls: 'vm ' + (ok ? 'vm-a' : 'vm-r'), vmIcon: ok ? 'i-check' : 'i-cross', aria: 'Quest ' + p.q + ' proposal ' + p.n + ' by ' + P[p.lead],
+        cells: p.votes.split('').map((v, i) => { const team = p.team.indexOf(i) > -1; return { lead: i === p.lead, cls: 'hcell' + (team ? ' on-team' : ''), vmCls: 'vm ' + (v === 'A' ? 'vm-a' : 'vm-r'), icon: v === 'A' ? 'i-check' : 'i-cross', aria: P[i] + ': ' + (v === 'A' ? 'approve' : 'reject') }; }) });
+    });
+    const t = this.state.tab;
+    return {
+      onRoles: t === 'roles', onVotes: t === 'votes',
+      tabA: 'seg-opt' + (t === 'roles' ? ' is-on' : ''), tabB: 'seg-opt' + (t === 'votes' ? ' is-on' : ''),
+      showRoles: () => this.setState({ tab: 'roles' }), showVotes: () => this.setState({ tab: 'votes' }),
+      roles: R.map(r => ({
+        name: r[0] + (r[0] === 'Rowan' ? ' (you)' : ''), role: r[1], note: r[4], icon: r[2],
+        frame: (r[3] ? 'frame-good' : 'frame-evil') + ' frame-36',
+        team: r[3] ? 'Good' : 'Evil', teamIcon: r[3] ? 'i-good' : 'i-evil', chip: 'chip ' + (r[3] ? 'chip-good' : 'chip-evil'),
+        style: r[0] === 'Ilse' ? 'box-shadow: inset 0 0 0 1.5px rgba(240,112,127,.5)' : (r[0] === 'Rowan' ? 'box-shadow: inset 0 0 0 1.5px #D6B25E' : '')
+      })),
+      heads: P.map((n, i) => ({ name: n, i: n.charAt(0), cls: 'hhead' + (i === 0 ? ' is-you' : ''), avCls: 'av' + (i === 0 ? ' is-you' : '') })),
+      rows
+    };
+  }
+}
+</script>
+</body>
+</html>

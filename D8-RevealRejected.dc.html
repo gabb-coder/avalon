@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vote reveal — rejected</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <button class="btn btn-ghost btn-md" type="button" style="color: #F0D58C; min-height: 48px; padding: 0 12px">Skip</button>
+  </div>
+  <div class="status" role="status">
+    <div class="status-top"><span class="status-phase"><span class="ic i-cross ic-16" aria-hidden="true"></span>Quest 2 · Votes revealed</span></div>
+    <p class="status-main">Ilse's team is rejected, 3 to 4</p>
+    <p class="status-wait">Leadership passes to Tomas</p>
+  </div>
+
+  <div class="content" style="gap: 14px; padding-top: 14px">
+    <div class="banner anim-stamp" style="background: radial-gradient(circle at 50% 0%, rgba(169,177,209,.18), rgba(26,36,64,.85) 70%); box-shadow: inset 0 0 0 1.5px rgba(169,177,209,.6); padding: 16px; flex-direction: row; justify-content: center; gap: 14px; animation-delay: 750ms">
+      <span class="vm vm-r" style="width: 44px; height: 44px"><span class="ic i-cross" style="width: 26px; height: 26px" aria-hidden="true"></span></span>
+      <div style="text-align: left">
+        <p class="d-m" style="line-height: 1">Rejected</p>
+        <p class="t-label muted tnum"><b style="color:#E2C46E">3 Approve</b> · <b style="color:#A9B1D1">4 Reject</b></p>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px" role="list" aria-label="Votes by player">
+      <div class="wcell" role="listitem"><span class="av av-32 is-you">R</span><span class="nm">Rowan</span><span class="vm vm-r" style="margin-left: auto"><span class="ic i-cross" aria-hidden="true"></span></span></div>
+      <div class="wcell" role="listitem" style="box-shadow: inset 0 0 0 1.5px #D6B25E"><span class="av av-32">I</span><span class="nm">Ilse</span><span class="vm vm-a" style="margin-left: auto"><span class="ic i-check" aria-hidden="true"></span></span></div>
+      <div class="wcell" role="listitem" style="box-shadow: inset 0 0 0 1.5px #D6B25E"><span class="av av-32">T</span><span class="nm">Tomas</span><span class="vm vm-r" style="margin-left: auto"><span class="ic i-cross" aria-hidden="true"></span></span></div>
+      <div class="wcell" role="listitem" style="box-shadow: inset 0 0 0 1.5px #D6B25E"><span class="av av-32">K</span><span class="nm">Kofi</span><span class="vm vm-a" style="margin-left: auto"><span class="ic i-check" aria-hidden="true"></span></span></div>
+      <div class="wcell" role="listitem"><span class="av av-32">M</span><span class="nm">Mei</span><span class="vm vm-r" style="margin-left: auto"><span class="ic i-cross" aria-hidden="true"></span></span></div>
+      <div class="wcell" role="listitem"><span class="av av-32">S</span><span class="nm">Sana</span><span class="vm vm-a" style="margin-left: auto"><span class="ic i-check" aria-hidden="true"></span></span></div>
+      <div class="wcell" role="listitem"><span class="av av-32">J</span><span class="nm">Jude</span><span class="vm vm-r" style="margin-left: auto"><span class="ic i-cross" aria-hidden="true"></span></span></div>
+    </div>
+
+    <div class="panel" style="display: flex; flex-direction: column; gap: 10px; box-shadow: inset 0 0 0 1px rgba(242,194,90,.35)">
+      <div class="rejects">
+        <span class="rejects-label">Rejected in a row · <b style="color:#F3EBDD">1 of 5</b></span>
+        <span class="pips" aria-hidden="true"><span class="pip on l1 anim-stamp" style="animation-delay: 1.1s"><span>1</span></span><span class="pip"><span>2</span></span><span class="pip"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span>
+      </div>
+      <p class="t-label faint">If 5 teams in a row are rejected, Evil wins.</p>
+    </div>
+  </div>
+
+  <div class="dock">
+    <button class="btn btn-primary btn-block" type="button"><span class="ic i-standard" aria-hidden="true"></span>Back to the table · Tomas leads</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

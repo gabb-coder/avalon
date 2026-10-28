@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Game menu</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar"><span></span></div>
+  <div class="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="menu-t" style="max-height: 90%">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="grow"><h2 class="d-m" id="menu-t">Menu</h2><p class="t-label muted">Room KQVX · 7 players · Quest 3</p></div>
+      <a class="icon-btn" href="D17-BoardMid.dc.html" aria-label="Close menu"><span class="ic i-cross" aria-hidden="true"></span></a>
+    </div>
+    <div class="sheet-body" style="gap: 10px">
+      <a class="prow" href="E3-HowToPlay.dc.html"><span class="ic i-book gold" aria-hidden="true"></span><span class="prow-name"><span>How to play</span><span class="prow-meta">6 quick steps</span></span><span class="ic i-right faint" style="margin-right: 8px" aria-hidden="true"></span></a>
+      <a class="prow" href="B4-Glossary.dc.html"><span class="ic i-cards gold" aria-hidden="true"></span><span class="prow-name"><span>Roles in this game</span><span class="prow-meta">What each role knows</span></span><span class="ic i-right faint" style="margin-right: 8px" aria-hidden="true"></span></a>
+      <a class="prow" href="E1-History.dc.html"><span class="ic i-history gold" aria-hidden="true"></span><span class="prow-name"><span>Vote history</span><span class="prow-meta">5 proposals so far</span></span><span class="ic i-right faint" style="margin-right: 8px" aria-hidden="true"></span></a>
+
+      <p class="eyebrow" style="font-size: 12px; margin-top: 8px">Display</p>
+      <div class="panel" style="display: flex; flex-direction: column; gap: 12px">
+        <p class="t-body b" id="ts-l">Text size</p>
+        <div class="seg" role="radiogroup" aria-labelledby="ts-l" style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+          <button class="{{s1}}" type="button" role="radio" aria-checked="{{a1}}" onClick="{{t1}}">100%</button>
+          <button class="{{s2}}" type="button" role="radio" aria-checked="{{a2}}" onClick="{{t2}}" style="font-size: 16px">115%</button>
+          <button class="{{s3}}" type="button" role="radio" aria-checked="{{a3}}" onClick="{{t3}}" style="font-size: 18px">130%</button>
+        </div>
+      </div>
+      <div class="panel" style="padding: 0 16px">
+        <div class="toggle-row"><label for="m-rm"><span class="ic i-refresh gold" aria-hidden="true"></span><span class="grow"><span class="t-body b">Reduce motion</span><br><span class="t-label muted">Fades instead of flips. Follows your phone setting.</span></span></label><input class="switch" id="m-rm" type="checkbox" role="switch"></div>
+        <div class="toggle-row"><label for="m-hp"><span class="ic i-hold gold" aria-hidden="true"></span><span class="grow"><span class="t-body b">Vibrate on my turn</span><br><span class="t-label muted">Short buzz when you need to act</span></span></label><input class="switch" id="m-hp" type="checkbox" role="switch" checked></div>
+      </div>
+
+      <p class="eyebrow" style="font-size: 12px; margin-top: 8px">Host</p>
+      <div class="panel" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 8px">
+        <button class="btn btn-ghost btn-md" type="button" style="justify-content: flex-start"><span class="ic i-crown gold" aria-hidden="true"></span>Hand host to another player</button>
+        <button class="btn btn-ghost btn-md" type="button" style="justify-content: flex-start; color: #F0707F"><span class="ic i-cross" aria-hidden="true"></span>End game for everyone</button>
+      </div>
+
+      <a class="btn btn-danger btn-block" href="G5-LeaveConfirm.dc.html" style="margin-top: 8px"><span class="ic i-leave" aria-hidden="true"></span>Leave game</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { ts: 1 }; }
+  renderVals() {
+    const t = this.state.ts;
+    const c = (i) => 'seg-opt' + (t === i ? ' is-on' : '');
+    return { s1: c(1), s2: c(2), s3: c(3), a1: t === 1, a2: t === 2, a3: t === 3,
+      t1: () => this.setState({ ts: 1 }), t2: () => this.setState({ ts: 2 }), t3: () => this.setState({ ts: 3 }) };
+  }
+}
+</script>
+</body>
+</html>

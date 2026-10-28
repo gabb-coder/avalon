@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Host left — host transferred</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-left" aria-hidden="true"></span></span>
+    <span class="t-body b">Your room</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-cards" aria-hidden="true"></span></span>
+  </div>
+
+  <div class="content" style="gap: 14px">
+    <div class="panel panel-gold anim-rise" style="display: flex; gap: 14px; align-items: flex-start; box-shadow: inset 0 0 0 1.5px #D6B25E, 0 0 24px rgba(214,178,94,.2)" role="alert">
+      <span class="tok tok-host" style="width: 44px; height: 44px"><span class="ic i-crown ic-28" aria-hidden="true"></span></span>
+      <div class="grow col" style="gap: 4px">
+        <p class="t-title">You're the host now</p>
+        <p class="t-label muted">Rowan left the room. The crown passes to the longest-seated player. You can start the game and change the roles.</p>
+        <div class="row" style="gap: 8px; margin-top: 6px">
+          <button class="btn btn-secondary btn-md" type="button" style="min-height: 44px">Hand it on</button>
+          <button class="btn btn-ghost btn-md" type="button" style="min-height: 44px; color: #F0D58C">Got it</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="display: flex; align-items: center; gap: 8px; padding: 10px 8px 10px 16px">
+      <div class="grow">
+        <span class="eyebrow" style="font-size: 12px; display: block">Room code · tap to copy</span>
+        <span class="d-l tnum" style="letter-spacing: .14em; color: #F0D58C; display: block">KQVX</span>
+      </div>
+      <button class="icon-btn framed" type="button" aria-label="Copy room code"><span class="ic i-copy" aria-hidden="true"></span></button>
+      <button class="icon-btn framed" type="button" aria-label="Share invite link"><span class="ic i-share" aria-hidden="true"></span></button>
+    </div>
+
+    <div class="row" style="justify-content: space-between">
+      <span class="t-label muted b">6 of 10 seats · 5 needed</span>
+      <span class="chip chip-good"><span class="ic i-check" aria-hidden="true"></span>Ready</span>
+    </div>
+    <div class="plist">
+      <div class="prow"><span class="av is-you">I</span><span class="prow-name"><span>Ilse</span><span class="prow-meta" style="color: #F0D58C">You · new host</span></span><span class="prow-end" style="padding-right: 12px"><span class="ic i-crown gold" role="img" aria-label="Host"></span></span></div>
+      <div class="prow"><span class="av">T</span><span class="prow-name"><span>Tomas</span></span><span class="prow-end"><button class="icon-btn danger" type="button" aria-label="Remove Tomas"><span class="ic i-kick" aria-hidden="true"></span></button></span></div>
+      <div class="prow"><span class="av">K</span><span class="prow-name"><span>Kofi</span></span><span class="prow-end"><button class="icon-btn danger" type="button" aria-label="Remove Kofi"><span class="ic i-kick" aria-hidden="true"></span></button></span></div>
+      <div class="prow"><span class="av">M</span><span class="prow-name"><span>Mei</span></span><span class="prow-end"><button class="icon-btn danger" type="button" aria-label="Remove Mei"><span class="ic i-kick" aria-hidden="true"></span></button></span></div>
+    </div>
+  </div>
+
+  <div class="toast-slot" style="--dock-h: 120px">
+    <div class="toast toast-info" role="status"><span class="ic i-leave" aria-hidden="true"></span><span class="grow">Rowan left the room</span></div>
+  </div>
+
+  <div class="dock">
+    <button class="btn btn-primary btn-block" type="button">Start game · deal roles</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

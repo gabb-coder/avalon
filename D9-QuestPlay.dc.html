@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quest — play your card (Good)</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="E4-Menu.dc.html" aria-label="Menu"><span class="ic i-menu" aria-hidden="true"></span></a>
+    <span class="room-tag">ROOM KQVX</span>
+    <a class="icon-btn" href="E1-History.dc.html" aria-label="Vote history"><span class="ic i-history" aria-hidden="true"></span></a>
+  </div>
+  <div class="private-band" role="note"><span class="ic i-lock" aria-hidden="true"></span>Private · angle your phone away</div>
+  <div class="status is-you" role="status" aria-live="polite" style="margin-top: 10px">
+    <div class="status-top"><span class="status-phase"><span class="ic i-arrow ic-16" aria-hidden="true"></span>Quest 1 · On the quest</span><span class="t-label faint tnum">{{doneCount}} of 2 played</span></div>
+    <p class="status-main">{{headline}}</p>
+    <div class="status-wait">{{waitLine}}</div>
+  </div>
+
+  <div class="content" style="gap: 12px; padding-top: 14px; justify-content: flex-end">
+    <sc-if value="{{locked}}" hint-placeholder-val="{{false}}">
+      <div class="panel panel-gold anim-rise" style="display: flex; align-items: center; gap: 14px; padding: 18px 16px">
+        <span class="modal-icon" style="width: 52px; height: 52px; flex: none"><span class="ic i-lock ic-28" aria-hidden="true"></span></span>
+        <div class="grow"><p class="t-title">Card played</p><p class="t-label muted">Cards are shuffled before anyone sees them. No one will know which was yours.</p></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{open}}" hint-placeholder-val="{{true}}">
+      <p class="t-label muted center pretty">Only the number of Fails is revealed, never who played them.</p>
+    </sc-if>
+  </div>
+
+  <div class="dock" style="gap: 12px">
+    <sc-if value="{{open}}" hint-placeholder-val="{{true}}">
+      <div class="qcards" role="radiogroup" aria-label="Your quest card">
+        <button class="{{sCls}}" type="button" role="radio" aria-checked="{{picked}}" onClick="{{pick}}"><span class="ic i-success" aria-hidden="true"></span>Success<span class="qcard-sub" style="color: #17636C">Help the quest</span></button>
+        <button class="qcard is-locked" type="button" disabled aria-describedby="fail-why"><span class="qcard-lockbadge"><span class="ic i-lock" aria-hidden="true"></span></span><span class="ic i-fail" aria-hidden="true"></span>Fail<span class="qcard-sub" id="fail-why">Loyal knights can only play Success</span></button>
+      </div>
+      <sc-if value="{{picked}}" hint-placeholder-val="{{false}}">
+        <button class="btn btn-primary btn-block anim-rise" type="button" onClick="{{lock}}"><span class="ic i-lock" aria-hidden="true"></span>Play Success</button>
+      </sc-if>
+      <sc-if value="{{notPicked}}" hint-placeholder-val="{{true}}">
+        <p class="btn-note" style="min-height: 56px">Tap your card, then play it.</p>
+      </sc-if>
+    </sc-if>
+    <sc-if value="{{locked}}" hint-placeholder-val="{{false}}">
+      <button class="peek" type="button" aria-label="Hold to peek at your role"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+      <a class="proto-skip" href="D12-ResultSuccess.dc.html">Ilse plays ›</a>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: false, locked: false }; }
+  renderVals() {
+    const s = this.state;
+    return {
+      picked: s.picked && !s.locked, notPicked: !s.picked,
+      open: !s.locked, locked: s.locked,
+      sCls: 'qcard qcard-success' + (s.picked ? ' is-picked' : ''),
+      pick: () => this.setState({ picked: true }),
+      lock: () => this.setState({ locked: true }),
+      doneCount: s.locked ? 1 : 0,
+      headline: s.locked ? 'Waiting for Ilse' : 'Choose your quest card',
+      waitLine: s.locked ? 'Then both cards are shuffled and revealed.' : 'You and Ilse are on Quest 1.'
+    };
+  }
+}
+</script>
+</body>
+</html>

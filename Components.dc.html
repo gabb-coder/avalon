@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avalon — components</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="rt scene" style="width: 1440px; height: 2760px; padding: 72px 80px; display: flex; flex-direction: column; gap: 40px; box-sizing: border-box; overflow: hidden">
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <p class="eyebrow">02 · Components</p>
+    <h1 class="d-xl" style="font-size: 60px">Twenty pieces, every state</h1>
+    <p class="t-body-l muted" style="max-width: 820px">One pattern per job: one confirm pattern (select, then a gold “Lock …” button), one waiting pattern (status bar + who's pending), one toast slot. Class names match <code style="color:#F0D58C">rt.css</code>.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 48px; align-items: start">
+
+    <!-- Buttons -->
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Buttons <span class="t-label faint">.btn</span></h2>
+      <button class="btn btn-primary btn-block" type="button">Primary · Start game</button>
+      <button class="btn btn-secondary btn-block" type="button">Secondary · Share link</button>
+      <button class="btn btn-danger btn-block" type="button">Danger · Leave game</button>
+      <button class="btn btn-ghost btn-block" type="button" style="box-shadow: inset 0 0 0 1px rgba(243,235,221,.1)">Ghost · Cancel</button>
+      <div class="col" style="gap: 6px">
+        <button class="btn btn-primary btn-block" type="button" disabled="">Start game</button>
+        <p class="btn-note"><span class="ic i-info ic-16" aria-hidden="true"></span>Need 2 more players (5 minimum)</p>
+      </div>
+      <p class="t-label faint">Disabled always explains why, directly under the button.</p>
+      <button class="btn btn-primary btn-block is-loading" type="button" aria-busy="true">Creating room</button>
+      <div class="row" style="gap: 8px">
+        <button class="icon-btn framed" type="button" aria-label="Menu"><span class="ic i-menu" aria-hidden="true"></span></button>
+        <button class="icon-btn framed" type="button" aria-label="History"><span class="ic i-history" aria-hidden="true"></span></button>
+        <button class="icon-btn framed" type="button" aria-label="Copy room code"><span class="ic i-copy" aria-hidden="true"></span></button>
+        <button class="icon-btn danger" type="button" aria-label="Remove Jude"><span class="ic i-kick" aria-hidden="true"></span></button>
+        <button class="btn btn-secondary btn-md" type="button">Medium 48</button>
+      </div>
+      <p class="t-label muted b" style="margin-top: 6px">Hold to peek (idle → held)</p>
+      <button class="peek" type="button"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+      <button class="peek is-held" type="button"><span class="ic i-eye" aria-hidden="true"></span>Merlin · release to hide</button>
+    </section>
+
+    <!-- Inputs -->
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Inputs</h2>
+      <div class="field"><label class="field-label" for="c-n1"><span>Your name</span><span class="tnum faint">5/16</span></label><input id="c-n1" class="input" value="Rowan"></div>
+      <div class="field"><label class="field-label" for="c-n2"><span>Your name · focus</span><span class="tnum faint">3/16</span></label><input id="c-n2" class="input is-focus" value="Mei"></div>
+      <div class="field is-error"><label class="field-label" for="c-n3"><span>Your name · error</span><span class="tnum">4/16</span></label><input id="c-n3" class="input" value="Kofi" aria-invalid="true" aria-describedby="c-n3m"><p class="field-msg" id="c-n3m"><span class="ic i-warn ic-16" aria-hidden="true"></span>Someone here is already called Kofi. Try “Kofi B”.</p></div>
+      <p class="t-label muted b">Room code <span class="faint">.code</span></p>
+      <div class="code" aria-label="Room code"><div class="code-cell is-filled">K</div><div class="code-cell is-filled">Q</div><div class="code-cell is-active"></div><div class="code-cell"></div></div>
+      <div class="code is-error"><div class="code-cell">Q</div><div class="code-cell">X</div><div class="code-cell">T</div><div class="code-cell">R</div></div>
+      <p class="field-msg evil"><span class="ic i-warn ic-16" aria-hidden="true"></span>No room called QXTR. Check the code with your host.</p>
+      <p class="t-label muted b">Toggle <span class="faint">.switch</span></p>
+      <div class="panel" style="padding: 0 16px">
+        <div class="toggle-row"><label><span class="ic i-percival good" aria-hidden="true"></span><span class="grow">Percival</span></label><input class="switch" type="checkbox" role="switch" checked="" aria-label="Percival"></div>
+        <div class="toggle-row"><label><span class="ic i-oberon evil" aria-hidden="true"></span><span class="grow">Oberon</span></label><input class="switch" type="checkbox" role="switch" aria-label="Oberon"></div>
+        <div class="toggle-row"><label><span class="ic i-mordred faint" aria-hidden="true"></span><span class="grow faint">Mordred · needs 7+</span></label><input class="switch" type="checkbox" role="switch" disabled="" aria-label="Mordred"></div>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Oberon visibility"><button class="seg-opt is-on" type="button" role="radio" aria-checked="true">Hidden from Merlin</button><button class="seg-opt" type="button" role="radio" aria-checked="false">Merlin sees Oberon</button></div>
+    </section>
+
+    <!-- People -->
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Avatars &amp; chips</h2>
+      <div class="row" style="gap: 18px; flex-wrap: wrap">
+        <span class="av av-32">M</span>
+        <span class="av">I</span>
+        <span class="av av-48 is-you">R<span class="av-badge lead"><span class="ic i-standard" aria-hidden="true"></span></span></span>
+        <span class="av av-48">J<span class="av-badge lady"><span class="ic i-lady" aria-hidden="true"></span></span></span>
+        <span class="av av-48 is-off">K<span class="av-badge off"><span class="ic i-wifioff" aria-hidden="true"></span></span></span>
+        <span class="av av-56">S<span class="av-badge ok"><span class="ic i-check" aria-hidden="true"></span></span></span>
+      </div>
+      <p class="t-label faint">Avatars are neutral on purpose: no colour that could hint at a team. You = gold ring. Badges: leader, Lady, offline, done.</p>
+      <div class="row" style="gap: 8px; flex-wrap: wrap">
+        <span class="chip chip-good"><span class="ic i-good" aria-hidden="true"></span>Good</span>
+        <span class="chip chip-evil"><span class="ic i-evil" aria-hidden="true"></span>Evil</span>
+        <span class="chip chip-gold"><span class="ic i-crown" aria-hidden="true"></span>Host</span>
+        <span class="chip chip-gold"><span class="ic i-standard" aria-hidden="true"></span>Leader</span>
+        <span class="chip"><span class="ic i-lady" aria-hidden="true"></span>Lady</span>
+        <span class="chip chip-warn"><span class="ic i-wifioff" aria-hidden="true"></span>Offline</span>
+        <span class="chip">You</span>
+      </div>
+      <p class="t-label muted b">Tokens</p>
+      <div class="row" style="gap: 14px">
+        <span class="tok tok-leader" role="img" aria-label="Leader"><span class="ic i-standard" aria-hidden="true"></span></span>
+        <span class="tok tok-lady" role="img" aria-label="Lady of the Lake"><span class="ic i-lady" aria-hidden="true"></span></span>
+        <span class="tok tok-host" role="img" aria-label="Host"><span class="ic i-crown" aria-hidden="true"></span></span>
+        <span class="t-label muted">Leader (gold standard) · Lady (parchment lake) · Host (crown)</span>
+      </div>
+      <p class="t-label muted b">Player rows <span class="faint">.prow</span></p>
+      <div class="plist">
+        <div class="prow"><span class="av is-you">R</span><span class="prow-name"><span>Rowan</span><span class="prow-meta">You · Host</span></span><span class="prow-end"><span class="ic i-crown gold" aria-hidden="true"></span></span></div>
+        <div class="prow"><span class="av">J</span><span class="prow-name"><span>Jude</span><span class="prow-meta">Joined</span></span><span class="prow-end"><button class="icon-btn danger" type="button" aria-label="Remove Jude"><span class="ic i-kick" aria-hidden="true"></span></button></span></div>
+        <button class="prow is-selected" type="button" aria-pressed="true"><span class="av">I</span><span class="prow-name"><span>Ilse</span><span class="prow-meta">On the team</span></span><span class="tick"><span class="ic i-check" aria-hidden="true"></span></span></button>
+        <button class="prow is-disabled" type="button" disabled=""><span class="av">J</span><span class="prow-name"><span>Jude</span><span class="prow-meta">Already held the Lady</span></span><span class="ic i-lock faint" aria-hidden="true"></span></button>
+        <div class="prow is-off"><span class="av is-off">K</span><span class="prow-name"><span>Kofi</span><span class="prow-meta">Offline · reconnecting 0:42</span></span><span class="chip chip-warn"><span class="ic i-wifioff" aria-hidden="true"></span>Offline</span></div>
+      </div>
+    </section>
+
+    <!-- Quest track + rejects -->
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Quest track &amp; rejects</h2>
+      <div class="row" style="gap: 18px; align-items: flex-start">
+        <div class="qnode"><div class="qnode-disc">1</div><span class="qnode-size">2</span><span class="t-label faint">upcoming</span></div>
+        <div class="qnode is-current"><div class="qnode-disc">2</div><span class="qnode-size">3</span><span class="t-label gold">current</span></div>
+        <div class="qnode is-success"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div><span class="qnode-size">Success</span></div>
+        <div class="qnode is-fail"><div class="qnode-disc"><span class="ic i-fail ic-28" aria-hidden="true"></span></div><span class="qnode-size">Fail</span></div>
+      </div>
+      <div class="panel">
+        <div class="qtrack" role="list" aria-label="Quests">
+          <div class="qnode is-success" role="listitem" aria-label="Quest 1, success"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div><span class="qnode-size">2</span></div>
+          <div class="qnode is-fail" role="listitem" aria-label="Quest 2, failed"><div class="qnode-disc"><span class="ic i-fail ic-28" aria-hidden="true"></span></div><span class="qnode-size">3</span></div>
+          <div class="qnode is-current" role="listitem" aria-label="Quest 3, current, 3 knights"><div class="qnode-disc">3</div><span class="qnode-size">3</span></div>
+          <div class="qnode" role="listitem" aria-label="Quest 4, 4 knights, needs 2 fails"><div class="qnode-disc">4</div><span class="qnode-size">4</span><span class="qnode-tag">2 fails</span></div>
+          <div class="qnode" role="listitem" aria-label="Quest 5, 4 knights"><div class="qnode-disc">5</div><span class="qnode-size">4</span></div>
+        </div>
+      </div>
+      <p class="t-label faint">Success = round teal disc + sun. Fail = crimson diamond + crack. Number under each = team size. “2 fails” tag on Quest 4 for 7+ players.</p>
+      <div class="col" style="gap: 10px">
+        <div class="rejects"><span class="rejects-label">Rejected teams · 0 of 5</span><span class="pips"><span class="pip"><span>1</span></span><span class="pip"><span>2</span></span><span class="pip"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span></div>
+        <div class="rejects"><span class="rejects-label">2 of 5</span><span class="pips"><span class="pip on l1"><span>1</span></span><span class="pip on l2"><span>2</span></span><span class="pip"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span></div>
+        <div class="rejects lvl-3"><span class="rejects-label">3 of 5 · careful</span><span class="pips"><span class="pip on l1"><span>1</span></span><span class="pip on l2"><span>2</span></span><span class="pip on l3"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span></div>
+        <div class="rejects lvl-4"><span class="rejects-label">4 of 5 · next reject, Evil wins</span><span class="pips"><span class="pip on l1"><span>1</span></span><span class="pip on l2"><span>2</span></span><span class="pip on l3"><span>3</span></span><span class="pip on l4"><span>4</span></span><span class="pip"><span>5</span></span></span></div>
+      </div>
+    </section>
+
+    <!-- Vote + quest cards -->
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Vote pair &amp; quest cards</h2>
+      <div class="vote-pair">
+        <button class="vote vote-approve" type="button"><span class="ic-ring"><span class="ic i-check" aria-hidden="true"></span></span>Approve</button>
+        <button class="vote vote-reject" type="button"><span class="ic-ring"><span class="ic i-cross" aria-hidden="true"></span></span>Reject</button>
+      </div>
+      <div class="vote-pair" style="transform: scale(.9); transform-origin: top center; margin-bottom: -16px">
+        <button class="vote vote-approve is-picked" type="button" aria-pressed="true"><span class="ic-ring"><span class="ic i-check" aria-hidden="true"></span></span>Approve<span class="vote-sub">Selected</span></button>
+        <button class="vote vote-reject is-dim" type="button" aria-pressed="false"><span class="ic-ring"><span class="ic i-cross" aria-hidden="true"></span></span>Reject</button>
+      </div>
+      <p class="t-label faint">Step 1 select (lift + ring, other dims). Step 2 “Lock in Approve” gold button. Locked = panel with lock icon.</p>
+      <div class="qcards">
+        <button class="qcard qcard-success" type="button"><span class="ic i-success" aria-hidden="true"></span>Success</button>
+        <button class="qcard qcard-fail" type="button"><span class="ic i-fail" aria-hidden="true"></span>Fail</button>
+        <button class="qcard qcard-success is-picked" type="button" aria-pressed="true" style="height: 170px"><span class="ic i-success" style="width:44px;height:44px" aria-hidden="true"></span>Success</button>
+        <button class="qcard is-locked" type="button" disabled="" style="height: 170px"><span class="qcard-lockbadge"><span class="ic i-lock" aria-hidden="true"></span></span><span class="ic i-fail" style="width:44px;height:44px" aria-hidden="true"></span>Fail<span class="qcard-sub">Loyal knights can only succeed</span></button>
+      </div>
+      <p class="t-label muted b">Vote marks &amp; history cells</p>
+      <div class="row" style="gap: 16px; flex-wrap: wrap">
+        <span class="row" style="gap:6px"><span class="vm vm-a"><span class="ic i-check" aria-hidden="true"></span></span><span class="t-label">Approve</span></span>
+        <span class="row" style="gap:6px"><span class="vm vm-r"><span class="ic i-cross" aria-hidden="true"></span></span><span class="t-label">Reject</span></span>
+        <span class="hcell on-team"><span class="vm vm-a"><span class="ic i-check" aria-hidden="true"></span></span></span><span class="t-label">On team</span>
+        <span class="hcell on-team"><span class="lead"><span class="ic i-standard" aria-hidden="true"></span></span><span class="vm vm-a"><span class="ic i-check" aria-hidden="true"></span></span></span><span class="t-label">Leader</span>
+      </div>
+    </section>
+
+    <!-- Status bars -->
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Status bar <span class="t-label faint">.status</span></h2>
+      <p class="t-label faint">Always: phase · what's happening · who we wait on.</p>
+      <div class="status" style="margin: 0"><div class="status-top"><span class="status-phase">Quest 3 · Vote</span><span class="t-label faint tnum">4 of 7 in</span></div><p class="status-main">Vote on Sana's team</p><div class="status-wait"><span class="dots"><i></i><i></i><i></i></span>Waiting on Kofi, Mei, Jude</div></div>
+      <div class="status is-you" style="margin: 0"><div class="status-top"><span class="status-phase"><span class="ic i-standard ic-16" aria-hidden="true"></span>Your turn</span></div><p class="status-main">You lead Quest 1. Choose 2 knights.</p><div class="status-wait">Everyone is watching your picks live</div></div>
+      <div class="status is-alert" style="margin: 0"><div class="status-top"><span class="status-phase" style="color:#F2A65A"><span class="ic i-wifioff ic-16" aria-hidden="true"></span>Paused</span></div><p class="status-main">Jude dropped out</p><div class="status-wait">Game resumes when Jude is back · host can skip in 1:30</div></div>
+      <div class="status is-tense" style="margin: 0"><div class="status-top"><span class="status-phase" style="color:#F0707F"><span class="ic i-assassin ic-16" aria-hidden="true"></span>Assassination</span></div><p class="status-main">The Assassin is choosing</p><div class="status-wait">Evil may talk. Good, stay quiet.</div></div>
+    </section>
+
+    <!-- Toasts & waiting -->
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Toasts &amp; waiting</h2>
+      <div class="toast toast-ok" role="status"><span class="ic i-check" aria-hidden="true"></span><span class="grow">Room code copied</span></div>
+      <div class="toast toast-info" role="status"><span class="ic i-crown" aria-hidden="true"></span><span class="grow">Ilse is now the host</span></div>
+      <div class="toast toast-warn" role="status"><span class="ic i-wifioff" aria-hidden="true"></span><span class="grow">Jude is offline</span></div>
+      <div class="toast toast-err" role="alert"><span class="ic i-warn" aria-hidden="true"></span><span class="grow">Couldn't send your vote</span><button class="toast-action" type="button">Retry</button></div>
+      <p class="t-label faint">One slot under the top bar, max 2 stacked, 3s (errors stay until acted on). Never covers the status bar's main line.</p>
+      <div class="row" style="gap: 20px"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="spinner" aria-hidden="true"></span><div class="progress grow"><i style="width: 57%"></i></div></div>
+      <div class="progress is-indet"><i></i></div>
+      <div class="waitgrid">
+        <div class="wcell is-done"><span class="av av-32">I</span><span class="nm">Ilse</span><span class="state"><span class="ic i-check ic-14" aria-hidden="true"></span>Ready</span></div>
+        <div class="wcell is-pending"><span class="av av-32">J</span><span class="nm">Jude</span><span class="state"><span class="dots"><i></i><i></i><i></i></span></span></div>
+      </div>
+    </section>
+
+    <!-- Sheet & modal minis -->
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Sheet &amp; modal</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+        <div style="position: relative; height: 330px; border-radius: 18px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(243,235,221,.1)" class="scene">
+          <div class="scrim"></div>
+          <div class="sheet" style="max-height: 72%">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head"><p class="t-title grow">Bottom sheet</p><button class="icon-btn" type="button" aria-label="Close"><span class="ic i-cross" aria-hidden="true"></span></button></div>
+            <div class="sheet-body"><p class="t-label muted">History, rules, glossary, menu. Drag down, tap scrim, or ✕ to close.</p></div>
+          </div>
+        </div>
+        <div style="position: relative; height: 330px; border-radius: 18px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(243,235,221,.1)" class="scene">
+          <div class="scrim"></div>
+          <div class="modal is-danger" style="left: 10px; right: 10px; padding: 16px 12px 12px; gap: 8px">
+            <div class="modal-icon" style="width: 40px; height: 40px"><span class="ic i-leave" aria-hidden="true"></span></div>
+            <p class="t-body b">Leave the game?</p>
+            <div class="modal-actions" style="gap: 6px"><button class="btn btn-danger btn-md" type="button">Leave</button><button class="btn btn-ghost btn-md" type="button">Stay</button></div>
+          </div>
+        </div>
+      </div>
+      <p class="t-label faint">Sheets for reference content; modals only for destructive or irreversible confirms. The danger action sits first, the safe action (“Stay”, “Cancel”) sits under it, and a tap on the scrim always means cancel.</p>
+    </section>
+
+    <!-- Banners -->
+    <section class="col" style="gap: 14px; grid-column: span 2">
+      <h2 class="d-m">Game-over banners · every reason</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+        <div class="banner banner-good"><span class="ic i-good ic-40 good" aria-hidden="true"></span><p class="d-m">Good prevails</p><p class="t-label muted">Three quests succeeded and the Assassin missed Merlin</p></div>
+        <div class="banner banner-good"><span class="ic i-good ic-40 good" aria-hidden="true"></span><p class="d-m">Good prevails</p><p class="t-label muted">Three quests succeeded (no Assassin in this game)</p></div>
+        <div class="banner banner-evil"><span class="ic i-evil ic-40 evil" aria-hidden="true"></span><p class="d-m">Evil prevails</p><p class="t-label muted">Three quests failed</p></div>
+        <div class="banner banner-evil"><span class="ic i-evil ic-40 evil" aria-hidden="true"></span><p class="d-m">Evil prevails</p><p class="t-label muted">Five teams rejected in a row</p></div>
+        <div class="banner banner-evil"><span class="ic i-assassin ic-40 evil" aria-hidden="true"></span><p class="d-m">Evil prevails</p><p class="t-label muted">The Assassin found Merlin</p></div>
+        <div class="panel" style="display: flex; flex-direction: column; gap: 6px; justify-content: center"><p class="t-label muted">Banner = team mark + display title + plain-language reason. Shape of the mark (round vs thorn) repeats the team even without colour.</p></div>
+      </div>
+    </section>
+
+    <section class="col" style="gap: 14px">
+      <h2 class="d-m">Private label</h2>
+      <span class="private"><span class="ic i-lock" aria-hidden="true"></span>Only you can see this</span>
+      <div class="private-band"><span class="ic i-lock" aria-hidden="true"></span>Private · angle your phone away</div>
+      <p class="t-label faint">Appears on every surface that shows a secret: role card front, peek, quest card choice, Lady result, Assassin's pick. Nothing secret ever appears on the board itself.</p>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2760}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

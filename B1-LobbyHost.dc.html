@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lobby — host</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="G5-LeaveConfirm.dc.html" aria-label="Leave room"><span class="ic i-left" aria-hidden="true"></span></a>
+    <span class="t-body b">Your room</span>
+    <a class="icon-btn" href="B4-Glossary.dc.html" aria-label="Role glossary"><span class="ic i-cards" aria-hidden="true"></span></a>
+  </div>
+
+  <div class="content" style="gap: 14px">
+    <div class="panel panel-gold" style="display: flex; align-items: center; gap: 8px; padding: 12px 8px 12px 16px">
+      <button type="button" onClick="{{copy}}" style="appearance: none; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; flex: 1; min-width: 0; padding: 0" aria-label="Room code K Q V X. Tap to copy">
+        <span class="eyebrow" style="font-size: 12px; display: block">Room code · tap to copy</span>
+        <span class="d-xl tnum" style="font-size: 52px; letter-spacing: .14em; color: #F0D58C; display: block; line-height: 1.05">KQVX</span>
+      </button>
+      <button class="icon-btn framed" type="button" onClick="{{copy}}" aria-label="Copy room code"><span class="ic i-copy" aria-hidden="true"></span></button>
+      <button class="icon-btn framed" type="button" aria-label="Share invite link"><span class="ic i-share" aria-hidden="true"></span></button>
+    </div>
+
+    <sc-if value="{{copied}}" hint-placeholder-val="{{false}}">
+      <div class="toast toast-ok" role="status"><span class="ic i-check" aria-hidden="true"></span><span class="grow">Code copied. Paste it in your group chat.</span></div>
+    </sc-if>
+
+    <div class="seg" role="tablist" aria-label="Lobby">
+      <button class="{{tabPlayersCls}}" type="button" role="tab" aria-selected="{{onPlayers}}" onClick="{{showPlayers}}">Players · 7</button>
+      <button class="{{tabRolesCls}}" type="button" role="tab" aria-selected="{{onRoles}}" onClick="{{showRoles}}">Roles &amp; rules</button>
+    </div>
+
+    <sc-if value="{{onPlayers}}" hint-placeholder-val="{{true}}">
+      <div class="col" style="gap: 10px">
+        <div class="row" style="justify-content: space-between">
+          <span class="t-label muted b">7 of 10 seats · 5 needed</span>
+          <span class="chip chip-good"><span class="ic i-check" aria-hidden="true"></span>Ready</span>
+        </div>
+        <div class="plist">
+          <div class="prow"><span class="av is-you">R</span><span class="prow-name"><span>Rowan</span><span class="prow-meta">You · host</span></span><span class="prow-end" style="padding-right: 12px"><span class="ic i-crown gold" role="img" aria-label="Host"></span></span></div>
+          <sc-for list="{{players}}" as="p" hint-placeholder-count="6">
+            <div class="prow"><span class="av">{{p.i}}</span><span class="prow-name"><span>{{p.name}}</span><span class="prow-meta">{{p.meta}}</span></span><span class="prow-end"><a class="icon-btn danger" href="G6-KickConfirm.dc.html" aria-label="Remove {{p.name}} from the room"><span class="ic i-kick" aria-hidden="true"></span></a></span></div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{onRoles}}" hint-placeholder-val="{{false}}">
+      <div class="col" style="gap: 12px">
+        <div class="panel panel-gold" style="display: flex; flex-direction: column; gap: 10px" aria-live="polite">
+          <div class="row" style="justify-content: space-between; align-items: baseline">
+            <p class="t-title">7 players</p>
+            <p class="t-body b"><span class="good">{{goodN}} Good</span> · <span class="evil">{{evilN}} Evil</span></p>
+          </div>
+          <div class="row" style="gap: 6px; flex-wrap: wrap">
+            <sc-for list="{{goodChips}}" as="c" hint-placeholder-count="3"><span class="chip chip-good"><span class="ic i-good" aria-hidden="true"></span>{{c}}</span></sc-for>
+            <sc-for list="{{evilChips}}" as="c" hint-placeholder-count="3"><span class="chip chip-evil"><span class="ic i-evil" aria-hidden="true"></span>{{c}}</span></sc-for>
+          </div>
+        </div>
+
+        <sc-if value="{{hasError}}" hint-placeholder-val="{{false}}">
+          <p class="field-msg evil" role="alert"><span class="ic i-warn ic-16" aria-hidden="true"></span>{{errorText}}</p>
+        </sc-if>
+        <sc-if value="{{hasHint}}" hint-placeholder-val="{{false}}">
+          <p class="field-msg" style="color: #F2A65A"><span class="ic i-info ic-16" aria-hidden="true"></span>{{hintText}}</p>
+        </sc-if>
+
+        <div class="panel" style="padding: 0 16px">
+          <div class="toggle-row" style="min-height: 56px"><span class="ic i-merlin good" aria-hidden="true"></span><span class="grow"><span class="t-body b">Merlin &amp; Assassin</span><br><span class="t-label muted">Always in the game</span></span><span class="ic i-lock faint" aria-hidden="true"></span></div>
+          <sc-for list="{{opts}}" as="o" hint-placeholder-count="4">
+            <div class="toggle-row">
+              <label for="{{o.id}}"><span class="ic {{o.icon}} {{o.tone}}" aria-hidden="true"></span><span class="grow"><span class="t-body b">{{o.name}}</span><br><span class="t-label muted">{{o.desc}}</span></span></label>
+              <input class="switch" type="checkbox" role="switch" id="{{o.id}}" checked="{{o.on}}" onChange="{{o.toggle}}">
+            </div>
+          </sc-for>
+        </div>
+
+        <div class="col" style="gap: 8px">
+          <p class="t-label muted b" id="ob-l">Oberon and Merlin</p>
+          <div class="seg" role="radiogroup" aria-labelledby="ob-l">
+            <button class="{{obSeenCls}}" type="button" role="radio" aria-checked="{{obSeen}}" onClick="{{setObSeen}}" disabled="{{obOff}}">Merlin sees Oberon</button>
+            <button class="{{obHiddenCls}}" type="button" role="radio" aria-checked="{{obHidden}}" onClick="{{setObHidden}}" disabled="{{obOff}}">Hidden from Merlin</button>
+          </div>
+          <sc-if value="{{obOff}}" hint-placeholder-val="{{true}}"><p class="t-label faint">Turn Oberon on to choose.</p></sc-if>
+        </div>
+
+        <div class="panel" style="padding: 0 16px">
+          <div class="toggle-row">
+            <label for="opt-lady"><span class="ic i-lady good" aria-hidden="true"></span><span class="grow"><span class="t-body b">Lady of the Lake</span><br><span class="t-label muted">After quests 2–4, check one player's team. Best with 7+.</span></span></label>
+            <input class="switch" type="checkbox" role="switch" id="opt-lady" checked="{{lady}}" onChange="{{toggleLady}}">
+          </div>
+        </div>
+        <a class="btn btn-ghost btn-md" href="B4-Glossary.dc.html" style="color: #F0D58C"><span class="ic i-cards" aria-hidden="true"></span>What does each role do?</a>
+      </div>
+    </sc-if>
+  </div>
+
+  <div class="dock">
+    <sc-if value="{{canStart}}" hint-placeholder-val="{{true}}">
+      <a class="btn btn-primary btn-block" href="C1-RoleHidden.dc.html">Start game · deal roles</a>
+    </sc-if>
+    <sc-if value="{{cantStart}}" hint-placeholder-val="{{false}}">
+      <button class="btn btn-primary btn-block" type="button" disabled="" aria-describedby="start-why">Start game</button>
+      <p class="btn-note" id="start-why"><span class="ic i-warn ic-16" aria-hidden="true"></span>{{errorText}}</p>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'players', copied: false, percival: true, morgana: true, mordred: true, oberon: false, lady: true, obSeen: true };
+  }
+  renderVals() {
+    const s = this.state;
+    const goodN = 4, evilN = 3;
+    const evilSpecial = 1 + (s.morgana ? 1 : 0) + (s.mordred ? 1 : 0) + (s.oberon ? 1 : 0);
+    const tooMany = evilSpecial > evilN;
+    const goodChips = ['Merlin'].concat(s.percival ? ['Percival'] : []);
+    const servants = goodN - goodChips.length;
+    goodChips.push(servants + ' Loyal Servant' + (servants === 1 ? '' : 's'));
+    const evilChips = ['Assassin'].concat(s.morgana ? ['Morgana'] : [], s.mordred ? ['Mordred'] : [], s.oberon ? ['Oberon'] : []);
+    const minions = evilN - (evilChips.length);
+    if (minions > 0) evilChips.push(minions + ' Minion' + (minions === 1 ? '' : 's'));
+    const hint = s.morgana && !s.percival ? 'Morgana only matters if Percival is in the game.' : '';
+    const mk = (id, key, icon, tone, name, desc) => ({ id, icon, tone, name, desc, on: !!s[key], toggle: () => this.setState({ [key]: !s[key] }) });
+    return {
+      copied: s.copied,
+      copy: () => { this.setState({ copied: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ copied: false }), 2400); },
+      onPlayers: s.tab === 'players', onRoles: s.tab === 'roles',
+      tabPlayersCls: 'seg-opt' + (s.tab === 'players' ? ' is-on' : ''), tabRolesCls: 'seg-opt' + (s.tab === 'roles' ? ' is-on' : ''),
+      showPlayers: () => this.setState({ tab: 'players' }), showRoles: () => this.setState({ tab: 'roles' }),
+      players: [ { name: 'Ilse', i: 'I', meta: 'Joined' }, { name: 'Tomas', i: 'T', meta: 'Joined' }, { name: 'Kofi', i: 'K', meta: 'Joined' }, { name: 'Mei', i: 'M', meta: 'Joined' }, { name: 'Sana', i: 'S', meta: 'Joined' }, { name: 'Jude', i: 'J', meta: 'Just joined' } ],
+      goodN, evilN, goodChips, evilChips,
+      opts: [
+        mk('opt-perc', 'percival', 'i-percival', 'good', 'Percival', 'Good. Sees who might be Merlin.'),
+        mk('opt-morg', 'morgana', 'i-morgana', 'evil', 'Morgana', 'Evil. Looks like Merlin to Percival.'),
+        mk('opt-mord', 'mordred', 'i-mordred', 'evil', 'Mordred', 'Evil. Hidden from Merlin.'),
+        mk('opt-ober', 'oberon', 'i-oberon', 'evil', 'Oberon', 'Evil, but alone. Doesn’t know the others.')
+      ],
+      obOff: !s.oberon,
+      obHidden: !s.obSeen, obSeen: s.obSeen,
+      obHiddenCls: 'seg-opt' + (!s.obSeen ? ' is-on' : ''), obSeenCls: 'seg-opt' + (s.obSeen ? ' is-on' : ''),
+      setObHidden: () => this.setState({ obSeen: false }), setObSeen: () => this.setState({ obSeen: true }),
+      lady: s.lady, toggleLady: () => this.setState({ lady: !s.lady }),
+      hasError: tooMany, errorText: tooMany ? '7 players have 3 Evil seats, but ' + evilSpecial + ' Evil roles are on. Turn one off.' : '',
+      hasHint: !!hint, hintText: hint,
+      canStart: !tooMany, cantStart: tooMany
+    };
+  }
+}
+</script>
+</body>
+</html>

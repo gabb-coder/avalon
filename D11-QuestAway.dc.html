@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quest — the team is away</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-history" aria-hidden="true"></span></span>
+  </div>
+  <div class="status" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-arrow ic-16" aria-hidden="true"></span>Quest 2 · On the quest</span><span class="t-label faint tnum">1 of 3 played</span></div>
+    <p class="status-main">The team is on the quest</p>
+    <div class="status-wait"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>Waiting on Mei and Sana</div>
+  </div>
+
+  <div class="content" style="align-items: center; justify-content: center; gap: 22px; text-align: center">
+    <div style="position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center">
+      <div class="anim-breathe" style="position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(214,178,94,.18), rgba(214,178,94,0) 68%)" aria-hidden="true"></div>
+      <div style="width: 150px; height: 150px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(214,178,94,.55), inset 0 0 0 10px rgba(10,15,30,.6), inset 0 0 0 11px rgba(214,178,94,.2); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2px">
+        <span class="eyebrow" style="font-size: 12px">Quest</span>
+        <span class="d-xl" style="font-size: 64px; color: #F0D58C">2</span>
+      </div>
+    </div>
+    <p class="t-body-l muted pretty" style="max-width: 300px">Three knights are choosing in secret. You're not on this one. Watch faces, not phones.</p>
+    <div class="col" style="width: 100%; gap: 8px">
+      <div class="wcell is-done"><span class="av av-32">T</span><span class="nm">Tomas</span><span class="state"><span class="ic i-check ic-14" aria-hidden="true"></span>Played</span></div>
+      <div class="wcell is-pending"><span class="av av-32">M</span><span class="nm">Mei</span><span class="state"><span class="dots" aria-label="Choosing"><i></i><i></i><i></i></span></span></div>
+      <div class="wcell is-pending"><span class="av av-32">S</span><span class="nm">Sana</span><span class="state"><span class="dots" aria-label="Choosing"><i></i><i></i><i></i></span></span></div>
+    </div>
+  </div>
+
+  <div class="dock">
+    <button class="peek" type="button" aria-label="Hold to peek at your role"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

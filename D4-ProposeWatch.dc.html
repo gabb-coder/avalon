@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Propose a team — watching the leader</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-history" aria-hidden="true"></span></span>
+  </div>
+  <div class="status" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-standard ic-16" aria-hidden="true"></span>Quest 2 · Team building</span><span class="t-label b tnum gold">2 of 3</span></div>
+    <p class="status-main">Ilse is choosing 3 knights</p>
+    <div class="status-wait">Picked so far: <b style="color:#F3EBDD">Ilse, Tomas</b> · 1 to go</div>
+  </div>
+
+  <div class="content" style="gap: 12px; padding-top: 12px">
+    <div class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 14px 12px">
+      <div class="qtrack" role="list" aria-label="Quests">
+        <div class="qnode is-success" role="listitem" aria-label="Quest 1, success"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div><span class="qnode-size">2</span></div>
+        <div class="qnode is-current" role="listitem" aria-label="Quest 2, current, 3 knights"><div class="qnode-disc">2</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc">3</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc">4</div><span class="qnode-size">4</span><span class="qnode-tag">2 fails</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc">5</div><span class="qnode-size">4</span></div>
+      </div>
+      <hr class="rule" style="margin: 0">
+      <div class="rejects"><span class="rejects-label">Rejected in a row · 0 of 5</span><span class="pips" aria-hidden="true"><span class="pip"><span>1</span></span><span class="pip"><span>2</span></span><span class="pip"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span></div>
+    </div>
+
+    <div class="ring" role="list" aria-label="Seats, clockwise from you">
+      <div class="ring-table" aria-hidden="true">
+        <span class="eyebrow" style="font-size: 12px">Proposed</span>
+        <div class="stack" style="margin: 4px 0"><span class="av av-32">I</span><span class="av av-32">T</span><span class="av av-32" style="background: transparent; box-shadow: inset 0 0 0 1.5px rgba(214,178,94,.6); color: #D6B25E; border: 0">?</span></div>
+        <span class="t-label faint" style="line-height: 1.2">1 more to pick</span>
+      </div>
+      <sc-for list="{{seats}}" as="s" hint-placeholder-count="7">
+        <div class="{{s.cls}}" role="listitem" aria-label="{{s.aria}}" style="left: {{s.x}}px; top: {{s.y}}px">
+          <span class="{{s.avCls}}">{{s.i}}<sc-if value="{{s.lead}}" hint-placeholder-val="{{false}}"><span class="av-badge lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if><sc-if value="{{s.lady}}" hint-placeholder-val="{{false}}"><span class="av-badge lady"><span class="ic i-lady" aria-hidden="true"></span></span></sc-if></span>
+          <span class="seat-name">{{s.name}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="dock">
+    <button class="peek" type="button" aria-label="Hold to peek at your role"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+    <p class="btn-note" style="min-height: 56px; border-radius: 16px; box-shadow: inset 0 0 0 1px rgba(243,235,221,.1)"><span class="ic i-users ic-16" aria-hidden="true"></span>Nothing to tap yet. Tell Ilse who you trust.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const players = [
+      { name: 'Rowan', you: true }, { name: 'Ilse', lead: true, team: true }, { name: 'Tomas', team: true }, { name: 'Kofi' },
+      { name: 'Mei' }, { name: 'Sana' }, { name: 'Jude', lady: true }
+    ];
+    const n = players.length, cx = 170, cy = 146, rx = 132, ry = 120;
+    return {
+      seats: players.map((p, k) => {
+        const a = Math.PI / 2 + k * 2 * Math.PI / n;
+        return {
+          name: p.name, i: p.name.charAt(0), lead: !!p.lead, lady: !!p.lady,
+          x: Math.round(cx + rx * Math.cos(a)), y: Math.round(cy + ry * Math.sin(a)),
+          cls: 'seat' + (p.team ? ' is-team' : ''), avCls: 'av av-48' + (p.you ? ' is-you' : ''),
+          aria: p.name + (p.you ? ', you' : '') + (p.lead ? ', leader' : '') + (p.team ? ', proposed' : '')
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

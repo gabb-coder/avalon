@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Board at 360 by 740</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone sm">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-history" aria-hidden="true"></span></span>
+  </div>
+  <div class="status" role="status" style="padding: 10px 12px">
+    <div class="status-top"><span class="status-phase"><span class="ic i-standard ic-16" aria-hidden="true"></span>Quest 3 · Team building</span><span class="chip chip-warn" style="min-height: 24px; padding: 0 8px"><span class="ic i-wifioff" aria-hidden="true"></span>Jude</span></div>
+    <p class="status-main">Sana is choosing 3 knights</p>
+  </div>
+
+  <div class="content" style="gap: 10px; padding-top: 10px">
+    <div class="panel" style="display: flex; flex-direction: column; gap: 10px; padding: 12px 10px">
+      <div class="qtrack compact" role="list" aria-label="Quests">
+        <div class="qnode is-success" role="listitem" aria-label="Quest 1, success"><div class="qnode-disc"><span class="ic i-success" aria-hidden="true"></span></div><span class="qnode-size">2</span></div>
+        <div class="qnode is-fail" role="listitem" aria-label="Quest 2, failed"><div class="qnode-disc"><span class="ic i-fail" aria-hidden="true"></span></div><span class="qnode-size">3</span></div>
+        <div class="qnode is-current" role="listitem" aria-label="Quest 3, current"><div class="qnode-disc">3</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem" aria-label="Quest 4, needs 2 fails"><div class="qnode-disc">4</div><span class="qnode-size">4</span><span class="qnode-tag">2 fails</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc">5</div><span class="qnode-size">4</span></div>
+      </div>
+      <div class="rejects"><span class="rejects-label">Rejected · 2 of 5</span><span class="pips" aria-hidden="true"><span class="pip on l1"><span>1</span></span><span class="pip on l2"><span>2</span></span><span class="pip"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span></div>
+    </div>
+
+    <div class="ring" style="width: 320px; height: 254px" role="list" aria-label="Seats">
+      <div class="ring-table" style="width: 124px; height: 124px; top: 124px; padding: 12px" aria-hidden="true">
+        <span class="eyebrow" style="font-size: 12px">Quest 3</span>
+        <span class="d-m" style="font-size: 22px; line-height: 1">3 knights</span>
+      </div>
+      <sc-for list="{{seats}}" as="s" hint-placeholder-count="7">
+        <div class="{{s.cls}}" role="listitem" aria-label="{{s.aria}}" style="left: {{s.x}}px; top: {{s.y}}px; width: 68px">
+          <span class="{{s.avCls}}">{{s.i}}<sc-if value="{{s.lead}}" hint-placeholder-val="{{false}}"><span class="av-badge lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if><sc-if value="{{s.lady}}" hint-placeholder-val="{{false}}"><span class="av-badge lady"><span class="ic i-lady" aria-hidden="true"></span></span></sc-if><sc-if value="{{s.off}}" hint-placeholder-val="{{false}}"><span class="av-badge off"><span class="ic i-wifioff" aria-hidden="true"></span></span></sc-if></span>
+          <span class="seat-name" style="max-width: 68px">{{s.name}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="dock" style="flex-direction: row; gap: 10px; padding-bottom: 20px">
+    <button class="peek" type="button" aria-label="Hold to peek at your role" style="min-height: 56px; padding: 0 14px"><span class="ic i-hold" aria-hidden="true"></span>Peek</button>
+    <button class="btn btn-secondary grow" type="button"><span class="ic i-history" aria-hidden="true"></span>Votes</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":360,"height":740}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const players = [
+      { name: 'Rowan', you: true, lady: true }, { name: 'Ilse' }, { name: 'Tomas' }, { name: 'Kofi' },
+      { name: 'Mei' }, { name: 'Sana', lead: true }, { name: 'Jude', off: true }
+    ];
+    const n = players.length, cx = 160, cy = 124, rx = 124, ry = 98;
+    return {
+      seats: players.map((p, k) => {
+        const a = Math.PI / 2 + k * 2 * Math.PI / n;
+        return {
+          name: p.name, i: p.name.charAt(0), lead: !!p.lead, lady: !!p.lady, off: !!p.off,
+          x: Math.round(cx + rx * Math.cos(a)), y: Math.round(cy + ry * Math.sin(a)),
+          cls: 'seat' + (p.off ? ' is-off' : ''), avCls: 'av' + (p.you ? ' is-you' : '') + (p.off ? ' is-off' : ''),
+          aria: p.name + (p.you ? ', you' : '') + (p.lead ? ', leader' : '') + (p.off ? ', offline' : '')
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

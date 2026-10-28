@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lady of the Lake — choose a player</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="E4-Menu.dc.html" aria-label="Menu"><span class="ic i-menu" aria-hidden="true"></span></a>
+    <span class="room-tag">ROOM KQVX</span>
+    <a class="icon-btn" href="E1-History.dc.html" aria-label="Vote history"><span class="ic i-history" aria-hidden="true"></span></a>
+  </div>
+  <div class="status is-you" role="status">
+    <div class="status-top"><span class="status-phase"><span class="ic i-lady ic-16" aria-hidden="true"></span>After Quest 3 · Lady of the Lake</span></div>
+    <p class="status-main">You hold the Lady. Look into one player.</p>
+    <p class="status-wait">You'll see their team, not their role. Then they take the Lady.</p>
+  </div>
+
+  <div class="content" style="gap: 8px; padding-top: 14px">
+    <div class="plist" role="radiogroup" aria-label="Choose a player">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+        <button class="{{r.cls}}" type="button" role="radio" aria-checked="{{r.on}}" disabled="{{r.dis}}" onClick="{{r.pick}}">
+          <span class="{{r.avCls}}">{{r.i}}</span>
+          <span class="prow-name"><span>{{r.name}}</span><span class="prow-meta">{{r.meta}}</span></span>
+          <sc-if value="{{r.dis}}" hint-placeholder-val="{{false}}"><span class="ic i-lock faint" style="margin-right: 10px" aria-hidden="true"></span></sc-if>
+          <sc-if value="{{r.ok}}" hint-placeholder-val="{{true}}"><span class="tick"><span class="ic i-check" aria-hidden="true"></span></span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="dock">
+    <sc-if value="{{has}}" hint-placeholder-val="{{false}}">
+      <a class="btn btn-primary btn-block anim-rise" href="D15-LadyResult.dc.html"><span class="ic i-lady" aria-hidden="true"></span>Look into {{who}}</a>
+      <p class="btn-note">Only you will see the answer.</p>
+    </sc-if>
+    <sc-if value="{{none}}" hint-placeholder-val="{{true}}">
+      <button class="btn btn-primary btn-block" type="button" disabled>Look into…</button>
+      <p class="btn-note"><span class="ic i-info ic-16" aria-hidden="true"></span>Pick one player first</p>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { pick: null }; }
+  renderVals() {
+    const list = [
+      { name: 'Rowan', dis: true, meta: 'That’s you', you: true },
+      { name: 'Ilse' }, { name: 'Tomas' }, { name: 'Kofi' }, { name: 'Mei' }, { name: 'Sana' },
+      { name: 'Jude', dis: true, meta: 'Already held the Lady' }
+    ];
+    const pk = this.state.pick;
+    return {
+      rows: list.map(p => ({
+        name: p.name, i: p.name.charAt(0), dis: !!p.dis, ok: !p.dis, on: pk === p.name,
+        meta: p.meta || (pk === p.name ? 'Selected' : ''),
+        cls: 'prow' + (p.dis ? ' is-disabled' : '') + (pk === p.name ? ' is-selected' : ''),
+        avCls: 'av' + (p.you ? ' is-you' : ''),
+        pick: () => { if (!p.dis) this.setState({ pick: p.name }); }
+      })),
+      has: !!pk, none: !pk, who: pk || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

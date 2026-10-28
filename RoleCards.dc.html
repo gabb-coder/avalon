@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avalon — role cards</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="rt scene" style="width: 1760px; height: 1380px; padding: 64px 80px; display: flex; flex-direction: column; gap: 36px; box-sizing: border-box; overflow: hidden">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <p class="eyebrow">04 · Role cards</p>
+      <h1 class="d-xl" style="font-size: 60px">One back, eight fronts</h1>
+    </div>
+    <p class="t-body muted" style="max-width: 720px">Fronts are parchment (the “secret” surface). Good cards frame the emblem in a circle, Evil in a diamond, and both carry a worded team tag. The lower panel is the player's private night information, written as names, never as roles they couldn't know.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(5, 300px); gap: 25px; align-items: start">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div class="rcard rcard-back" role="img" aria-label="Face-down role card">
+        <span class="ic i-logo" style="width: 112px; height: 112px; color: #D6B25E" aria-hidden="true"></span>
+        <p class="d-m" style="letter-spacing: .1em; color: #F0D58C; font-size: 22px">AVALON</p>
+        <span class="chip chip-gold" style="margin-top: 18px"><span class="ic i-hold" aria-hidden="true"></span>Hold to reveal</span>
+      </div>
+      <p class="t-label muted"><b style="color:#F3EBDD">Back</b> · identical for everyone, safe to show</p>
+    </div>
+    <sc-for list="{{good}}" as="r" hint-placeholder-count="3">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div class="rcard rcard-front good">
+          <span class="private"><span class="ic i-lock" aria-hidden="true"></span>Only you can see this</span>
+          <span class="rcard-emblem"><span class="ic {{r.icon}} ic-64" aria-hidden="true"></span></span>
+          <p class="rcard-name">{{r.name}}</p>
+          <span class="team-tag good"><span class="ic i-good" aria-hidden="true"></span>Good</span>
+          <p class="rcard-ability">{{r.ability}}</p>
+          <div class="rcard-intel">
+            <p class="rcard-intel-h">{{r.intelH}}</p>
+            <sc-if value="{{r.hasNames}}" hint-placeholder-val="{{true}}">
+              <div class="intel-names">
+                <sc-for list="{{r.names}}" as="n" hint-placeholder-count="2">
+                  <span class="iname {{n.kind}}"><span class="mini">{{n.i}}</span>{{n.label}}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <p style="font-size: 13px; line-height: 1.35; color: #5A4A35">{{r.intelNote}}</p>
+          </div>
+        </div>
+        <p class="t-label muted"><b style="color:#F3EBDD">{{r.name}}</b> · {{r.caption}}</p>
+      </div>
+    </sc-for>
+    <div class="panel panel-gold" style="height: 440px; display: flex; flex-direction: column; gap: 14px; padding: 22px">
+      <p class="t-title">Anatomy of a front</p>
+      <ol class="t-label muted" style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px">
+        <li><b style="color:#F3EBDD">Private label</b>: lock + “Only you can see this”, top centre.</li>
+        <li><b style="color:#F3EBDD">Emblem frame</b>: circle = Good, diamond = Evil.</li>
+        <li><b style="color:#F3EBDD">Role name</b>: Cormorant 36.</li>
+        <li><b style="color:#F3EBDD">Team tag</b>: icon + word, filled ink.</li>
+        <li><b style="color:#F3EBDD">Ability</b>: one sentence, plain words, 14px.</li>
+        <li><b style="color:#F3EBDD">Night info</b>: names only. Evil names get a crimson ring; “Merlin?” candidates get a teal ring.</li>
+      </ol>
+      <p class="t-label faint" style="margin-top: auto">Shown only while held. Release = instant hide (no fade), so a glance away is safe.</p>
+    </div>
+    <sc-for list="{{evil}}" as="r" hint-placeholder-count="5">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div class="rcard rcard-front evil">
+          <span class="private"><span class="ic i-lock" aria-hidden="true"></span>Only you can see this</span>
+          <span class="rcard-emblem"><span class="ic {{r.icon}} ic-64" aria-hidden="true"></span></span>
+          <p class="rcard-name">{{r.name}}</p>
+          <span class="team-tag evil"><span class="ic i-evil" aria-hidden="true"></span>Evil</span>
+          <p class="rcard-ability">{{r.ability}}</p>
+          <div class="rcard-intel">
+            <p class="rcard-intel-h">{{r.intelH}}</p>
+            <sc-if value="{{r.hasNames}}" hint-placeholder-val="{{true}}">
+              <div class="intel-names">
+                <sc-for list="{{r.names}}" as="n" hint-placeholder-count="2">
+                  <span class="iname {{n.kind}}"><span class="mini">{{n.i}}</span>{{n.label}}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <p style="font-size: 13px; line-height: 1.35; color: #5A4A35">{{r.intelNote}}</p>
+          </div>
+        </div>
+        <p class="t-label muted"><b style="color:#F3EBDD">{{r.name}}</b> · {{r.caption}}</p>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1760,"height":1380}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const n = (label, kind) => ({ label, kind: kind || '', i: label.charAt(0) });
+    return {
+      good: [
+        { icon: 'i-servant', name: 'Loyal Servant', ability: 'No special power. Watch the votes and the quest results to find the traitors.', intelH: 'At night you saw', hasNames: false, names: [], intelNote: 'No one. Everyone at the table is a stranger to you.', caption: 'Good · sees no one' },
+        { icon: 'i-merlin', name: 'Merlin', ability: 'You know who is Evil. Guide Good with hints: if the Assassin spots you at the end, Evil wins.', intelH: 'Evil you can see', hasNames: true, names: [n('Kofi', 'evil'), n('Sana', 'evil')], intelNote: 'One Evil player is hidden from you (Mordred is in this game).', caption: 'Good · sees Evil except Mordred' },
+        { icon: 'i-percival', name: 'Percival', ability: 'Protect Merlin. One of these two is Merlin; the other may be Morgana in disguise.', intelH: 'One of them is Merlin', hasNames: true, names: [n('Rowan', 'maybe'), n('Sana', 'maybe')], intelNote: 'Without Morgana in the game you see one name: that is Merlin.', caption: 'Good · sees Merlin (and Morgana) as “Merlin?”' }
+      ],
+      evil: [
+        { icon: 'i-minion', name: 'Minion', ability: 'Serve the traitor. Get onto teams and play Fail, without being caught.', intelH: 'Your fellow Evil', hasNames: true, names: [n('Kofi', 'evil'), n('Jude', 'evil')], intelNote: 'Oberon, if in the game, is not shown to you.', caption: 'Evil · sees fellow Evil' },
+        { icon: 'i-assassin', name: 'Assassin', ability: 'If Good wins three quests, you get one guess at who Merlin is. Get it right and Evil wins.', intelH: 'Your fellow Evil', hasNames: true, names: [n('Sana', 'evil'), n('Jude', 'evil')], intelNote: 'Watch who seems to know too much.', caption: 'Evil · sees fellow Evil · makes the final guess' },
+        { icon: 'i-morgana', name: 'Morgana', ability: 'Percival sees you as a possible Merlin. Play the part and pull him off course.', intelH: 'Your fellow Evil', hasNames: true, names: [n('Kofi', 'evil'), n('Jude', 'evil')], intelNote: 'Percival can see you, but not which of you is real.', caption: 'Evil · appears as Merlin to Percival' },
+        { icon: 'i-mordred', name: 'Mordred', ability: 'Merlin cannot see you. You are the one traitor even the wizard misses.', intelH: 'Your fellow Evil', hasNames: true, names: [n('Kofi', 'evil'), n('Sana', 'evil')], intelNote: 'Merlin knows the others, not you.', caption: 'Evil · hidden from Merlin' },
+        { icon: 'i-oberon', name: 'Oberon', ability: 'You are Evil, but alone: you do not know the other Evil players and they do not know you.', intelH: 'At night you saw', hasNames: false, names: [], intelNote: 'No one. Find your allies by how they vote.', caption: 'Evil · isolated · seen by Merlin (setting)' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

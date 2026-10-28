@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Board at 430 by 932</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone lg">
+  <div class="topbar" style="padding: 0 8px">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-history" aria-hidden="true"></span></span>
+  </div>
+  <div class="status is-you" role="status" style="margin: 0 20px">
+    <div class="status-top"><span class="status-phase"><span class="ic i-standard ic-16" aria-hidden="true"></span>Quest 1 · Your turn</span><span class="t-label faint">Leader 1 of 7</span></div>
+    <p class="status-main">You lead. Pick 2 knights for Quest 1.</p>
+    <p class="status-wait">Talk it over first. Everyone sees your picks live.</p>
+  </div>
+
+  <div class="content" style="gap: 16px; padding: 16px 20px">
+    <div class="panel" style="display: flex; flex-direction: column; gap: 14px; padding: 16px 14px">
+      <div class="qtrack" role="list" aria-label="Quests">
+        <div class="qnode is-current" role="listitem"><div class="qnode-disc" style="width: 64px; height: 64px">1</div><span class="qnode-size">2 knights</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc" style="width: 64px; height: 64px">2</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc" style="width: 64px; height: 64px">3</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc" style="width: 64px; height: 64px">4</div><span class="qnode-size">4</span><span class="qnode-tag">2 fails</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc" style="width: 64px; height: 64px">5</div><span class="qnode-size">4</span></div>
+      </div>
+      <hr class="rule" style="margin: 0">
+      <div class="rejects"><span class="rejects-label">Rejected in a row · 0 of 5</span><span class="pips" aria-hidden="true"><span class="pip"><span>1</span></span><span class="pip"><span>2</span></span><span class="pip"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span></div>
+    </div>
+
+    <div class="ring" style="width: 390px; height: 360px" role="list" aria-label="Seats">
+      <div class="ring-table" style="width: 184px; height: 184px; top: 176px" aria-hidden="true">
+        <span class="eyebrow" style="font-size: 12px">Quest 1</span>
+        <span class="d-m" style="line-height: 1">2 knights</span>
+        <span class="t-label faint" style="line-height: 1.2">1 Fail sinks it</span>
+      </div>
+      <sc-for list="{{seats}}" as="s" hint-placeholder-count="7">
+        <div class="{{s.cls}}" role="listitem" aria-label="{{s.aria}}" style="left: {{s.x}}px; top: {{s.y}}px; width: 84px">
+          <span class="{{s.avCls}}">{{s.i}}<sc-if value="{{s.lead}}" hint-placeholder-val="{{false}}"><span class="av-badge lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if><sc-if value="{{s.lady}}" hint-placeholder-val="{{false}}"><span class="av-badge lady"><span class="ic i-lady" aria-hidden="true"></span></span></sc-if></span>
+          <span class="seat-name" style="max-width: 84px">{{s.name}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="dock" style="padding: 12px 20px 28px">
+    <button class="peek" type="button"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+    <button class="btn btn-primary btn-block" type="button"><span class="ic i-standard" aria-hidden="true"></span>Choose 2 knights</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":430,"height":932}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const players = [
+      { name: 'Rowan', you: true, lead: true }, { name: 'Ilse' }, { name: 'Tomas' }, { name: 'Kofi' },
+      { name: 'Mei' }, { name: 'Sana' }, { name: 'Jude', lady: true }
+    ];
+    const n = players.length, cx = 195, cy = 176, rx = 152, ry = 140;
+    return {
+      seats: players.map((p, k) => {
+        const a = Math.PI / 2 + k * 2 * Math.PI / n;
+        return {
+          name: p.name, i: p.name.charAt(0), lead: !!p.lead, lady: !!p.lady,
+          x: Math.round(cx + rx * Math.cos(a)), y: Math.round(cy + ry * Math.sin(a)),
+          cls: 'seat', avCls: 'av av-56' + (p.you ? ' is-you' : ''),
+          aria: p.name + (p.you ? ', you' : '') + (p.lead ? ', leader' : '') + (p.lady ? ', holds the Lady' : '')
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

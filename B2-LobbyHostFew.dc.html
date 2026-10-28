@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lobby — host, not enough players</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-left" aria-hidden="true"></span></span>
+    <span class="t-body b">Your room</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-cards" aria-hidden="true"></span></span>
+  </div>
+
+  <div class="content" style="gap: 14px">
+    <div class="panel panel-gold" style="display: flex; align-items: center; gap: 8px; padding: 12px 8px 12px 16px">
+      <div class="grow">
+        <span class="eyebrow" style="font-size: 12px; display: block">Room code · tap to copy</span>
+        <span class="d-xl tnum" style="font-size: 52px; letter-spacing: .14em; color: #F0D58C; display: block; line-height: 1.05">KQVX</span>
+      </div>
+      <button class="icon-btn framed" type="button" aria-label="Copy room code"><span class="ic i-copy" aria-hidden="true"></span></button>
+      <button class="icon-btn framed" type="button" aria-label="Share invite link"><span class="ic i-share" aria-hidden="true"></span></button>
+    </div>
+
+    <div class="seg"><button class="seg-opt is-on" type="button">Players · 4</button><button class="seg-opt" type="button">Roles &amp; rules</button></div>
+
+    <div class="row" style="justify-content: space-between">
+      <span class="t-label muted b">4 of 10 seats · 5 needed</span>
+      <span class="chip chip-warn"><span class="ic i-users" aria-hidden="true"></span>1 more</span>
+    </div>
+    <div class="plist">
+      <div class="prow"><span class="av is-you">R</span><span class="prow-name"><span>Rowan</span><span class="prow-meta">You · host</span></span><span class="prow-end" style="padding-right: 12px"><span class="ic i-crown gold" role="img" aria-label="Host"></span></span></div>
+      <div class="prow"><span class="av">I</span><span class="prow-name"><span>Ilse</span><span class="prow-meta">Joined</span></span><span class="prow-end"><button class="icon-btn danger" type="button" aria-label="Remove Ilse"><span class="ic i-kick" aria-hidden="true"></span></button></span></div>
+      <div class="prow"><span class="av">T</span><span class="prow-name"><span>Tomas</span><span class="prow-meta">Joined</span></span><span class="prow-end"><button class="icon-btn danger" type="button" aria-label="Remove Tomas"><span class="ic i-kick" aria-hidden="true"></span></button></span></div>
+      <div class="prow is-off"><span class="av is-off">K</span><span class="prow-name"><span>Kofi</span><span class="prow-meta">Connecting…</span></span><span class="prow-end"><span class="spinner" style="margin-right: 14px" aria-label="Connecting"></span></span></div>
+      <div class="prow" style="background: transparent; box-shadow: inset 0 0 0 1.5px rgba(214,178,94,.35); border: 0; outline: 1px dashed transparent">
+        <span class="av" style="background: transparent; box-shadow: inset 0 0 0 1.5px rgba(214,178,94,.35); color: #D6B25E"><span class="ic i-plus ic-20" aria-hidden="true"></span></span>
+        <span class="prow-name"><span class="gold">Seat 5 is open</span><span class="prow-meta">Share KQVX or the link to fill it</span></span>
+        <span class="prow-end"><button class="btn btn-secondary btn-md" type="button" style="min-height: 44px"><span class="ic i-share ic-20" aria-hidden="true"></span>Invite</button></span>
+      </div>
+    </div>
+    <p class="t-label faint center">Room code works for the next 2 hours. Up to 10 can join.</p>
+  </div>
+
+  <div class="dock">
+    <button class="btn btn-primary btn-block" type="button" disabled="" aria-describedby="few-why">Start game</button>
+    <p class="btn-note" id="few-why"><span class="ic i-users ic-16" aria-hidden="true"></span>Need 1 more player · 5 minimum</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

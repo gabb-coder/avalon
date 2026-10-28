@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lady of the Lake — everyone else</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-history" aria-hidden="true"></span></span>
+  </div>
+  <div class="status" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-lady ic-16" aria-hidden="true"></span>After Quest 3 · Lady of the Lake</span></div>
+    <p class="status-main">Rowan is looking into Sana</p>
+    <div class="status-wait"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>Only Rowan sees the answer</div>
+  </div>
+
+  <div class="content" style="align-items: center; justify-content: center; gap: 24px; text-align: center">
+    <div class="row" style="gap: 18px; justify-content: center">
+      <div class="col" style="align-items: center; gap: 8px"><span class="av av-56">R</span><span class="t-body b">Rowan</span></div>
+      <div style="position: relative; width: 112px; height: 112px; display: flex; align-items: center; justify-content: center">
+        <div class="anim-breathe" style="position: absolute; inset: -14px; border-radius: 50%; background: radial-gradient(circle, rgba(111,208,218,.22), rgba(111,208,218,0) 68%)" aria-hidden="true"></div>
+        <span class="tok tok-lady" style="width: 88px; height: 88px"><span class="ic i-lady ic-48" aria-hidden="true"></span></span>
+      </div>
+      <div class="col" style="align-items: center; gap: 8px"><span class="av av-56" style="box-shadow: 0 0 0 2.5px #6FD0DA, 0 0 18px rgba(111,208,218,.4)">S</span><span class="t-body b">Sana</span></div>
+    </div>
+    <p class="t-body-l muted pretty" style="max-width: 300px">The Lady shows Rowan which side Sana is on. Rowan may tell the table the truth, or not.</p>
+    <div class="panel" style="width: 100%; display: flex; gap: 12px; align-items: center; text-align: left">
+      <span class="ic i-arrow gold" aria-hidden="true"></span>
+      <p class="t-label muted">Next, the Lady passes to <b style="color:#F3EBDD">Sana</b>. Already held by: Jude, Rowan.</p>
+    </div>
+  </div>
+
+  <div class="dock">
+    <button class="peek" type="button" aria-label="Hold to peek at your role"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

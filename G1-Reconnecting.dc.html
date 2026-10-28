@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reconnecting</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-history" aria-hidden="true"></span></span>
+  </div>
+  <div style="flex: 1; display: flex; flex-direction: column; gap: 12px; opacity: .35; filter: saturate(.6)" aria-hidden="true">
+    <div class="status"><div class="status-top"><span class="status-phase">Quest 3 · Vote</span></div><p class="status-main">Vote on Sana's team</p><p class="status-wait">5 of 7 in</p></div>
+    <div class="panel" style="margin: 0 16px">
+      <div class="qtrack">
+        <div class="qnode is-success"><div class="qnode-disc"><span class="ic i-success ic-28"></span></div><span class="qnode-size">2</span></div>
+        <div class="qnode is-fail"><div class="qnode-disc"><span class="ic i-fail ic-28"></span></div><span class="qnode-size">3</span></div>
+        <div class="qnode is-current"><div class="qnode-disc">3</div><span class="qnode-size">3</span></div>
+        <div class="qnode"><div class="qnode-disc">4</div><span class="qnode-size">4</span></div>
+        <div class="qnode"><div class="qnode-disc">5</div><span class="qnode-size">4</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 16px; right: 16px; top: 64px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: #2A2312; box-shadow: inset 0 0 0 1px rgba(242,166,90,.55), var(--e-2)" role="status" aria-live="assertive">
+    <span class="spinner" style="border-top-color: #F2A65A" aria-hidden="true"></span>
+    <div class="grow"><p class="t-body b">Reconnecting…</p><p class="t-label muted">Attempt 2 · your seat, role and vote are held</p></div>
+  </div>
+
+  <div class="modal" style="top: 56%" aria-hidden="true">
+    <span class="modal-icon" style="background: rgba(242,166,90,.12); color: #F2A65A"><span class="ic i-wifioff ic-28" aria-hidden="true"></span></span>
+    <p class="t-title">Hang tight</p>
+    <p class="t-body muted pretty">Lost the signal for a moment. Nothing you did is lost. Buttons come back the second we reconnect.</p>
+    <div class="progress is-indet" style="width: 100%"><i></i></div>
+  </div>
+
+  <div class="dock">
+    <button class="btn btn-primary btn-block" type="button" disabled>Vote</button>
+    <p class="btn-note"><span class="ic i-wifioff ic-16" aria-hidden="true"></span>Waiting for connection</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

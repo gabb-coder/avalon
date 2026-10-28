@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quest result — success</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="E4-Menu.dc.html" aria-label="Menu"><span class="ic i-menu" aria-hidden="true"></span></a>
+    <span class="room-tag">ROOM KQVX</span>
+    <button class="btn btn-ghost btn-md" type="button" style="color: #F0D58C; min-height: 48px; padding: 0 12px">Skip</button>
+  </div>
+  <div class="status" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-success ic-16" aria-hidden="true"></span>Quest 1 · Result</span></div>
+    <p class="status-main">Quest 1 succeeds</p>
+    <p class="status-wait">2 Success · 0 Fail</p>
+  </div>
+
+  <div class="content" style="align-items: center; justify-content: center; gap: 20px; text-align: center">
+    <p class="eyebrow" style="font-size: 12px">The cards, shuffled</p>
+    <div class="row" style="gap: 14px; justify-content: center">
+      <div class="rtok rtok-s anim-coin" style="animation-delay: 250ms"><span class="ic i-success" aria-hidden="true"></span>Success</div>
+      <div class="rtok rtok-s anim-coin" style="animation-delay: 600ms"><span class="ic i-success" aria-hidden="true"></span>Success</div>
+    </div>
+    <div class="banner banner-good anim-stamp" style="width: 100%; animation-delay: 1.2s">
+      <span class="frame-good" style="width: 56px; height: 56px"><span class="ic i-success ic-32" aria-hidden="true"></span></span>
+      <p class="d-l">Success</p>
+      <p class="t-body muted">Good leads 1 – 0</p>
+    </div>
+    <div class="panel" style="width: 100%">
+      <div class="qtrack" role="list" aria-label="Quests">
+        <div class="qnode is-success anim-stamp" role="listitem" aria-label="Quest 1, success" style="animation-delay: 1.6s"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div><span class="qnode-size">2</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc">2</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc">3</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc">4</div><span class="qnode-size">4</span><span class="qnode-tag">2 fails</span></div>
+        <div class="qnode" role="listitem"><div class="qnode-disc">5</div><span class="qnode-size">4</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dock">
+    <a class="btn btn-primary btn-block" href="D17-BoardMid.dc.html">Back to the table</a>
+    <a class="proto-skip" href="D17-BoardMid.dc.html">Jump ahead to Quest 3 ›</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

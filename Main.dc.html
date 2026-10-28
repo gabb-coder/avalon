@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avalon — cover and flow</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+a{color:#F0D58C}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div class="rt scene" style="width: 1440px; height: 960px; padding: 80px; display: grid; grid-template-columns: 520px minmax(0, 1fr); gap: 80px; box-sizing: border-box; overflow: hidden">
+  <div style="display: flex; flex-direction: column; gap: 28px">
+    <span class="ic i-logo gold" style="width: 132px; height: 132px" aria-hidden="true"></span>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 class="d-xl" style="font-size: 76px; letter-spacing: .06em; color: #F0D58C; font-weight: 600">AVALON</h1>
+      <p class="eyebrow">Working title · mobile UI &amp; UX</p>
+    </div>
+    <p class="t-body-l muted pretty" style="max-width: 460px">A hidden-loyalty game for 5–10 players around one table. Each phone is a private role card, a secret ballot and a quest card. The talking stays at the table.</p>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap">
+      <a class="btn btn-primary" href="A1-Splash.dc.html"><span class="ic i-skip" aria-hidden="true"></span>Play the prototype</a>
+      <a class="btn btn-secondary" href="Handoff.dc.html">Developer handoff</a>
+    </div>
+    <div class="panel" style="display: flex; flex-direction: column; gap: 10px; margin-top: auto">
+      <p class="eyebrow" style="font-size: 12px">Reading this canvas</p>
+      <p class="t-label muted">Pages run left to right through the game: 1 system → 8 handoff. Artboards marked with a Play button are wired; the prototype plays as <b style="color:#F3EBDD">Rowan</b> (host, Merlin) in a 7-player game.</p>
+      <p class="t-label muted">Dashed blue <span class="proto-skip" style="display:inline-flex; min-height: 26px; padding: 0 8px">Skip ›</span> links only exist to fast-forward the prototype past other players' turns. They are not part of the build.</p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 22px">
+    <p class="eyebrow">Screen flow</p>
+
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+      <div class="panel panel-gold" style="width: 150px"><p class="eyebrow" style="font-size: 12px">A</p><p class="t-title">Home</p><p class="t-label muted">Create · Join · Rules</p></div>
+      <span class="ic i-arrow gold" aria-hidden="true"></span>
+      <div class="panel panel-gold" style="width: 150px"><p class="eyebrow" style="font-size: 12px">B</p><p class="t-title">Lobby</p><p class="t-label muted">Code · players · roles</p></div>
+      <span class="ic i-arrow gold" aria-hidden="true"></span>
+      <div class="panel panel-gold" style="width: 150px"><p class="eyebrow" style="font-size: 12px">C</p><p class="t-title">Night</p><p class="t-label muted">Hold to see your role</p></div>
+      <span class="ic i-arrow gold" aria-hidden="true"></span>
+      <div class="panel panel-gold" style="width: 150px"><p class="eyebrow" style="font-size: 12px">D</p><p class="t-title">The board</p><p class="t-label muted">Quests 1–5</p></div>
+    </div>
+
+    <div style="border-radius: 22px; border: 1.5px dashed rgba(214,178,94,.55); padding: 22px; display: flex; flex-direction: column; gap: 16px; background: rgba(18,26,46,.45)">
+      <div class="row" style="justify-content: space-between">
+        <p class="t-title gold">Each quest repeats this loop</p>
+        <span class="chip chip-gold"><span class="ic i-refresh" aria-hidden="true"></span>up to 5 proposals per quest</span>
+      </div>
+      <div style="display: flex; align-items: stretch; gap: 10px">
+        <div class="panel" style="flex: 1"><p class="t-body b">1 · Propose</p><p class="t-label muted">Leader picks N knights</p></div>
+        <span class="ic i-arrow gold" style="align-self: center" aria-hidden="true"></span>
+        <div class="panel" style="flex: 1"><p class="t-body b">2 · Vote</p><p class="t-label muted">Everyone, secret, two-step</p></div>
+        <span class="ic i-arrow gold" style="align-self: center" aria-hidden="true"></span>
+        <div class="panel" style="flex: 1"><p class="t-body b">3 · Reveal</p><p class="t-label muted">Votes by name</p></div>
+        <span class="ic i-arrow gold" style="align-self: center" aria-hidden="true"></span>
+        <div class="panel" style="flex: 1"><p class="t-body b">4 · Quest</p><p class="t-label muted">Team plays cards</p></div>
+        <span class="ic i-arrow gold" style="align-self: center" aria-hidden="true"></span>
+        <div class="panel" style="flex: 1"><p class="t-body b">5 · Result</p><p class="t-label muted">Anonymous count</p></div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <div class="panel" style="display: flex; gap: 10px; align-items: flex-start"><span class="ic i-cross" style="color: #A9B1D1" aria-hidden="true"></span><p class="t-label muted"><b style="color:#F3EBDD">Rejected?</b> Reject track +1, leadership passes, back to 1. Fifth reject in a row: Evil wins.</p></div>
+        <div class="panel" style="display: flex; gap: 10px; align-items: flex-start"><span class="ic i-lady" style="color: #6FD0DA" aria-hidden="true"></span><p class="t-label muted"><b style="color:#F3EBDD">Lady of the Lake</b> (optional) after quests 2, 3 and 4: the holder privately checks one player.</p></div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+      <div class="panel" style="width: 250px; box-shadow: inset 0 0 0 1px rgba(111,208,218,.5)"><p class="t-title good">3 quests succeed</p><p class="t-label muted">Assassin gets one guess at Merlin</p></div>
+      <span class="ic i-arrow gold" aria-hidden="true"></span>
+      <div class="panel" style="width: 190px; box-shadow: inset 0 0 0 1px rgba(240,112,127,.5)"><p class="eyebrow" style="font-size: 12px">F</p><p class="t-title">Assassination</p></div>
+      <span class="ic i-arrow gold" aria-hidden="true"></span>
+      <div class="panel panel-gold" style="width: 190px"><p class="eyebrow" style="font-size: 12px">F</p><p class="t-title">Game over</p><p class="t-label muted">Play again keeps the room</p></div>
+    </div>
+    <div class="panel" style="display: flex; gap: 12px; align-items: center">
+      <span class="ic i-evil evil" aria-hidden="true"></span>
+      <p class="t-label muted">Evil wins straight to <b style="color:#F3EBDD">Game over</b> after 3 failed quests or 5 rejected teams in a row.</p>
+    </div>
+    <div class="panel" style="display: flex; gap: 12px; align-items: center">
+      <span class="ic i-history gold" aria-hidden="true"></span>
+      <p class="t-label muted">Reachable from every game screen: <b style="color:#F3EBDD">History</b> (votes grid), <b style="color:#F3EBDD">Menu</b> (how to play, roles, leave), and <b style="color:#F3EBDD">Hold to peek</b> at your role.</p>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

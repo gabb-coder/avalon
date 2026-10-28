@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avalon — logo and icons</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="rt scene" style="width: 1440px; height: 1100px; padding: 72px 80px; display: flex; flex-direction: column; gap: 40px; box-sizing: border-box; overflow: hidden">
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <p class="eyebrow">03 · Logo &amp; iconography</p>
+    <h1 class="d-xl" style="font-size: 60px">Drawn for this game, on a 24-grid</h1>
+    <p class="t-body-l muted" style="max-width: 860px">All original line art: 1.6–2px stroke, round caps and joins, no fills, so every icon is one inline SVG path set that takes <code style="color:#F0D58C">currentColor</code>. Source lives in <code style="color:#F0D58C">rt.css</code> (section 4) as mask data-URIs; the build can paste the same paths as inline <code style="color:#F0D58C">&lt;svg&gt;</code>.</p>
+  </div>
+
+  <section style="display: grid; grid-template-columns: 1.1fr 1fr 220px; gap: 24px; align-items: stretch">
+    <div class="panel panel-gold" style="display: flex; align-items: center; gap: 22px; padding: 28px">
+      <span class="ic i-logo gold" style="width: 96px; height: 96px" aria-hidden="true"></span>
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <p class="d-l" style="letter-spacing: .08em; color: #F0D58C; font-weight: 600; font-size: 40px">AVALON</p>
+        <p class="t-label muted">Primary lockup · emblem + wordmark (Cormorant Garamond 600, +8% tracking)</p>
+      </div>
+    </div>
+    <div class="panel" style="display: flex; align-items: center; gap: 22px; padding: 28px">
+      <div style="display: flex; flex-direction: column; gap: 6px; flex: 1">
+        <p class="t-body b">The emblem</p>
+        <p class="t-label muted">A round table seen from above: ten seats (the maximum player count) around the rim; the head seat is taken by an upright sword, the leader's place. Works at 16px as a silhouette.</p>
+      </div>
+      <span class="ic i-logo gold" style="width: 32px; height: 32px" aria-hidden="true"></span>
+      <span class="ic i-logo gold" style="width: 20px; height: 20px" aria-hidden="true"></span>
+    </div>
+    <div style="border-radius: 40px; background: radial-gradient(circle at 50% 35%, #1C2850, #0A0F1E 75%); box-shadow: inset 0 0 0 1px rgba(214,178,94,.55); display: flex; align-items: center; justify-content: center">
+      <span class="ic i-logo" style="width: 120px; height: 120px; color: #F0D58C" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 16px">
+    <h2 class="d-m">Roles &amp; tokens</h2>
+    <div style="display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 12px">
+      <sc-for list="{{roles}}" as="r" hint-placeholder-count="11">
+        <div class="panel" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 8px; text-align: center">
+          <span class="ic {{r.icon}} ic-48 {{r.tone}}" aria-hidden="true"></span>
+          <span class="t-body b" style="line-height: 1.2">{{r.name}}</span>
+          <span class="t-label faint" style="line-height: 1.25">{{r.motif}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 16px">
+    <h2 class="d-m">Interface</h2>
+    <div style="display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{ui}}" as="u" hint-placeholder-count="28">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 4px; border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(243,235,221,.08)">
+          <span class="ic {{u.icon}} ic-28" aria-hidden="true"></span>
+          <span style="font-size: 12px; font-weight: 700" class="muted">{{u.name}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      roles: [
+        { icon: 'i-servant', name: 'Loyal Servant', motif: 'upright sword', tone: 'good' },
+        { icon: 'i-merlin', name: 'Merlin', motif: 'star & crescent', tone: 'good' },
+        { icon: 'i-percival', name: 'Percival', motif: 'cross shield', tone: 'good' },
+        { icon: 'i-minion', name: 'Minion', motif: 'cowl', tone: 'evil' },
+        { icon: 'i-assassin', name: 'Assassin', motif: 'dagger', tone: 'evil' },
+        { icon: 'i-morgana', name: 'Morgana', motif: 'mask', tone: 'evil' },
+        { icon: 'i-mordred', name: 'Mordred', motif: 'broken crown', tone: 'evil' },
+        { icon: 'i-oberon', name: 'Oberon', motif: 'lone raven', tone: 'evil' },
+        { icon: 'i-lady', name: 'Lady of the Lake', motif: 'lake & chalice', tone: 'good' },
+        { icon: 'i-standard', name: 'Leader', motif: 'pennant standard', tone: 'gold' },
+        { icon: 'i-crown', name: 'Host', motif: 'crown', tone: 'gold' }
+      ],
+      ui: [
+        { icon: 'i-good', name: 'good' }, { icon: 'i-evil', name: 'evil' }, { icon: 'i-success', name: 'success' }, { icon: 'i-fail', name: 'fail' },
+        { icon: 'i-check', name: 'check' }, { icon: 'i-cross', name: 'cross' }, { icon: 'i-lock', name: 'lock' }, { icon: 'i-hold', name: 'hold' },
+        { icon: 'i-eye', name: 'eye' }, { icon: 'i-eyeoff', name: 'eye-off' }, { icon: 'i-history', name: 'history' }, { icon: 'i-menu', name: 'menu' },
+        { icon: 'i-book', name: 'rules' }, { icon: 'i-cards', name: 'roles' }, { icon: 'i-copy', name: 'copy' }, { icon: 'i-share', name: 'share' },
+        { icon: 'i-link', name: 'link' }, { icon: 'i-users', name: 'players' }, { icon: 'i-kick', name: 'remove' }, { icon: 'i-sliders', name: 'settings' },
+        { icon: 'i-wifioff', name: 'offline' }, { icon: 'i-refresh', name: 'retry' }, { icon: 'i-hourglass', name: 'waiting' }, { icon: 'i-warn', name: 'warning' },
+        { icon: 'i-info', name: 'info' }, { icon: 'i-leave', name: 'leave' }, { icon: 'i-target', name: 'target' }, { icon: 'i-arrow', name: 'pass' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Confirm — remove a player</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-left" aria-hidden="true"></span></span>
+    <span class="t-body b">Your room</span>
+    <span style="width: 48px"></span>
+  </div>
+  <div class="content" aria-hidden="true" style="gap: 8px">
+    <div class="prow"><span class="av is-you">R</span><span class="prow-name"><span>Rowan</span><span class="prow-meta">You · host</span></span></div>
+    <div class="prow"><span class="av">I</span><span class="prow-name"><span>Ilse</span></span></div>
+    <div class="prow"><span class="av">T</span><span class="prow-name"><span>Tomas</span></span></div>
+    <div class="prow"><span class="av">J</span><span class="prow-name"><span>Jude</span></span></div>
+  </div>
+  <div class="scrim"></div>
+  <div class="modal is-danger" role="alertdialog" aria-modal="true" aria-labelledby="kk-t" aria-describedby="kk-d">
+    <span class="av av-56" style="box-shadow: 0 0 0 2.5px #F0707F">J</span>
+    <h2 class="d-m" id="kk-t">Remove Jude?</h2>
+    <p class="t-body muted pretty" id="kk-d">Jude leaves the lobby. They can rejoin with the code unless you block them.</p>
+    <label class="row" style="gap: 12px; width: 100%; text-align: left; min-height: 48px; cursor: pointer" for="kk-block">
+      <input id="kk-block" type="checkbox" class="switch">
+      <span class="t-body">Block Jude from rejoining</span>
+    </label>
+    <div class="modal-actions">
+      <a class="btn btn-danger btn-block" href="B1-LobbyHost.dc.html"><span class="ic i-kick" aria-hidden="true"></span>Remove Jude</a>
+      <a class="btn btn-ghost btn-block" href="B1-LobbyHost.dc.html">Cancel</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

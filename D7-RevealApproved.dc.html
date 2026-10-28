@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vote reveal — approved</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="E4-Menu.dc.html" aria-label="Menu"><span class="ic i-menu" aria-hidden="true"></span></a>
+    <span class="room-tag">ROOM KQVX</span>
+    <button class="btn btn-ghost btn-md" type="button" style="color: #F0D58C; min-height: 48px; padding: 0 12px">Skip</button>
+  </div>
+  <div class="status" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-check ic-16" aria-hidden="true"></span>Quest 1 · Votes revealed</span></div>
+    <p class="status-main">Rowan's team is approved, 5 to 2</p>
+    <p class="status-wait">Rowan and Ilse go on Quest 1</p>
+  </div>
+
+  <div class="content" style="gap: 14px; padding-top: 14px">
+    <div class="banner anim-stamp" style="background: radial-gradient(circle at 50% 0%, rgba(226,196,110,.25), rgba(26,36,64,.85) 70%); box-shadow: inset 0 0 0 1.5px rgba(226,196,110,.6); padding: 16px; flex-direction: row; justify-content: center; gap: 14px; animation-delay: 750ms">
+      <span class="vm vm-a" style="width: 44px; height: 44px"><span class="ic i-check" style="width: 26px; height: 26px" aria-hidden="true"></span></span>
+      <div style="text-align: left">
+        <p class="d-m" style="line-height: 1">Approved</p>
+        <p class="t-label muted tnum"><b style="color:#E2C46E">5 Approve</b> · <b style="color:#A9B1D1">2 Reject</b></p>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px" role="list" aria-label="Votes by player">
+      <sc-for list="{{votes}}" as="v" hint-placeholder-count="7">
+        <div class="wcell anim-rise" role="listitem" aria-label="{{v.aria}}" style="animation-delay: {{v.delay}}ms; box-shadow: {{v.ring}}">
+          <span class="{{v.avCls}}">{{v.i}}</span>
+          <span class="nm">{{v.name}}</span>
+          <span class="{{v.vmCls}}" style="margin-left: auto"><span class="ic {{v.icon}}" aria-hidden="true"></span></span>
+        </div>
+      </sc-for>
+    </div>
+    <div class="legend" style="justify-content: center">
+      <span><span class="vm vm-a" style="width: 20px; height: 20px"><span class="ic i-check" style="width: 12px; height: 12px" aria-hidden="true"></span></span>Approve</span>
+      <span><span class="vm vm-r" style="width: 20px; height: 20px"><span class="ic i-cross" style="width: 13px; height: 13px" aria-hidden="true"></span></span>Reject</span>
+      <span><span style="width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px #D6B25E; display: inline-block"></span>On the team</span>
+    </div>
+    <p class="t-label faint center">Rejected-in-a-row track resets to 0.</p>
+  </div>
+
+  <div class="dock">
+    <a class="btn btn-primary btn-block" href="D9-QuestPlay.dc.html"><span class="ic i-arrow" aria-hidden="true"></span>Go on the quest</a>
+    <p class="btn-note">You're on the team. Saved to History.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const data = [['Rowan', 'a', true, true], ['Ilse', 'a', true], ['Tomas', 'a'], ['Kofi', 'r'], ['Mei', 'a'], ['Sana', 'a'], ['Jude', 'r']];
+    return {
+      votes: data.map((d, k) => ({
+        name: d[0], i: d[0].charAt(0),
+        avCls: 'av av-32' + (d[3] ? ' is-you' : ''),
+        vmCls: 'vm ' + (d[1] === 'a' ? 'vm-a' : 'vm-r'),
+        icon: d[1] === 'a' ? 'i-check' : 'i-cross',
+        ring: d[2] ? 'inset 0 0 0 1.5px #D6B25E' : 'inset 0 0 0 1px rgba(243,235,221,.10)',
+        delay: 120 + k * 90,
+        aria: d[0] + (d[2] ? ' (on the team)' : '') + ' voted ' + (d[1] === 'a' ? 'Approve' : 'Reject')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Confirm — leave the game</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-history" aria-hidden="true"></span></span>
+  </div>
+  <div class="status" aria-hidden="true"><div class="status-top"><span class="status-phase">Quest 3 · Team building</span></div><p class="status-main">Sana is choosing 3 knights</p><p class="status-wait">2 of 3 picked</p></div>
+  <div class="scrim"></div>
+  <div class="modal is-danger" role="alertdialog" aria-modal="true" aria-labelledby="lv-t" aria-describedby="lv-d">
+    <span class="modal-icon"><span class="ic i-leave ic-28" aria-hidden="true"></span></span>
+    <h2 class="d-m" id="lv-t">Leave the game?</h2>
+    <p class="t-body muted pretty" id="lv-d">The table can't finish without you. Your seat stays open for 5 minutes in case you come back. After that the game ends for everyone.</p>
+    <div class="modal-actions">
+      <a class="btn btn-danger btn-block" href="A2-Home.dc.html"><span class="ic i-leave" aria-hidden="true"></span>Leave game</a>
+      <a class="btn btn-ghost btn-block" href="D17-BoardMid.dc.html">Stay at the table</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

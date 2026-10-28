@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Connection lost</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar"><span></span></div>
+  <div class="content" style="align-items: center; justify-content: center; text-align: center; gap: 18px" role="alert">
+    <div style="width: 132px; height: 132px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(242,166,90,.08); box-shadow: inset 0 0 0 1px rgba(242,166,90,.4)">
+      <span class="ic i-wifioff" style="width: 64px; height: 64px; color: #F2A65A" aria-hidden="true"></span>
+    </div>
+    <h1 class="d-l">Connection lost</h1>
+    <p class="t-body-l muted pretty" style="max-width: 310px">We couldn't reach room KQVX for 30 seconds. Check your Wi-Fi or mobile data, then try again.</p>
+    <div class="panel" style="width: 100%; display: flex; gap: 12px; align-items: center; text-align: left">
+      <span class="ic i-hourglass gold" aria-hidden="true"></span>
+      <p class="t-label muted grow"><b style="color:#F3EBDD">Your seat is held for 4:12.</b> The others see you as “away” and will wait at your next turn.</p>
+    </div>
+  </div>
+  <div class="dock">
+    <a class="btn btn-primary btn-block" href="D17-BoardMid.dc.html"><span class="ic i-refresh" aria-hidden="true"></span>Try again</a>
+    <a class="btn btn-ghost btn-block btn-md" href="A2-Home.dc.html">Back to home</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

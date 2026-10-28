@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Assassination — everyone else waits</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone" style="background: radial-gradient(120% 60% at 50% 40%, rgba(240,112,127,.12), rgba(240,112,127,0) 55%), var(--vignette), #080C18">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <a class="icon-btn" href="E1-History.dc.html" aria-label="Vote history"><span class="ic i-history" aria-hidden="true"></span></a>
+  </div>
+  <div class="status is-tense" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase" style="color: #F0707F"><span class="ic i-assassin ic-16" aria-hidden="true"></span>Assassination</span></div>
+    <p class="status-main">Kofi, the Assassin, is choosing</p>
+    <p class="status-wait">Evil may talk. Good: say nothing, give nothing away.</p>
+  </div>
+
+  <div class="content" style="align-items: center; justify-content: center; gap: 26px; text-align: center">
+    <div style="width: 196px; height: 196px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(140,29,48,.35), rgba(10,15,30,.4) 70%)" class="anim-pulse">
+      <span class="ic i-assassin" style="width: 96px; height: 96px; color: #F0707F" aria-hidden="true"></span>
+    </div>
+    <div class="col" style="gap: 8px; align-items: center">
+      <p class="d-l">One guess at Merlin</p>
+      <p class="t-body-l muted pretty" style="max-width: 300px">Good won three quests. If Kofi names Merlin, Evil takes the win.</p>
+    </div>
+    <div class="row" style="gap: 10px; justify-content: center">
+      <span class="chip chip-evil"><span class="ic i-evil" aria-hidden="true"></span>Kofi</span>
+      <span class="chip chip-evil"><span class="ic i-evil" aria-hidden="true"></span>Sana</span>
+      <span class="chip chip-evil"><span class="ic i-evil" aria-hidden="true"></span>Jude</span>
+    </div>
+    <p class="t-label faint">Evil players are now revealed so they can confer.</p>
+  </div>
+
+  <div class="dock">
+    <button class="peek" type="button" aria-label="Hold to peek at your role"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+    <a class="proto-skip" href="F4-GameOver.dc.html">Kofi strikes ›</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

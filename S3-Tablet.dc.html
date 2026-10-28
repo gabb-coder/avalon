@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Board — tablet portrait</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone tab" style="--gutter: 28px">
+  <div class="topbar" style="height: 72px; padding: 0 20px">
+    <div class="row" style="gap: 8px">
+      <button class="btn btn-ghost btn-md" type="button"><span class="ic i-menu" aria-hidden="true"></span>Menu</button>
+      <button class="btn btn-ghost btn-md" type="button"><span class="ic i-book" aria-hidden="true"></span>Rules</button>
+    </div>
+    <div class="row" style="gap: 10px"><span class="ic i-logo gold ic-28" aria-hidden="true"></span><span class="room-tag">ROOM KQVX</span></div>
+    <button class="btn btn-ghost btn-md" type="button"><span class="ic i-cards" aria-hidden="true"></span>Roles</button>
+  </div>
+  <div class="status is-alert" role="status">
+    <div class="status-top"><span class="status-phase"><span class="ic i-standard ic-16" aria-hidden="true"></span>Quest 3 · Team building</span><span class="chip chip-warn"><span class="ic i-wifioff" aria-hidden="true"></span>Jude offline · seat held</span></div>
+    <p class="status-main" style="font-size: 22px">Sana is choosing 3 knights</p>
+    <p class="status-wait">Picked so far: Sana, Rowan · 1 to go</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 24px; padding: 20px 28px 0; align-items: start">
+    <div class="ring" style="width: 460px; height: 420px; margin: 0" role="list" aria-label="Seats">
+      <div class="ring-table" style="width: 220px; height: 220px; top: 210px" aria-hidden="true">
+        <span class="eyebrow" style="font-size: 13px">Quest 3</span>
+        <span class="d-l" style="line-height: 1">3 knights</span>
+        <span class="t-label faint">1 Fail sinks it</span>
+      </div>
+      <sc-for list="{{seats}}" as="s" hint-placeholder-count="7">
+        <div class="{{s.cls}}" role="listitem" aria-label="{{s.aria}}" style="left: {{s.x}}px; top: {{s.y}}px; width: 96px">
+          <span class="{{s.avCls}}">{{s.i}}<sc-if value="{{s.lead}}" hint-placeholder-val="{{false}}"><span class="av-badge lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if><sc-if value="{{s.lady}}" hint-placeholder-val="{{false}}"><span class="av-badge lady"><span class="ic i-lady" aria-hidden="true"></span></span></sc-if><sc-if value="{{s.off}}" hint-placeholder-val="{{false}}"><span class="av-badge off"><span class="ic i-wifioff" aria-hidden="true"></span></span></sc-if></span>
+          <span class="seat-name" style="max-width: 96px; font-size: 16px">{{s.name}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div class="col" style="gap: 16px">
+      <div class="panel" style="display: flex; flex-direction: column; gap: 14px; padding: 18px 16px">
+        <p class="eyebrow" style="font-size: 12px">Quests</p>
+        <div class="qtrack" role="list" aria-label="Quests">
+          <div class="qnode is-success" role="listitem" aria-label="Quest 1, success"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div><span class="qnode-size">2</span></div>
+          <div class="qnode is-fail" role="listitem" aria-label="Quest 2, failed"><div class="qnode-disc"><span class="ic i-fail ic-28" aria-hidden="true"></span></div><span class="qnode-size">3</span></div>
+          <div class="qnode is-current" role="listitem" aria-label="Quest 3, current"><div class="qnode-disc">3</div><span class="qnode-size">3</span></div>
+          <div class="qnode" role="listitem"><div class="qnode-disc">4</div><span class="qnode-size">4</span><span class="qnode-tag">2 fails</span></div>
+          <div class="qnode" role="listitem"><div class="qnode-disc">5</div><span class="qnode-size">4</span></div>
+        </div>
+        <hr class="rule" style="margin: 0">
+        <div class="rejects"><span class="rejects-label">Rejected in a row · 2 of 5</span><span class="pips" aria-hidden="true"><span class="pip on l1"><span>1</span></span><span class="pip on l2"><span>2</span></span><span class="pip"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span></div>
+      </div>
+      <div class="panel" style="display: flex; flex-direction: column; gap: 12px">
+        <div class="row" style="gap: 12px"><span class="tok tok-leader"><span class="ic i-standard" aria-hidden="true"></span></span><p class="t-body grow"><b>Sana</b> leads · next: Jude</p></div>
+        <div class="row" style="gap: 12px"><span class="tok tok-lady"><span class="ic i-lady" aria-hidden="true"></span></span><p class="t-body grow"><b>You</b> hold the Lady · use after Quest 3</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 20px 28px 0; display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0">
+    <div class="row" style="justify-content: space-between"><p class="t-title">Vote history</p><span class="t-label muted">Always open on tablet</span></div>
+    <div class="hscroll" role="table" aria-label="Votes">
+      <div class="hcol" style="--cols: 7; --hg-first: 150px; --hg-cell: minmax(56px, 1fr)">
+        <div class="hrow head" role="row">
+          <div class="hstick" role="columnheader">Proposal</div>
+          <sc-for list="{{heads}}" as="h" hint-placeholder-count="7"><div class="{{h.cls}}" role="columnheader"><span class="{{h.avCls}}">{{h.i}}</span><span>{{h.name}}</span></div></sc-for>
+        </div>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+          <sc-if value="{{r.isQ}}" hint-placeholder-val="{{false}}"><div class="hqrow" role="row"><div class="{{r.cls}}" role="cell"><span class="ic {{r.icon}}" aria-hidden="true"></span>{{r.text}}</div></div></sc-if>
+          <sc-if value="{{r.isP}}" hint-placeholder-val="{{true}}">
+            <div class="hrow" role="row" aria-label="{{r.aria}}">
+              <div class="hstick" role="rowheader" style="flex-direction: row; align-items: center; justify-content: space-between; gap: 6px"><span class="hl1">{{r.l1}}</span><span class="{{r.l2cls}}"><span class="{{r.vmCls}}"><span class="ic {{r.vmIcon}}" aria-hidden="true"></span></span>{{r.l2}}</span></div>
+              <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="7"><div class="{{c.cls}}" role="cell" aria-label="{{c.aria}}"><sc-if value="{{c.lead}}" hint-placeholder-val="{{false}}"><span class="lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if><span class="{{c.vmCls}}"><span class="ic {{c.icon}}" aria-hidden="true"></span></span></div></sc-for>
+            </div>
+          </sc-if>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div class="dock" style="flex-direction: row; justify-content: center; gap: 12px; padding: 16px 28px 28px; margin-top: 16px">
+    <button class="peek" type="button" style="min-height: 56px; padding: 0 28px"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":1194}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = ['Rowan', 'Ilse', 'Tomas', 'Kofi', 'Mei', 'Sana', 'Jude'];
+    const players = [
+      { name: 'Rowan', you: true, lady: true, team: true }, { name: 'Ilse' }, { name: 'Tomas' }, { name: 'Kofi' },
+      { name: 'Mei' }, { name: 'Sana', lead: true, team: true }, { name: 'Jude', off: true }
+    ];
+    const n = 7, cx = 230, cy = 210, rx = 178, ry = 164;
+    const seats = players.map((p, k) => {
+      const a = Math.PI / 2 + k * 2 * Math.PI / n;
+      return { name: p.name, i: p.name.charAt(0), lead: !!p.lead, lady: !!p.lady, off: !!p.off,
+        x: Math.round(cx + rx * Math.cos(a)), y: Math.round(cy + ry * Math.sin(a)),
+        cls: 'seat' + (p.team ? ' is-team' : '') + (p.off ? ' is-off' : ''),
+        avCls: 'av av-56' + (p.you ? ' is-you' : '') + (p.off ? ' is-off' : ''),
+        aria: p.name + (p.you ? ', you' : '') + (p.lead ? ', leader' : '') + (p.team ? ', proposed' : '') + (p.off ? ', offline' : '') };
+    });
+    const props = [
+      { q: 1, n: 1, lead: 0, team: [0, 1], votes: 'AAARAAR' },
+      { q: 2, n: 1, lead: 1, team: [1, 2, 3], votes: 'RARARAR' },
+      { q: 2, n: 2, lead: 2, team: [2, 4, 5], votes: 'RRAAAAR' },
+      { q: 3, n: 1, lead: 3, team: [3, 5, 6], votes: 'RRRARRA' },
+      { q: 3, n: 2, lead: 4, team: [4, 0, 1], votes: 'AARRARR' }
+    ];
+    const quests = { 1: ['s', 'i-success', 'Quest 1 · Success'], 2: ['f', 'i-fail', 'Quest 2 · Failed · 1 Fail'], 3: ['c', 'i-hourglass', 'Quest 3 · In progress'] };
+    const rows = []; let lastQ = 0;
+    props.forEach((p) => {
+      if (p.q !== lastQ) { const q = quests[p.q]; rows.push({ isQ: true, isP: false, cls: q[0], icon: q[1], text: q[2] }); lastQ = p.q; }
+      const a = p.votes.split('').filter(v => v === 'A').length, r = 7 - a, ok = a > r;
+      rows.push({ isQ: false, isP: true, l1: 'Q' + p.q + '.' + p.n + ' · ' + P[p.lead], l2: (ok ? 'Yes ' : 'No ') + a + '–' + r, l2cls: 'hl2 ' + (ok ? 'ok' : 'no'), vmCls: 'vm ' + (ok ? 'vm-a' : 'vm-r'), vmIcon: ok ? 'i-check' : 'i-cross', aria: 'Quest ' + p.q + ' proposal ' + p.n,
+        cells: p.votes.split('').map((v, i) => { const team = p.team.indexOf(i) > -1; return { lead: i === p.lead, cls: 'hcell' + (team ? ' on-team' : ''), vmCls: 'vm ' + (v === 'A' ? 'vm-a' : 'vm-r'), icon: v === 'A' ? 'i-check' : 'i-cross', aria: P[i] + ': ' + (v === 'A' ? 'approve' : 'reject') }; }) });
+    });
+    return {
+      seats, rows,
+      heads: P.map((nm, i) => ({ name: nm, i: nm.charAt(0), cls: 'hhead' + (i === 0 ? ' is-you' : ''), avCls: 'av' + (i === 0 ? ' is-you' : '') }))
+    };
+  }
+}
+</script>
+</body>
+</html>

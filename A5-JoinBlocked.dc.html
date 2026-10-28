@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Join room — game already started</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-left" aria-hidden="true"></span></span>
+    <span class="t-body b">Join a room</span>
+    <span style="width: 48px"></span>
+  </div>
+  <div class="content" style="gap: 26px; padding-top: 20px; opacity: .5" aria-hidden="true">
+    <div class="code"><div class="code-cell is-filled">K</div><div class="code-cell is-filled">Q</div><div class="code-cell is-filled">V</div><div class="code-cell is-filled">X</div></div>
+    <div class="input" style="display: flex; align-items: center">Ilse</div>
+  </div>
+
+  <div class="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="blk-t">
+    <div class="sheet-handle"></div>
+    <div class="sheet-body" style="align-items: center; text-align: center; padding-top: 18px; gap: 16px">
+      <span class="modal-icon" style="width: 72px; height: 72px"><span class="ic i-hourglass ic-40" aria-hidden="true"></span></span>
+      <h2 class="d-m" id="blk-t">This game has already started</h2>
+      <p class="t-body muted pretty">Room KQVX is on Quest 3. Roles were dealt at the start, so new players can't join mid-game.</p>
+      <div class="panel" style="width: 100%; display: flex; gap: 12px; align-items: center; text-align: left">
+        <span class="ic i-refresh gold" aria-hidden="true"></span>
+        <p class="t-label muted grow">Were you in this game and got disconnected? Use the same name on the same phone to take your seat back.</p>
+      </div>
+      <div class="col" style="width: 100%; gap: 10px">
+        <a class="btn btn-primary btn-block" href="A3-Join.dc.html">Try another code</a>
+        <a class="btn btn-ghost btn-block btn-md" href="A2-Home.dc.html">Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

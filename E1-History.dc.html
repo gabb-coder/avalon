@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vote history</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar"><span></span></div>
+  <div class="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="h-t" style="max-height: 95%; height: 95%">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="grow"><h2 class="d-m" id="h-t">Vote history</h2><p class="t-label muted">5 proposals · 2 quests done · tap a name to follow them</p></div>
+      <a class="icon-btn" href="D17-BoardMid.dc.html" aria-label="Close history"><span class="ic i-cross" aria-hidden="true"></span></a>
+    </div>
+    <div class="sheet-body" style="padding: 0 12px 16px; gap: 12px">
+      <div class="hscroll" style="max-height: 560px" role="table" aria-label="Votes by proposal and player">
+        <div class="hcol" style="--cols: 7">
+          <div class="hrow head" role="row">
+            <div class="hstick" role="columnheader">Proposal</div>
+            <sc-for list="{{heads}}" as="h" hint-placeholder-count="7">
+              <button class="{{h.cls}}" type="button" role="columnheader" aria-pressed="{{h.on}}" onClick="{{h.tap}}" style="appearance: none; border: 0; background: transparent; cursor: pointer; font: inherit">
+                <span class="{{h.avCls}}">{{h.i}}</span><span>{{h.name}}</span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+            <sc-if value="{{r.isQ}}" hint-placeholder-val="{{false}}">
+              <div class="hqrow" role="row"><div class="{{r.cls}}" role="cell"><span class="ic {{r.icon}}" aria-hidden="true"></span>{{r.text}}</div></div>
+            </sc-if>
+            <sc-if value="{{r.isP}}" hint-placeholder-val="{{true}}">
+              <div class="hrow" role="row" aria-label="{{r.aria}}">
+                <div class="hstick" role="rowheader">
+                  <span class="hl1">{{r.l1}}</span>
+                  <span class="{{r.l2cls}}"><span class="{{r.vmCls}}"><span class="ic {{r.vmIcon}}" aria-hidden="true"></span></span>{{r.l2}}</span>
+                </div>
+                <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="7">
+                  <div class="{{c.cls}}" role="cell" aria-label="{{c.aria}}">
+                    <sc-if value="{{c.lead}}" hint-placeholder-val="{{false}}"><span class="lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if>
+                    <span class="{{c.vmCls}}"><span class="ic {{c.icon}}" aria-hidden="true"></span></span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+      <div class="legend">
+        <span><span class="vm vm-a" style="width: 20px; height: 20px"><span class="ic i-check" style="width: 12px; height: 12px" aria-hidden="true"></span></span>Approve</span>
+        <span><span class="vm vm-r" style="width: 20px; height: 20px"><span class="ic i-cross" style="width: 13px; height: 13px" aria-hidden="true"></span></span>Reject</span>
+        <span><span style="width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px #D6B25E; display: inline-block"></span>On the team</span>
+        <span><span class="ic i-standard ic-16 gold" aria-hidden="true"></span>Leader</span>
+      </div>
+      <sc-if value="{{hasFocus}}" hint-placeholder-val="{{false}}">
+        <div class="panel panel-gold anim-rise" style="display: flex; flex-direction: column; gap: 4px" aria-live="polite">
+          <p class="t-body b">{{focusName}}</p>
+          <p class="t-label muted">{{focusLine}}</p>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { focus: 3 }; }
+  renderVals() {
+    const P = ['Rowan', 'Ilse', 'Tomas', 'Kofi', 'Mei', 'Sana', 'Jude'];
+    const props = [
+      { q: 1, n: 1, lead: 0, team: [0, 1], votes: 'AAARAAR' },
+      { q: 2, n: 1, lead: 1, team: [1, 2, 3], votes: 'RARARAR' },
+      { q: 2, n: 2, lead: 2, team: [2, 4, 5], votes: 'RRAAAAR' },
+      { q: 3, n: 1, lead: 3, team: [3, 5, 6], votes: 'RRRARRA' },
+      { q: 3, n: 2, lead: 4, team: [4, 0, 1], votes: 'AARRARR' }
+    ];
+    const quests = {
+      1: { cls: 's', icon: 'i-success', text: 'Quest 1 · Success · 0 Fails' },
+      2: { cls: 'f', icon: 'i-fail', text: 'Quest 2 · Failed · 1 Fail' },
+      3: { cls: 'c', icon: 'i-hourglass', text: 'Quest 3 · In progress' }
+    };
+    const f = this.state.focus;
+    const rows = [];
+    let lastQ = 0;
+    props.forEach((p) => {
+      if (p.q !== lastQ) { rows.push(Object.assign({ isQ: true, isP: false }, quests[p.q])); lastQ = p.q; }
+      const a = p.votes.split('').filter(v => v === 'A').length, r = 7 - a, ok = a > r;
+      rows.push({
+        isQ: false, isP: true,
+        l1: 'Q' + p.q + '.' + p.n + ' ' + P[p.lead],
+        l2: (ok ? 'Yes ' : 'No ') + a + '–' + r,
+        l2cls: 'hl2 ' + (ok ? 'ok' : 'no'),
+        vmCls: 'vm ' + (ok ? 'vm-a' : 'vm-r'), vmIcon: ok ? 'i-check' : 'i-cross',
+        aria: 'Quest ' + p.q + ' proposal ' + p.n + ' by ' + P[p.lead] + ', ' + (ok ? 'approved ' : 'rejected ') + a + ' to ' + r,
+        cells: p.votes.split('').map((v, i) => {
+          const team = p.team.indexOf(i) > -1;
+          return {
+            lead: i === p.lead,
+            cls: 'hcell' + (team ? ' on-team' : '') + (f === i ? ' is-focus' : ''),
+            vmCls: 'vm ' + (v === 'A' ? 'vm-a' : 'vm-r'), icon: v === 'A' ? 'i-check' : 'i-cross',
+            aria: P[i] + ': ' + (v === 'A' ? 'approve' : 'reject') + (team ? ', on team' : '') + (i === p.lead ? ', leader' : '')
+          };
+        })
+      });
+    });
+    const fa = f === null ? null : props.map(p => p.votes[f]);
+    const onTeams = f === null ? 0 : props.filter(p => p.team.indexOf(f) > -1).length;
+    return {
+      heads: P.map((n, i) => ({
+        name: n, i: n.charAt(0), on: f === i,
+        cls: 'hhead' + (i === 0 ? ' is-you' : '') + (f === i ? ' is-focus' : ''),
+        avCls: 'av' + (i === 0 ? ' is-you' : ''),
+        tap: () => this.setState({ focus: f === i ? null : i })
+      })),
+      rows,
+      hasFocus: f !== null,
+      focusName: f === null ? '' : 'Following ' + P[f],
+      focusLine: f === null ? '' : 'Approved ' + fa.filter(v => v === 'A').length + ' of 5 · on ' + onTeams + ' proposed team' + (onTeams === 1 ? '' : 's') + ' · led ' + props.filter(p => p.lead === f).length + '.'
+    };
+  }
+}
+</script>
+</body>
+</html>

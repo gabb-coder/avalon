@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avalon — foundations</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="rt scene" style="width: 1440px; height: 2100px; padding: 72px 80px; display: flex; flex-direction: column; gap: 56px; box-sizing: border-box; overflow: hidden">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <p class="eyebrow">01 · Foundations</p>
+      <h1 class="d-xl" style="font-size: 60px">Candlelight on midnight ink</h1>
+      <p class="t-body-l muted" style="max-width: 760px">Dark first. Gold is for structure and the next action. Parchment is reserved for secrets, so a light card on screen always means “angle your phone away.” Team, vote and result meaning is always carried by shape + icon + word, never colour alone.</p>
+    </div>
+  </div>
+
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <h2 class="d-m">Colour</h2>
+    <sc-for list="{{groups}}" as="g" hint-placeholder-count="5">
+      <div style="display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 4px; padding-top: 6px">
+          <p class="t-title">{{g.name}}</p>
+          <p class="t-label muted">{{g.note}}</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px">
+          <sc-for list="{{g.items}}" as="s" hint-placeholder-count="5">
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div style="height: 72px; border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(243,235,221,.14); background: {{s.hex}}; display: flex; align-items: flex-end; padding: 8px; color: {{s.on}}; font-weight: 700; font-size: 14px">{{s.sample}}</div>
+              <div style="display: flex; flex-direction: column; gap: 0">
+                <span style="font-size: 14px; font-weight: 700">{{s.token}}</span>
+                <span class="t-label muted tnum">{{s.hex}}</span>
+                <span class="t-label faint">{{s.use}}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+    <div style="display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px">
+      <div style="padding-top: 6px"><p class="t-title">Never colour alone</p><p class="t-label muted">Every meaning pair, as a colour-blind player sees it.</p></div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+        <div class="panel" style="display: flex; gap: 12px; align-items: center; justify-content: center">
+          <span class="chip chip-good"><span class="ic i-good" aria-hidden="true"></span>Good</span>
+          <span class="chip chip-evil"><span class="ic i-evil" aria-hidden="true"></span>Evil</span>
+          <span class="t-label muted">round vs thorn</span>
+        </div>
+        <div class="panel" style="display: flex; gap: 12px; align-items: center; justify-content: center">
+          <span class="vm vm-a"><span class="ic i-check" aria-hidden="true"></span></span><span class="t-label b">Approve</span>
+          <span class="vm vm-r"><span class="ic i-cross" aria-hidden="true"></span></span><span class="t-label b">Reject</span>
+          <span class="t-label muted">solid vs hollow</span>
+        </div>
+        <div class="panel" style="display: flex; gap: 12px; align-items: center; justify-content: center">
+          <span class="chip chip-good"><span class="ic i-success" aria-hidden="true"></span>Success</span>
+          <span class="chip chip-evil"><span class="ic i-fail" aria-hidden="true"></span>Fail</span>
+          <span class="t-label muted">sun vs crack</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px">
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <h2 class="d-m">Type</h2>
+      <div class="row" style="gap: 16px">
+        <div class="panel" style="flex: 1"><p class="t-label muted">Display · titles, role names, quest numerals</p><p class="d-l" style="font-size: 34px">Cormorant Garamond</p><p class="t-label faint">600 / 700 · Google Fonts</p></div>
+        <div class="panel" style="flex: 1"><p class="t-label muted">UI · everything else</p><p class="t-title" style="font-size: 24px">Atkinson Hyperlegible Next</p><p class="t-label faint">400 / 700 · Google Fonts</p></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0; border-top: 1px solid rgba(243,235,221,.1)">
+        <sc-for list="{{types}}" as="t" hint-placeholder-count="7">
+          <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid rgba(243,235,221,.1)">
+            <div style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700" class="gold">{{t.token}}</span><span class="t-label faint tnum">{{t.spec}}</span></div>
+            <p class="{{t.cls}}">{{t.sample}}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="panel" style="display: flex; flex-direction: column; gap: 10px">
+        <p class="t-body b">Dynamic text: one variable, three steps</p>
+        <p class="t-label muted">All sizes are <code style="color:#F0D58C">calc(px × var(--ts))</code>. Settings → Text size sets <code style="color:#F0D58C">--ts</code> to 1, 1.15 or 1.3. Layouts wrap; nothing truncates except names in the ring (full name on tap). See artboard S5.</p>
+        <div class="row" style="align-items: baseline; gap: 20px">
+          <span style="--ts: 1" class="t-body">Choose 3 knights</span>
+          <span style="--ts: 1.15; font-size: calc(16px * 1.15)">Choose 3 knights</span>
+          <span style="--ts: 1.3; font-size: calc(16px * 1.3)">Choose 3 knights</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <h2 class="d-m">Spacing · 4-pt</h2>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <sc-for list="{{spaces}}" as="s" hint-placeholder-count="10">
+          <div class="row" style="gap: 14px">
+            <span style="width: 64px; font-size: 14px; font-weight: 700" class="gold">{{s.token}}</span>
+            <span style="height: 14px; border-radius: 3px; background: linear-gradient(90deg, #9C7A2F, #F0D58C); width: {{s.px}}px"></span>
+            <span class="t-label muted tnum">{{s.px}}px</span>
+          </div>
+        </sc-for>
+      </div>
+      <p class="t-label muted">Screen gutter 16 · row gap 8 · section gap 16–24 · dock padding 12/16/24 · min tap target 48 (status &amp; player rows 60).</p>
+
+      <h2 class="d-m" style="margin-top: 12px">Radius</h2>
+      <div class="row" style="gap: 14px; align-items: flex-end">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width: 64px; height: 64px; border-radius: 8px; box-shadow: inset 0 0 0 1.5px #D6B25E"></div><span class="t-label muted">sm 8</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width: 64px; height: 64px; border-radius: 12px; box-shadow: inset 0 0 0 1.5px #D6B25E"></div><span class="t-label muted">md 12</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width: 64px; height: 64px; border-radius: 16px; box-shadow: inset 0 0 0 1.5px #D6B25E"></div><span class="t-label muted">lg 16</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width: 64px; height: 64px; border-radius: 20px; box-shadow: inset 0 0 0 1.5px #D6B25E"></div><span class="t-label muted">card 20</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width: 64px; height: 64px; border-radius: 24px; box-shadow: inset 0 0 0 1.5px #D6B25E"></div><span class="t-label muted">xl 24</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width: 96px; height: 40px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px #D6B25E"></div><span class="t-label muted">pill</span></div>
+      </div>
+
+      <h2 class="d-m" style="margin-top: 12px">Elevation &amp; glow</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+        <div style="height: 84px; border-radius: 16px; background: #1A2440; box-shadow: var(--e-1); display:flex;align-items:center;justify-content:center" class="t-label">e-1 · rows</div>
+        <div style="height: 84px; border-radius: 16px; background: #1A2440; box-shadow: var(--e-2); display:flex;align-items:center;justify-content:center" class="t-label">e-2 · toast</div>
+        <div style="height: 84px; border-radius: 16px; background: #1A2440; box-shadow: var(--e-3); display:flex;align-items:center;justify-content:center" class="t-label">e-3 · card, modal</div>
+        <div style="height: 84px; border-radius: 16px; background: #121A2E; box-shadow: var(--glow-gold); display:flex;align-items:center;justify-content:center" class="t-label">glow-gold · your turn</div>
+        <div style="height: 84px; border-radius: 16px; background: #121A2E; box-shadow: var(--glow-good); display:flex;align-items:center;justify-content:center" class="t-label">glow-good</div>
+        <div style="height: 84px; border-radius: 16px; background: #121A2E; box-shadow: var(--glow-evil); display:flex;align-items:center;justify-content:center" class="t-label">glow-evil · danger</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px">
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <h2 class="d-m">Texture (CSS + SVG filter only)</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+        <div style="display:flex;flex-direction:column;gap:8px"><div class="scene" style="height: 150px; border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(214,178,94,.26)"></div><span class="t-label muted">Scene: grain + candle + vignette</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div class="rcard-front" style="height: 150px; width: auto; border-radius: 14px; padding: 0"></div><span class="t-label muted">Parchment (secrets only)</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div class="rcard-back" style="height: 150px; width: auto; border-radius: 14px"></div><span class="t-label muted">Card-back lattice</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div class="private-band" style="height: 150px; margin: 0; border-radius: 14px"><span class="ic i-lock" aria-hidden="true"></span>Private</div><span class="t-label muted">Private band</span></div>
+      </div>
+      <p class="t-label muted">Grain is one 180px SVG <code style="color:#F0D58C">feTurbulence</code> tile as a data URI (~600 bytes). Hairlines are 1px <code style="color:#F0D58C">--line</code> gold at 26% alpha; double frames are stacked inset box-shadows.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <h2 class="d-m">Motion</h2>
+      <div style="display: flex; flex-direction: column; border-top: 1px solid rgba(243,235,221,.1)">
+        <sc-for list="{{motion}}" as="m" hint-placeholder-count="7">
+          <div style="display: grid; grid-template-columns: 140px 90px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(243,235,221,.1); align-items: baseline">
+            <span style="font-size: 14px; font-weight: 700" class="gold">{{m.token}}</span>
+            <span class="t-label tnum">{{m.val}}</span>
+            <span class="t-label muted">{{m.use}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <p class="t-label muted">Every dramatic moment is under 3s and has a Skip. With <code style="color:#F0D58C">prefers-reduced-motion</code> (or the in-app toggle) all flips, staggers and coin spins become a 150ms cross-fade and loops stop.</p>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const sw = (token, hex, use, on, sample) => ({ token, hex, use, on: on || '#F3EBDD', sample: sample || '' });
+    return {
+      groups: [
+        { name: 'Surfaces', note: 'Midnight ink, lifted in three steps.', items: [
+          sw('--ink', '#070B16', 'Page behind the phone'), sw('--bg', '#0A0F1E', 'Screen ground'), sw('--surface-1', '#121A2E', 'Rows, panels, inputs'), sw('--surface-2', '#1A2440', 'Status bar, disabled'), sw('--surface-3', '#243052', 'Avatars, switch track'), sw('--scrim', 'rgba(3,5,12,.72)', 'Behind sheets & modals') ] },
+        { name: 'Gold & parchment', note: 'Gold = structure + next action. Parchment = private.', items: [
+          sw('--gold', '#D6B25E', 'Primary button, hairlines', '#1A1408', 'Aa 9.5:1'), sw('--gold-hi', '#F0D58C', 'Text on dark, focus ring', '#1A1408'), sw('--gold-lo', '#9C7A2F', 'Gradients, shadows'), sw('--parchment', '#EFE3C8', 'Role & quest card fronts', '#2A2118', 'Aa 13:1'), sw('--on-parchment-2', '#5A4A35', 'Secondary text on parchment'), sw('--line', 'rgba(214,178,94,.26)', 'Gold hairline borders') ] },
+        { name: 'Text', note: 'Warm whites. --text-3 only on bg/surface-1/2.', items: [
+          sw('--text-1', '#F3EBDD', 'Primary · 15.8:1 on bg', '#0A0F1E', 'Aa'), sw('--text-2', '#BDB5A6', 'Secondary · 9.2:1', '#0A0F1E', 'Aa'), sw('--text-3', '#948C7D', 'Hints · 5.7:1 on bg', '#0A0F1E', 'Aa'), sw('--focus', '#F0D58C', '3px focus outline', '#1A1408') ] },
+        { name: 'Teams', note: 'Good = round mark, teal. Evil = thorn mark, crimson.', items: [
+          sw('--good', '#6FD0DA', 'Good text/icon on dark', '#0A0F1E', 'Aa 10:1'), sw('--good-fill', '#1C5A63', 'Good fills', '#E6FBFD', 'Aa 7:1'), sw('--good-ink', '#17636C', 'Good on parchment', '#FFFFFF'), sw('--evil', '#F0707F', 'Evil text/icon on dark', '#0A0F1E', 'Aa 6.6:1'), sw('--evil-fill', '#8C1D30', 'Evil fills', '#FFE9EC', 'Aa 7.9:1'), sw('--evil-ink', '#962036', 'Evil on parchment', '#FFFFFF') ] },
+        { name: 'Votes & feedback', note: 'Approve is solid + light; Reject is hollow + dark.', items: [
+          sw('--approve', '#E2C46E', 'Approve fill, ✓ mark', '#1A1408', 'Approve'), sw('--reject', '#A9B1D1', 'Reject outline, ✕ mark', '#1E2742', 'Reject'), sw('--reject-fill', '#1E2742', 'Reject button ground', '#A9B1D1', 'Reject'), sw('--warn', '#F2A65A', 'Offline, caution', '#0A0F1E'), sw('--info', '#8FB8F0', 'Info toasts', '#0A0F1E'), sw('--risk-1…5', '#8E96B8 → #F0707F', 'Reject-track danger ramp', '#0A0F1E') ] }
+      ],
+      types: [
+        { token: 'd-xl', spec: '48/50 · Cormorant 700', cls: 'd-xl', sample: 'KQVX · Good prevails' },
+        { token: 'd-l', spec: '36/40 · Cormorant 700', cls: 'd-l', sample: 'Merlin' },
+        { token: 'd-m', spec: '28/32 · Cormorant 600', cls: 'd-m', sample: 'Quest 3 · three knights' },
+        { token: 'title', spec: '20/26 · Atkinson 700', cls: 't-title', sample: 'Vote on Sana’s team' },
+        { token: 'body-l', spec: '18/26 · Atkinson 400', cls: 't-body-l', sample: 'Rowan, Ilse and Tomas will go on the quest.' },
+        { token: 'body', spec: '16/24 · Atkinson 400 (minimum body)', cls: 't-body', sample: 'Votes are secret until everyone has locked in.' },
+        { token: 'label', spec: '14/20 · Atkinson 700 (meta only)', cls: 't-label', sample: 'WAITING ON 3 · Kofi, Sana, Jude' }
+      ],
+      spaces: [ {token:'--s-1',px:4},{token:'--s-2',px:8},{token:'--s-3',px:12},{token:'--s-4',px:16},{token:'--s-5',px:20},{token:'--s-6',px:24},{token:'--s-7',px:32},{token:'--s-8',px:40},{token:'--s-9',px:48},{token:'--s-10',px:64} ],
+      motion: [
+        { token: '--d-instant', val: '80ms', use: 'Press feedback, tick marks' },
+        { token: '--d-fast', val: '140ms', use: 'Button scale, selection' },
+        { token: '--d-base', val: '220ms', use: 'Sheets, toasts, single vote rise' },
+        { token: '--d-slow', val: '420ms', use: 'Role-card flip' },
+        { token: '--d-stagger', val: '90ms', use: 'Gap between revealed votes (10 × 90 = 0.9s)' },
+        { token: '--ease-out', val: '.2,.8,.2,1', use: 'Default for anything arriving' },
+        { token: '--ease-back', val: '.34,1.4,.64,1', use: 'Stamps, switch thumb (tiny overshoot)' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

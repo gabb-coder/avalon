@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>投票 · 中文界面</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone" lang="zh-Hans" style="--font-display: 'Noto Serif SC', 'Songti SC', 'STSong', serif">
+  <div class="topbar">
+    <span class="icon-btn" aria-label="菜单"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag" style="letter-spacing: .08em">房间 KQVX</span>
+    <span class="icon-btn" aria-label="投票记录"><span class="ic i-history" aria-hidden="true"></span></span>
+  </div>
+  <div class="status is-you" role="status">
+    <div class="status-top"><span class="status-phase" style="letter-spacing: .04em"><span class="ic i-check ic-16" aria-hidden="true"></span>任务 1 · 投票</span><span class="t-label faint tnum">已投 2/7</span></div>
+    <p class="status-main">你同意 Rowan 提出的队伍吗？</p>
+    <p class="status-wait">所有人锁定后，投票才会一起公开。</p>
+  </div>
+
+  <div class="content" style="gap: 12px; padding-top: 14px">
+    <div class="panel panel-gold" style="display: flex; flex-direction: column; gap: 12px">
+      <div class="row" style="justify-content: space-between">
+        <p class="eyebrow" style="font-size: 13px; letter-spacing: .06em">出征队伍 · 任务 1</p>
+        <span class="chip"><span class="ic i-standard" aria-hidden="true"></span>队长 Rowan</span>
+      </div>
+      <div class="row" style="gap: 18px">
+        <div class="row" style="gap: 10px"><span class="av av-48 is-you">R</span><span class="t-title">Rowan</span></div>
+        <div class="row" style="gap: 10px"><span class="av av-48">I</span><span class="t-title">Ilse</span></div>
+      </div>
+    </div>
+    <div class="panel" style="display: flex; flex-direction: column; gap: 8px">
+      <div class="row" style="gap: 10px; align-items: flex-start"><span class="ic i-check ic-20" style="color: #E2C46E" aria-hidden="true"></span><p class="t-label muted"><b style="color:#F3EBDD">同意</b>：这支队伍出发执行任务 1。</p></div>
+      <div class="row" style="gap: 10px; align-items: flex-start"><span class="ic i-cross ic-20" style="color: #A9B1D1" aria-hidden="true"></span><p class="t-label muted"><b style="color:#F3EBDD">反对</b>：队长交给 Ilse。连续否决 0/5。</p></div>
+    </div>
+  </div>
+
+  <div class="dock" style="gap: 12px">
+    <div class="vote-pair" role="radiogroup" aria-label="你的投票">
+      <button class="vote vote-approve is-picked" type="button" role="radio" aria-checked="true"><span class="ic-ring"><span class="ic i-check" aria-hidden="true"></span></span>同意<span class="vote-sub">已选择</span></button>
+      <button class="vote vote-reject is-dim" type="button" role="radio" aria-checked="false"><span class="ic-ring"><span class="ic i-cross" aria-hidden="true"></span></span>反对</button>
+    </div>
+    <button class="btn btn-primary btn-block" type="button"><span class="ic i-lock" aria-hidden="true"></span>锁定：同意</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

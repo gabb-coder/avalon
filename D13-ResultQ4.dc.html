@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quest 4 result — one fail is not enough</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="E4-Menu.dc.html" aria-label="Menu"><span class="ic i-menu" aria-hidden="true"></span></a>
+    <span class="room-tag">ROOM KQVX</span>
+    <button class="btn btn-ghost btn-md" type="button" style="color: #F0D58C; min-height: 48px; padding: 0 12px">Skip</button>
+  </div>
+  <div class="status" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-success ic-16" aria-hidden="true"></span>Quest 4 · Result</span></div>
+    <p class="status-main">Quest 4 succeeds, despite 1 Fail</p>
+    <p class="status-wait">3 Success · 1 Fail · this quest needed 2 Fails</p>
+  </div>
+
+  <div class="content" style="align-items: center; justify-content: center; gap: 16px; text-align: center">
+    <p class="eyebrow" style="font-size: 12px">The cards, shuffled</p>
+    <div class="row" style="gap: 10px; justify-content: center">
+      <div class="rtok rtok-s anim-coin" style="animation-delay: 200ms"><span class="ic i-success" aria-hidden="true"></span>Success</div>
+      <div class="rtok rtok-f anim-coin" style="animation-delay: 480ms"><span class="ic i-fail" aria-hidden="true"></span>Fail</div>
+      <div class="rtok rtok-s anim-coin" style="animation-delay: 760ms"><span class="ic i-success" aria-hidden="true"></span>Success</div>
+      <div class="rtok rtok-s anim-coin" style="animation-delay: 1040ms"><span class="ic i-success" aria-hidden="true"></span>Success</div>
+    </div>
+    <div class="panel anim-rise" style="width: 100%; display: flex; gap: 12px; align-items: center; text-align: left; box-shadow: inset 0 0 0 1.5px rgba(240,112,127,.45); animation-delay: 1.4s">
+      <span class="qnode-tag" style="font-size: 14px; padding: 6px 10px; flex: none">2 fails</span>
+      <p class="t-label muted"><b style="color:#F3EBDD">Quest 4 is special with 7+ players.</b> It only fails with 2 or more Fail cards. 1 Fail was played, so it holds.</p>
+    </div>
+    <div class="banner banner-good anim-stamp" style="width: 100%; animation-delay: 1.8s; padding: 16px">
+      <p class="d-m">Success</p>
+      <p class="t-body muted">Good has won 3 quests</p>
+    </div>
+    <div class="panel" style="width: 100%">
+      <div class="qtrack" role="list" aria-label="Quests">
+        <div class="qnode is-success" role="listitem" aria-label="Quest 1, success"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div><span class="qnode-size">2</span></div>
+        <div class="qnode is-fail" role="listitem" aria-label="Quest 2, failed"><div class="qnode-disc"><span class="ic i-fail ic-28" aria-hidden="true"></span></div><span class="qnode-size">3</span></div>
+        <div class="qnode is-success" role="listitem" aria-label="Quest 3, success"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div><span class="qnode-size">3</span></div>
+        <div class="qnode is-success anim-stamp" role="listitem" aria-label="Quest 4, success" style="animation-delay: 2.1s"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div><span class="qnode-size">4</span></div>
+        <div class="qnode" role="listitem" aria-label="Quest 5, not needed"><div class="qnode-disc" style="opacity: .4">5</div><span class="qnode-size faint">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dock">
+    <div class="row" style="gap: 10px; justify-content: center"><span class="ic i-assassin evil ic-20" aria-hidden="true"></span><p class="t-label b evil">But the Assassin gets one guess at Merlin…</p></div>
+    <a class="btn btn-primary btn-block" href="F3-AssassinWait.dc.html">Continue to the final guess</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

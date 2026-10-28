@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Night — role revealed while held</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <span style="width: 48px"></span>
+  </div>
+  <div class="private-band" role="note"><span class="ic i-lock" aria-hidden="true"></span>Private · angle your phone away</div>
+
+  <div class="content" style="align-items: center; justify-content: center; gap: 14px; padding-top: 12px; position: relative">
+    <div class="rcard rcard-front good" style="transform: scale(1.02)">
+      <span class="private"><span class="ic i-lock" aria-hidden="true"></span>Only you can see this</span>
+      <span class="rcard-emblem"><span class="ic i-merlin ic-64" aria-hidden="true"></span></span>
+      <p class="rcard-name">Merlin</p>
+      <span class="team-tag good"><span class="ic i-good" aria-hidden="true"></span>Good</span>
+      <p class="rcard-ability">You know who is Evil. Guide Good with hints: if the Assassin spots you at the end, Evil wins.</p>
+      <div class="rcard-intel">
+        <p class="rcard-intel-h">Evil you can see</p>
+        <div class="intel-names"><span class="iname evil"><span class="mini">K</span>Kofi</span><span class="iname evil"><span class="mini">S</span>Sana</span></div>
+        <p style="font-size: 13px; line-height: 1.35; color: #5A4A35">One Evil player is hidden from you (Mordred is in this game).</p>
+      </div>
+    </div>
+    <div aria-hidden="true" style="position: absolute; left: 50%; top: 58%; width: 64px; height: 64px; margin-left: -32px; border-radius: 50%; background: radial-gradient(circle, rgba(240,213,140,.55), rgba(240,213,140,0) 70%); box-shadow: 0 0 0 2px rgba(240,213,140,.7)"></div>
+    <p class="t-label gold b row" style="gap: 6px"><span class="ic i-hold ic-16" aria-hidden="true"></span>Holding · let go to hide instantly</p>
+  </div>
+
+  <div class="dock">
+    <a class="btn btn-primary btn-block" href="C3-NightWaiting.dc.html"><span class="ic i-check" aria-hidden="true"></span>I've seen my role</a>
+    <p class="btn-note">You can peek again any time during the game.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

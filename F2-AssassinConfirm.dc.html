@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Assassination — confirm the strike</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone" style="background: radial-gradient(120% 60% at 50% -10%, rgba(240,112,127,.16), rgba(240,112,127,0) 60%), var(--vignette), #0A0F1E">
+  <div class="topbar"><span></span></div>
+  <div class="status is-tense" aria-hidden="true">
+    <div class="status-top"><span class="status-phase" style="color: #F0707F"><span class="ic i-assassin ic-16" aria-hidden="true"></span>Assassination · Your call</span></div>
+    <p class="status-main">Good won 3 quests. Who is Merlin?</p>
+  </div>
+  <div class="scrim"></div>
+  <div class="modal is-danger" role="alertdialog" aria-modal="true" aria-labelledby="as-t" aria-describedby="as-d" style="top: 52%">
+    <span class="frame-evil" style="width: 76px; height: 76px"><span class="ic i-assassin ic-40" aria-hidden="true"></span></span>
+    <h2 class="d-m" id="as-t">Name Ilse as Merlin?</h2>
+    <p class="t-body muted pretty" id="as-d">One guess, no take-backs. If Ilse is Merlin, Evil wins. If not, Good wins.</p>
+    <div class="row" style="gap: 10px; justify-content: center">
+      <span class="av av-56" style="box-shadow: 0 0 0 2.5px #F0707F">I</span>
+      <span class="ic i-target evil ic-28" aria-hidden="true"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-block" type="button" style="position: relative; overflow: hidden" aria-describedby="hold-why">
+        <span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 62%; background: rgba(255,233,236,.18)"></span>
+        <span class="ic i-hold" style="position: relative" aria-hidden="true"></span><span style="position: relative">Hold to strike · 1.5s</span>
+      </button>
+      <p class="btn-note" id="hold-why">Keep holding. Letting go cancels.</p>
+      <a class="btn btn-ghost btn-block" href="F1-AssassinPick.dc.html">Go back</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

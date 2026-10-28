@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How to play</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar"><span></span></div>
+  <div class="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="how-t" style="height: 94%; max-height: 94%">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h2 class="d-m grow" id="how-t">How to play</h2>
+      <a class="icon-btn" href="A2-Home.dc.html" aria-label="Close how to play"><span class="ic i-cross" aria-hidden="true"></span></a>
+    </div>
+    <div class="sheet-body" style="gap: 18px">
+      <div class="row" style="gap: 6px" aria-hidden="true">
+        <sc-for list="{{dots}}" as="d" hint-placeholder-count="6"><span style="height: 4px; flex: 1; border-radius: 2px; background: {{d.bg}}"></span></sc-for>
+      </div>
+      <p class="eyebrow" aria-live="polite">Step {{n}} of 6</p>
+
+      <sc-if value="{{p1}}" hint-placeholder-val="{{true}}">
+        <div class="col anim-rise" style="gap: 16px">
+          <div class="panel" style="height: 180px; display: flex; align-items: center; justify-content: center; gap: 28px">
+            <div class="col" style="align-items: center; gap: 8px"><span class="frame-good" style="width: 72px; height: 72px"><span class="ic i-good ic-40" aria-hidden="true"></span></span><span class="t-body b good">Good</span></div>
+            <span class="d-m faint">vs</span>
+            <div class="col" style="align-items: center; gap: 8px"><span class="frame-evil" style="width: 72px; height: 72px"><span class="ic i-evil ic-40" aria-hidden="true"></span></span><span class="t-body b evil">Evil</span></div>
+          </div>
+          <h3 class="t-title">Two secret teams</h3>
+          <p class="t-body-l muted pretty">Your phone deals you a role. Most players are Good knights. A few are Evil, and they know each other. Nobody else knows who is who.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{p2}}" hint-placeholder-val="{{false}}">
+        <div class="col anim-rise" style="gap: 16px">
+          <div class="panel" style="height: 180px; display: flex; align-items: center; justify-content: center; gap: 12px">
+            <span class="tok tok-leader" style="width: 56px; height: 56px"><span class="ic i-standard ic-32" aria-hidden="true"></span></span>
+            <span class="ic i-arrow gold" aria-hidden="true"></span>
+            <div class="stack"><span class="av av-48" style="box-shadow: 0 0 0 2.5px #D6B25E">I</span><span class="av av-48" style="box-shadow: 0 0 0 2.5px #D6B25E">T</span><span class="av av-48" style="box-shadow: 0 0 0 2.5px #D6B25E">M</span></div>
+          </div>
+          <h3 class="t-title">The leader picks a team</h3>
+          <p class="t-body-l muted pretty">Each round one player leads and picks who goes on the quest. Talk, accuse, defend. The leader role moves one seat clockwise after every vote.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{p3}}" hint-placeholder-val="{{false}}">
+        <div class="col anim-rise" style="gap: 16px">
+          <div class="panel" style="height: 180px; display: flex; align-items: center; justify-content: center; gap: 22px">
+            <span class="vm vm-a" style="width: 72px; height: 72px"><span class="ic i-check ic-40" aria-hidden="true"></span></span>
+            <span class="vm vm-r" style="width: 72px; height: 72px"><span class="ic i-cross ic-40" aria-hidden="true"></span></span>
+          </div>
+          <h3 class="t-title">Everyone votes, then it's public</h3>
+          <p class="t-body-l muted pretty">Approve or Reject, in secret. Then every vote is shown by name. Five rejected teams in a row and Evil wins. Votes are your best clue: check History often.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{p4}}" hint-placeholder-val="{{false}}">
+        <div class="col anim-rise" style="gap: 16px">
+          <div class="panel" style="height: 180px; display: flex; align-items: center; justify-content: center; gap: 12px">
+            <div class="rtok rtok-s"><span class="ic i-success" aria-hidden="true"></span>Success</div>
+            <div class="rtok rtok-s"><span class="ic i-success" aria-hidden="true"></span>Success</div>
+            <div class="rtok rtok-f"><span class="ic i-fail" aria-hidden="true"></span>Fail</div>
+          </div>
+          <h3 class="t-title">The quest: one Fail sinks it</h3>
+          <p class="t-body-l muted pretty">The team secretly plays Success or Fail. Good can only play Success. Cards are shuffled, so you only learn how many Fails, never who.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{p5}}" hint-placeholder-val="{{false}}">
+        <div class="col anim-rise" style="gap: 16px">
+          <div class="panel" style="height: 180px; display: flex; align-items: center; justify-content: center">
+            <div class="qtrack" style="width: 100%">
+              <div class="qnode is-success"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div></div>
+              <div class="qnode is-fail"><div class="qnode-disc"><span class="ic i-fail ic-28" aria-hidden="true"></span></div></div>
+              <div class="qnode is-success"><div class="qnode-disc"><span class="ic i-success ic-28" aria-hidden="true"></span></div></div>
+              <div class="qnode is-current"><div class="qnode-disc">4</div></div>
+              <div class="qnode"><div class="qnode-disc">5</div></div>
+            </div>
+          </div>
+          <h3 class="t-title">First to three quests</h3>
+          <p class="t-body-l muted pretty">Three Successes and Good is close to winning. Three Fails and Evil wins. With 7 or more players, Quest 4 needs two Fails to fail.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{p6}}" hint-placeholder-val="{{false}}">
+        <div class="col anim-rise" style="gap: 16px">
+          <div class="panel" style="height: 180px; display: flex; align-items: center; justify-content: center; gap: 20px">
+            <span class="frame-evil" style="width: 72px; height: 72px"><span class="ic i-assassin ic-40" aria-hidden="true"></span></span>
+            <span class="ic i-target evil ic-32" aria-hidden="true"></span>
+            <span class="frame-good" style="width: 72px; height: 72px"><span class="ic i-merlin ic-40" aria-hidden="true"></span></span>
+          </div>
+          <h3 class="t-title">The final twist</h3>
+          <p class="t-body-l muted pretty">Merlin knows Evil but must stay hidden. If Good wins three quests, the Assassin gets one guess at Merlin. Guess right and Evil steals the win.</p>
+        </div>
+      </sc-if>
+    </div>
+    <div class="dock" style="flex-direction: row; gap: 10px">
+      <button class="btn btn-secondary btn-md" type="button" onClick="{{back}}" disabled="{{atStart}}" style="min-height: 56px; flex: 1">Back</button>
+      <sc-if value="{{notLast}}" hint-placeholder-val="{{true}}"><button class="btn btn-primary" type="button" onClick="{{next}}" style="flex: 2">Next<span class="ic i-right" aria-hidden="true"></span></button></sc-if>
+      <sc-if value="{{last}}" hint-placeholder-val="{{false}}"><a class="btn btn-primary" href="A2-Home.dc.html" style="flex: 2">Got it</a></sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { page: 1 }; }
+  renderVals() {
+    const pg = this.state.page;
+    const v = { n: pg, atStart: pg === 1, last: pg === 6, notLast: pg !== 6,
+      next: () => this.setState({ page: Math.min(6, pg + 1) }), back: () => this.setState({ page: Math.max(1, pg - 1) }),
+      dots: [1, 2, 3, 4, 5, 6].map(i => ({ bg: i <= pg ? '#D6B25E' : '#243052' })) };
+    for (let i = 1; i <= 6; i++) v['p' + i] = pg === i;
+    return v;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Assassination — the Assassin chooses</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone" style="background: radial-gradient(120% 60% at 50% -10%, rgba(240,112,127,.16), rgba(240,112,127,0) 60%), var(--vignette), #0A0F1E">
+  <div class="topbar">
+    <span class="icon-btn" aria-hidden="true"><span class="ic i-menu" aria-hidden="true"></span></span>
+    <span class="room-tag">ROOM KQVX</span>
+    <a class="icon-btn" href="E1-History.dc.html" aria-label="Vote history"><span class="ic i-history" aria-hidden="true"></span></a>
+  </div>
+  <div class="status is-tense" role="status">
+    <div class="status-top"><span class="status-phase" style="color: #F0707F"><span class="ic i-assassin ic-16" aria-hidden="true"></span>Assassination · Your call</span></div>
+    <p class="status-main">Good won 3 quests. Who is Merlin?</p>
+    <p class="status-wait">Talk it through with Evil out loud. Good must stay silent.</p>
+  </div>
+
+  <div class="content" style="gap: 8px; padding-top: 14px">
+    <p class="t-label muted b">Choose one player</p>
+    <div class="plist" role="radiogroup" aria-label="Who is Merlin">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+        <button class="{{r.cls}}" type="button" role="radio" aria-checked="{{r.on}}" disabled="{{r.dis}}" onClick="{{r.pick}}" style="{{r.style}}">
+          <span class="av">{{r.i}}</span>
+          <span class="prow-name"><span>{{r.name}}</span><span class="prow-meta">{{r.meta}}</span></span>
+          <sc-if value="{{r.dis}}" hint-placeholder-val="{{false}}"><span class="chip chip-evil" style="margin-right: 8px"><span class="ic i-evil" aria-hidden="true"></span>Evil</span></sc-if>
+          <sc-if value="{{r.ok}}" hint-placeholder-val="{{true}}"><span class="tick" style="{{r.tickStyle}}"><span class="ic i-target" aria-hidden="true"></span></span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="dock">
+    <sc-if value="{{has}}" hint-placeholder-val="{{false}}">
+      <a class="btn btn-danger btn-block anim-rise" href="F2-AssassinConfirm.dc.html"><span class="ic i-assassin" aria-hidden="true"></span>Name {{who}} as Merlin…</a>
+      <p class="btn-note">You'll confirm on the next step</p>
+    </sc-if>
+    <sc-if value="{{none}}" hint-placeholder-val="{{true}}">
+      <button class="btn btn-danger btn-block" type="button" disabled>Name as Merlin…</button>
+      <p class="btn-note"><span class="ic i-info ic-16" aria-hidden="true"></span>Pick one player. Take your time.</p>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { pick: null }; }
+  renderVals() {
+    const list = [
+      { name: 'Rowan' }, { name: 'Ilse' }, { name: 'Tomas' }, { name: 'Mei' },
+      { name: 'Sana', dis: true, meta: 'Your ally' }, { name: 'Jude', dis: true, meta: 'Your ally' }
+    ];
+    const pk = this.state.pick;
+    return {
+      rows: list.map(p => ({
+        name: p.name, i: p.name.charAt(0), dis: !!p.dis, ok: !p.dis, on: pk === p.name,
+        meta: p.meta || (pk === p.name ? 'Your guess' : ''),
+        cls: 'prow' + (p.dis ? ' is-disabled' : ''),
+        style: pk === p.name ? 'box-shadow: inset 0 0 0 1.5px #F0707F; background: rgba(240,112,127,.12)' : '',
+        tickStyle: pk === p.name ? 'background: #8C1D30; color: #FFE9EC; box-shadow: none' : '',
+        pick: () => { if (!p.dis) this.setState({ pick: p.name }); }
+      })),
+      has: !!pk, none: !pk, who: pk || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

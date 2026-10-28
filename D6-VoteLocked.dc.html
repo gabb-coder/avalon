@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vote locked — waiting</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="E4-Menu.dc.html" aria-label="Menu"><span class="ic i-menu" aria-hidden="true"></span></a>
+    <span class="room-tag">ROOM KQVX</span>
+    <a class="icon-btn" href="E1-History.dc.html" aria-label="Vote history"><span class="ic i-history" aria-hidden="true"></span></a>
+  </div>
+  <div class="status" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-check ic-16" aria-hidden="true"></span>Quest 1 · Vote</span><span class="t-label faint tnum">4 of 7 in</span></div>
+    <p class="status-main">Waiting on 3 votes</p>
+    <div class="status-wait"><span class="stack"><span class="av av-32">K</span><span class="av av-32">M</span><span class="av av-32">J</span></span>Kofi, Mei, Jude</div>
+  </div>
+
+  <div class="content" style="gap: 16px; padding-top: 16px">
+    <div class="panel panel-gold" style="display: flex; align-items: center; gap: 14px; padding: 18px 16px">
+      <span class="modal-icon" style="width: 52px; height: 52px; flex: none"><span class="ic i-lock ic-28" aria-hidden="true"></span></span>
+      <div class="grow">
+        <p class="t-title">Your vote is locked</p>
+        <p class="t-label muted">Hidden here too, so no one can glance at it. All votes show together.</p>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><i style="width: 57%"></i></div>
+    <div class="waitgrid">
+      <div class="wcell is-done"><span class="av av-32 is-you">R</span><span class="nm">Rowan</span><span class="state"><span class="ic i-lock ic-14" aria-hidden="true"></span>In</span></div>
+      <div class="wcell is-done"><span class="av av-32">I</span><span class="nm">Ilse</span><span class="state"><span class="ic i-lock ic-14" aria-hidden="true"></span>In</span></div>
+      <div class="wcell is-done"><span class="av av-32">T</span><span class="nm">Tomas</span><span class="state"><span class="ic i-lock ic-14" aria-hidden="true"></span>In</span></div>
+      <div class="wcell is-pending"><span class="av av-32">K</span><span class="nm">Kofi</span><span class="state"><span class="dots" aria-label="Voting"><i></i><i></i><i></i></span></span></div>
+      <div class="wcell is-pending"><span class="av av-32">M</span><span class="nm">Mei</span><span class="state"><span class="dots" aria-label="Voting"><i></i><i></i><i></i></span></span></div>
+      <div class="wcell is-done"><span class="av av-32">S</span><span class="nm">Sana</span><span class="state"><span class="ic i-lock ic-14" aria-hidden="true"></span>In</span></div>
+      <div class="wcell is-pending"><span class="av av-32">J</span><span class="nm">Jude</span><span class="state"><span class="dots" aria-label="Voting"><i></i><i></i><i></i></span></span></div>
+    </div>
+    <p class="t-label faint center">Changed your mind? Locked votes are final. That's what the lock step is for.</p>
+  </div>
+
+  <div class="dock">
+    <button class="peek" type="button" aria-label="Hold to peek at your role"><span class="ic i-hold" aria-hidden="true"></span>Hold to peek at my role</button>
+    <a class="proto-skip" href="D7-RevealApproved.dc.html">Everyone votes ›</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

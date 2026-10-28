@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Role glossary</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar"><span></span></div>
+  <div class="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gl-t" style="max-height: 94%">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h2 class="d-m grow" id="gl-t">Roles</h2>
+      <a class="icon-btn" href="B1-LobbyHost.dc.html" aria-label="Close roles"><span class="ic i-cross" aria-hidden="true"></span></a>
+    </div>
+    <div style="padding: 0 20px 12px">
+      <div class="seg" role="tablist">
+        <button class="{{inGameCls}}" type="button" role="tab" aria-selected="{{onlyIn}}" onClick="{{showIn}}">In this game · 7</button>
+        <button class="{{allCls}}" type="button" role="tab" aria-selected="{{showingAll}}" onClick="{{showAll}}">All roles</button>
+      </div>
+    </div>
+    <div class="sheet-body" style="gap: 10px">
+      <sc-for list="{{roles}}" as="r" hint-placeholder-count="6">
+        <div class="panel" style="display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 14px">
+          <span class="{{r.frame}}"><span class="ic {{r.icon}} ic-28" aria-hidden="true"></span></span>
+          <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+            <div class="row" style="gap: 8px; justify-content: space-between">
+              <p class="t-title" style="font-family: var(--font-display); font-size: 24px; line-height: 1.1">{{r.name}}</p>
+              <span class="{{r.chip}}"><span class="ic {{r.teamIcon}}" aria-hidden="true"></span>{{r.team}}</span>
+            </div>
+            <p class="t-body pretty">{{r.ability}}</p>
+            <p class="t-label muted"><span class="ic i-eye ic-14" style="vertical-align: -2px" aria-hidden="true"></span> At night: {{r.sees}}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { all: false }; }
+  renderVals() {
+    const G = (icon, name, ability, sees, inGame) => ({ icon, name, ability, sees, inGame, team: 'Good', teamIcon: 'i-good', chip: 'chip chip-good', frame: 'frame-good' });
+    const E = (icon, name, ability, sees, inGame) => ({ icon, name, ability, sees, inGame, team: 'Evil', teamIcon: 'i-evil', chip: 'chip chip-evil', frame: 'frame-evil' });
+    const all = [
+      G('i-merlin', 'Merlin', 'Knows who is Evil. Must guide without being obvious, or the Assassin wins it for Evil.', 'every Evil player except Mordred.', true),
+      G('i-percival', 'Percival', 'Protects Merlin. Knows who might be Merlin.', 'Merlin and Morgana, without knowing which is which.', true),
+      G('i-servant', 'Loyal Servant', 'No power. Reads the votes and the quests.', 'no one.', true),
+      E('i-assassin', 'Assassin', 'If Good wins three quests, gets one guess at Merlin.', 'the other Evil players (not Oberon).', true),
+      E('i-morgana', 'Morgana', 'Looks like a possible Merlin to Percival.', 'the other Evil players (not Oberon).', true),
+      E('i-mordred', 'Mordred', 'Invisible to Merlin.', 'the other Evil players (not Oberon).', true),
+      E('i-minion', 'Minion', 'Plain Evil. Sabotage quests without being spotted.', 'the other Evil players (not Oberon).', false),
+      E('i-oberon', 'Oberon', 'Evil but alone: does not know the others and they do not know him.', 'no one.', false),
+      G('i-lady', 'Lady of the Lake', 'A token, not a role. After quests 2–4 its holder secretly learns one player’s team, then hands it to them.', 'only what the Lady shows.', true)
+    ];
+    const roles = this.state.all ? all : all.filter(r => r.inGame);
+    return {
+      roles,
+      onlyIn: !this.state.all, showingAll: this.state.all,
+      inGameCls: 'seg-opt' + (!this.state.all ? ' is-on' : ''), allCls: 'seg-opt' + (this.state.all ? ' is-on' : ''),
+      showIn: () => this.setState({ all: false }), showAll: () => this.setState({ all: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

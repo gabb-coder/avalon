@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <span style="width: 48px"></span>
+    <span></span>
+    <button class="icon-btn" type="button" aria-label="Settings: text size, motion, sound"><span class="ic i-sliders" aria-hidden="true"></span></button>
+  </div>
+
+  <div class="content" style="justify-content: center; align-items: center; text-align: center; gap: 18px">
+    <span class="ic i-logo" style="width: 112px; height: 112px; color: #F0D58C" aria-hidden="true"></span>
+    <h1 class="d-l" style="letter-spacing: .1em; color: #F0D58C; font-weight: 600">AVALON</h1>
+    <p class="t-body muted pretty" style="max-width: 290px">A game of hidden loyalties for 5–10 friends in one room. Your phone is your secret.</p>
+    <div class="panel" style="width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; margin-top: 10px">
+      <span class="av av-48 is-you">R</span>
+      <div class="grow">
+        <p class="t-label muted">Playing as</p>
+        <p class="t-title">Rowan</p>
+      </div>
+      <button class="btn btn-ghost btn-md" type="button" style="color: #F0D58C">Change</button>
+    </div>
+    <div class="panel panel-gold" style="width: 100%; display: flex; align-items: center; gap: 12px; text-align: left">
+      <span class="ic i-refresh gold" aria-hidden="true"></span>
+      <div class="grow">
+        <p class="t-body b">Back to room KQVX?</p>
+        <p class="t-label muted">Your seat is held for 5 minutes</p>
+      </div>
+      <a class="btn btn-secondary btn-md" href="D17-BoardMid.dc.html">Rejoin</a>
+    </div>
+  </div>
+
+  <div class="dock">
+    <a class="btn btn-primary btn-block" href="A6-Waking.dc.html"><span class="ic i-plus" aria-hidden="true"></span>Create room</a>
+    <a class="btn btn-secondary btn-block" href="A3-Join.dc.html"><span class="ic i-arrow" aria-hidden="true"></span>Join room</a>
+    <a class="btn btn-ghost btn-block btn-md" href="E3-HowToPlay.dc.html"><span class="ic i-book" aria-hidden="true"></span>How to play</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

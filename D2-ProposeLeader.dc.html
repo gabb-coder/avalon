@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Propose a team — leader</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="D1-Board.dc.html" aria-label="Back to the board"><span class="ic i-left" aria-hidden="true"></span></a>
+    <span class="room-tag">ROOM KQVX</span>
+    <a class="icon-btn" href="E1-History.dc.html" aria-label="Vote history"><span class="ic i-history" aria-hidden="true"></span></a>
+  </div>
+  <div class="{{statusCls}}" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-standard ic-16" aria-hidden="true"></span>Quest 1 · Your team</span><span class="t-label b tnum" style="color: {{countColor}}">{{count}} of 2 picked</span></div>
+    <p class="status-main">{{headline}}</p>
+    <p class="status-wait">Everyone is watching your picks appear live.</p>
+  </div>
+
+  <div class="content" style="gap: 10px; padding-top: 14px">
+    <div class="row" style="justify-content: space-between">
+      <p class="t-label muted b">Tap to add or remove</p>
+      <p class="t-label faint">Quest 1 · 2 knights</p>
+    </div>
+    <div class="plist" role="group" aria-label="Players">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+        <button class="{{r.cls}}" type="button" aria-pressed="{{r.on}}" onClick="{{r.toggle}}">
+          <span class="{{r.avCls}}">{{r.i}}</span>
+          <span class="prow-name"><span>{{r.name}}</span><span class="prow-meta">{{r.meta}}</span></span>
+          <span class="tick"><span class="ic i-check" aria-hidden="true"></span></span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="dock">
+    <sc-if value="{{ready}}" hint-placeholder-val="{{false}}">
+      <a class="btn btn-primary btn-block" href="D5-Vote.dc.html"><span class="ic i-check" aria-hidden="true"></span>Send {{teamNames}} to the vote</a>
+      <p class="btn-note">Everyone then votes Approve or Reject</p>
+    </sc-if>
+    <sc-if value="{{notReady}}" hint-placeholder-val="{{true}}">
+      <button class="btn btn-primary btn-block" type="button" disabled aria-describedby="pick-why">Send team to the vote</button>
+      <p class="btn-note" id="pick-why" style="color: {{noteColor}}"><span class="ic {{noteIcon}} ic-16" aria-hidden="true"></span>{{note}}</p>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { sel: { Rowan: true } }; }
+  renderVals() {
+    const N = 2;
+    const names = ['Rowan', 'Ilse', 'Tomas', 'Kofi', 'Mei', 'Sana', 'Jude'];
+    const sel = this.state.sel;
+    const count = names.filter(n => sel[n]).length;
+    const rows = names.map(n => ({
+      name: n, i: n.charAt(0), on: !!sel[n],
+      meta: n === 'Rowan' ? 'You · leader' : (sel[n] ? 'On your team' : ''),
+      cls: 'prow' + (sel[n] ? ' is-selected' : ''),
+      avCls: 'av' + (n === 'Rowan' ? ' is-you' : ''),
+      toggle: () => this.setState({ sel: Object.assign({}, sel, { [n]: !sel[n] }) })
+    }));
+    const over = count > N, under = count < N;
+    const team = names.filter(n => sel[n]);
+    return {
+      rows, count,
+      ready: count === N, notReady: count !== N,
+      teamNames: team.join(' & '),
+      headline: count === N ? 'Team ready. Send it to the vote.' : (over ? 'That’s too many for Quest 1.' : 'Pick ' + (N - count) + ' more knight' + (N - count === 1 ? '' : 's') + '.'),
+      statusCls: over ? 'status is-alert' : 'status is-you',
+      countColor: over ? '#F2A65A' : (count === N ? '#6FD0DA' : '#F0D58C'),
+      note: over ? 'Quest 1 takes exactly 2. Remove ' + (count - N) + '.' : 'Pick ' + (N - count) + ' more to continue',
+      noteIcon: over ? 'i-warn' : 'i-info',
+      noteColor: over ? '#F2A65A' : '#BDB5A6'
+    };
+  }
+}
+</script>
+</body>
+</html>

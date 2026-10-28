@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Join room — validation</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="A2-Home.dc.html" aria-label="Back to home"><span class="ic i-left" aria-hidden="true"></span></a>
+    <span class="t-body b">Join a room</span>
+    <span style="width: 48px"></span>
+  </div>
+
+  <div class="content" style="gap: 26px; padding-top: 20px">
+    <div class="field is-error">
+      <p class="field-label" id="e-code-l"><span>Room code</span><span class="faint">4 letters</span></p>
+      <div class="code is-error" role="group" aria-labelledby="e-code-l" aria-describedby="e-code-m">
+        <div class="code-cell">Q</div>
+        <div class="code-cell">X</div>
+        <div class="code-cell">T</div>
+        <div class="code-cell">R</div>
+      </div>
+      <p class="field-msg" id="e-code-m" role="alert"><span class="ic i-warn ic-16" aria-hidden="true"></span>No room called QXTR. Check the code with your host.</p>
+    </div>
+
+    <div class="field is-error">
+      <label class="field-label" for="e-name"><span>Your name at the table</span><span class="tnum">4/16</span></label>
+      <input id="e-name" class="input" value="Kofi" aria-invalid="true" aria-describedby="e-name-m">
+      <p class="field-msg" id="e-name-m"><span class="ic i-warn ic-16" aria-hidden="true"></span>Someone in this room is already “Kofi”. Try “Kofi B”.</p>
+    </div>
+
+    <div class="col" style="gap: 8px">
+      <p class="eyebrow" style="font-size: 12px; color: #948C7D">Other messages, same slot</p>
+      <div class="panel" style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px">
+        <p class="field-msg evil"><span class="ic i-users ic-16" aria-hidden="true"></span>Room KQVX is full (10 of 10).</p>
+        <p class="field-msg evil"><span class="ic i-hourglass ic-16" aria-hidden="true"></span>That game has already started. See next screen.</p>
+        <p class="field-msg evil"><span class="ic i-warn ic-16" aria-hidden="true"></span>Names can be up to 16 characters.</p>
+        <p class="field-msg evil"><span class="ic i-warn ic-16" aria-hidden="true"></span>Add a name so others know who you are.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dock">
+    <button class="btn btn-primary btn-block" type="button" disabled="">Join room</button>
+    <p class="btn-note"><span class="ic i-info ic-16" aria-hidden="true"></span>Fix the 2 highlighted fields to join</p>
+    <a class="proto-skip" href="A5-JoinBlocked.dc.html">See “game already started” ›</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

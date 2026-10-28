@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Join room</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cormorant+Garamond:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="A2-Home.dc.html" aria-label="Back to home"><span class="ic i-left" aria-hidden="true"></span></a>
+    <span class="t-body b">Join a room</span>
+    <span style="width: 48px"></span>
+  </div>
+
+  <div class="content" style="gap: 28px; padding-top: 20px">
+    <div class="field">
+      <p class="field-label" id="j-code-l"><span>Room code</span><span class="faint">4 letters</span></p>
+      <div class="code" role="group" aria-labelledby="j-code-l">
+        <div class="code-cell is-filled" aria-label="K">K</div>
+        <div class="code-cell is-filled" aria-label="Q">Q</div>
+        <div class="code-cell is-filled" aria-label="V">V</div>
+        <div class="code-cell is-filled" aria-label="X">X</div>
+      </div>
+      <p class="field-msg" style="color: #6FD0DA"><span class="ic i-check ic-16" aria-hidden="true"></span>Found Rowan's room · 6 players waiting</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="j-name"><span>Your name at the table</span><span class="tnum faint">4/16</span></label>
+      <input id="j-name" class="input" value="Ilse" maxlength="16" autocomplete="nickname">
+      <p class="field-msg">Remembered from last time. Others see this name.</p>
+    </div>
+
+    <div class="panel" style="display: flex; gap: 12px; align-items: flex-start">
+      <span class="ic i-info gold" aria-hidden="true"></span>
+      <p class="t-label muted">Got a link instead? Opening it fills the code for you. Letters only, no O or I, so nothing gets misread out loud.</p>
+    </div>
+  </div>
+
+  <div class="dock">
+    <a class="btn btn-primary btn-block" href="B3-LobbyGuest.dc.html">Join room KQVX</a>
+    <a class="proto-skip" href="A4-JoinErrors.dc.html">See validation errors ›</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

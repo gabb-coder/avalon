@@ -1,0 +1,702 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "A1-Splash.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "A1 · Splash",
+      "w": 390,
+      "x": 0,
+      "y": 300
+    },
+    "A2-Home.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "A2 · Home",
+      "w": 390,
+      "x": 470,
+      "y": 300
+    },
+    "A3-Join.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "A3 · Join room",
+      "w": 390,
+      "x": 940,
+      "y": 300
+    },
+    "A4-JoinErrors.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "A4 · Join · validation",
+      "w": 390,
+      "x": 1410,
+      "y": 300
+    },
+    "A5-JoinBlocked.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "A5 · Join · game already started",
+      "w": 390,
+      "x": 1880,
+      "y": 300
+    },
+    "A6-Waking.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "A6 · Waking up the server",
+      "w": 390,
+      "x": 2350,
+      "y": 300
+    },
+    "B1-LobbyHost.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "B1 · Lobby · host",
+      "w": 390,
+      "x": 0,
+      "y": 1564
+    },
+    "B2-LobbyHostFew.dc.html": {
+      "h": 844,
+      "page": "entry",
+      "title": "B2 · Lobby · host, not enough players",
+      "w": 390,
+      "x": 470,
+      "y": 1564
+    },
+    "B3-LobbyGuest.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "B3 · Lobby · guest",
+      "w": 390,
+      "x": 940,
+      "y": 1564
+    },
+    "B4-Glossary.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "entry",
+      "title": "B4 · Role glossary sheet",
+      "w": 390,
+      "x": 1410,
+      "y": 1564
+    },
+    "C1-RoleHidden.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "night",
+      "title": "C1 · Role card · hold to reveal (works)",
+      "w": 390,
+      "x": 0,
+      "y": 300
+    },
+    "C2-RoleRevealed.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "night",
+      "title": "C2 · Role card · revealed (Merlin)",
+      "w": 390,
+      "x": 470,
+      "y": 300
+    },
+    "C3-NightWaiting.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "night",
+      "title": "C3 · Seen my role · waiting",
+      "w": 390,
+      "x": 940,
+      "y": 300
+    },
+    "Components.dc.html": {
+      "h": 2760,
+      "page": "sys",
+      "title": "Components · all states",
+      "w": 1440,
+      "x": 3040,
+      "y": 300
+    },
+    "D1-Board.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D1 · Board · Quest 1, you lead",
+      "w": 390,
+      "x": 0,
+      "y": 300
+    },
+    "D10-QuestPlayEvil.dc.html": {
+      "h": 844,
+      "page": "board",
+      "title": "D10 · Quest · Evil member",
+      "w": 390,
+      "x": 470,
+      "y": 1564
+    },
+    "D11-QuestAway.dc.html": {
+      "h": 844,
+      "page": "board",
+      "title": "D11 · Quest · not on the team",
+      "w": 390,
+      "x": 940,
+      "y": 1564
+    },
+    "D12-ResultSuccess.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D12 · Quest result · success",
+      "w": 390,
+      "x": 1410,
+      "y": 1564
+    },
+    "D13-ResultQ4.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D13 · Quest 4 · one fail isn't enough",
+      "w": 390,
+      "x": 1880,
+      "y": 1564
+    },
+    "D14-LadyChoose.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D14 · Lady · choose (works)",
+      "w": 390,
+      "x": 0,
+      "y": 2828
+    },
+    "D15-LadyResult.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D15 · Lady · private result + pass",
+      "w": 390,
+      "x": 470,
+      "y": 2828
+    },
+    "D16-LadyWatch.dc.html": {
+      "h": 844,
+      "page": "board",
+      "title": "D16 · Lady · everyone else",
+      "w": 390,
+      "x": 940,
+      "y": 2828
+    },
+    "D17-BoardMid.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D17 · Board · mid-game, player offline",
+      "w": 390,
+      "x": 1410,
+      "y": 2828
+    },
+    "D2-ProposeLeader.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D2 · Propose · leader (works)",
+      "w": 390,
+      "x": 470,
+      "y": 300
+    },
+    "D3-ProposeTooMany.dc.html": {
+      "h": 844,
+      "page": "board",
+      "title": "D3 · Propose · too many",
+      "w": 390,
+      "x": 940,
+      "y": 300
+    },
+    "D4-ProposeWatch.dc.html": {
+      "h": 844,
+      "page": "board",
+      "title": "D4 · Propose · watching the leader",
+      "w": 390,
+      "x": 1410,
+      "y": 300
+    },
+    "D5-Vote.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D5 · Vote · two-step (works)",
+      "w": 390,
+      "x": 1880,
+      "y": 300
+    },
+    "D6-VoteLocked.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D6 · Vote locked · waiting on",
+      "w": 390,
+      "x": 2350,
+      "y": 300
+    },
+    "D7-RevealApproved.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D7 · Vote reveal · approved",
+      "w": 390,
+      "x": 2820,
+      "y": 300
+    },
+    "D8-RevealRejected.dc.html": {
+      "h": 844,
+      "page": "board",
+      "title": "D8 · Vote reveal · rejected",
+      "w": 390,
+      "x": 3290,
+      "y": 300
+    },
+    "D9-QuestPlay.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "board",
+      "title": "D9 · Quest · Good member (works)",
+      "w": 390,
+      "x": 0,
+      "y": 1564
+    },
+    "E1-History.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "end",
+      "title": "E1 · History drawer",
+      "w": 390,
+      "x": 0,
+      "y": 300
+    },
+    "E2-History10.dc.html": {
+      "h": 740,
+      "page": "end",
+      "title": "E2 · History · 10 players at 360",
+      "w": 360,
+      "x": 470,
+      "y": 300
+    },
+    "E3-HowToPlay.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "end",
+      "title": "E3 · How to play sheet",
+      "w": 390,
+      "x": 910,
+      "y": 300
+    },
+    "E4-Menu.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "end",
+      "title": "E4 · Menu sheet",
+      "w": 390,
+      "x": 1380,
+      "y": 300
+    },
+    "F1-AssassinPick.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "end",
+      "title": "F1 · Assassination · Assassin picks (works)",
+      "w": 390,
+      "x": 0,
+      "y": 1564
+    },
+    "F2-AssassinConfirm.dc.html": {
+      "h": 844,
+      "page": "end",
+      "title": "F2 · Assassination · serious confirm",
+      "w": 390,
+      "x": 470,
+      "y": 1564
+    },
+    "F3-AssassinWait.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "end",
+      "title": "F3 · Assassination · everyone else",
+      "w": 390,
+      "x": 940,
+      "y": 1564
+    },
+    "F4-GameOver.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "end",
+      "title": "F4 · Game over",
+      "w": 390,
+      "x": 1410,
+      "y": 1564
+    },
+    "Foundations.dc.html": {
+      "h": 2100,
+      "page": "sys",
+      "title": "Foundations · tokens",
+      "w": 1440,
+      "x": 1520,
+      "y": 300
+    },
+    "G1-Reconnecting.dc.html": {
+      "h": 844,
+      "page": "states",
+      "title": "G1 · Reconnecting…",
+      "w": 390,
+      "x": 0,
+      "y": 300
+    },
+    "G2-ConnLost.dc.html": {
+      "h": 844,
+      "page": "states",
+      "title": "G2 · Connection lost",
+      "w": 390,
+      "x": 470,
+      "y": 300
+    },
+    "G3-RoomEnded.dc.html": {
+      "h": 844,
+      "page": "states",
+      "title": "G3 · Room ended",
+      "w": 390,
+      "x": 940,
+      "y": 300
+    },
+    "G4-HostLeft.dc.html": {
+      "h": 844,
+      "page": "states",
+      "title": "G4 · Host left · transfer",
+      "w": 390,
+      "x": 1410,
+      "y": 300
+    },
+    "G5-LeaveConfirm.dc.html": {
+      "h": 844,
+      "page": "states",
+      "title": "G5 · Confirm · leave game",
+      "w": 390,
+      "x": 1880,
+      "y": 300
+    },
+    "G6-KickConfirm.dc.html": {
+      "h": 844,
+      "page": "states",
+      "title": "G6 · Confirm · kick player",
+      "w": 390,
+      "x": 2350,
+      "y": 300
+    },
+    "Handoff.dc.html": {
+      "expand": "fill",
+      "h": 6200,
+      "page": "handoff",
+      "title": "Developer handoff",
+      "w": 1440,
+      "x": 0,
+      "y": 300
+    },
+    "Iconography.dc.html": {
+      "h": 1100,
+      "page": "sys",
+      "title": "Logo & iconography",
+      "w": 1440,
+      "x": 4560,
+      "y": 300
+    },
+    "Main.dc.html": {
+      "h": 960,
+      "is_interactive": true,
+      "page": "sys",
+      "title": "Cover · flow map · start prototype",
+      "w": 1440,
+      "x": 0,
+      "y": 300
+    },
+    "RoleCards.dc.html": {
+      "h": 1380,
+      "page": "sys",
+      "title": "Role cards · back + every front",
+      "w": 1760,
+      "x": 6080,
+      "y": 300
+    },
+    "S1-Board360.dc.html": {
+      "h": 740,
+      "page": "sizes",
+      "title": "S1 · Board at 360 × 740",
+      "w": 360,
+      "x": 0,
+      "y": 300
+    },
+    "S2-Board430.dc.html": {
+      "h": 932,
+      "page": "sizes",
+      "title": "S2 · Board at 430 × 932",
+      "w": 430,
+      "x": 440,
+      "y": 300
+    },
+    "S3-Tablet.dc.html": {
+      "h": 1194,
+      "page": "sizes",
+      "title": "S3 · Board · tablet portrait",
+      "w": 834,
+      "x": 950,
+      "y": 300
+    },
+    "S4-VoteZh.dc.html": {
+      "h": 844,
+      "page": "sizes",
+      "title": "S4 · Vote · Chinese",
+      "w": 390,
+      "x": 1864,
+      "y": 300
+    },
+    "S5-Board130.dc.html": {
+      "h": 740,
+      "page": "sizes",
+      "title": "S5 · 130% text + long strings at 360",
+      "w": 360,
+      "x": 2334,
+      "y": 300
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-27T16:30:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "page": "sys",
+    "view": "canvas"
+  },
+  "noteOrder": [
+    "t-sys",
+    "t-entry",
+    "t-lobby",
+    "t-night",
+    "t-propose",
+    "t-quest",
+    "t-lady",
+    "t-hist",
+    "t-endgame",
+    "t-states",
+    "t-sizes",
+    "t-handoff"
+  ],
+  "notes": {
+    "t-endgame": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "end",
+      "text": "F · Endgame",
+      "w": 240,
+      "x": 0,
+      "y": 1264
+    },
+    "t-entry": {
+      "kind": "title1",
+      "maxW": 2740,
+      "page": "entry",
+      "text": "A · Entry & connection",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "t-handoff": {
+      "kind": "title1",
+      "maxW": 1440,
+      "page": "handoff",
+      "text": "Developer handoff",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "t-hist": {
+      "kind": "title1",
+      "maxW": 1770,
+      "page": "end",
+      "text": "E · History & reference",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "t-lady": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "board",
+      "text": "D · Lady of the Lake & mid-game",
+      "w": 240,
+      "x": 0,
+      "y": 2528
+    },
+    "t-lobby": {
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "entry",
+      "text": "B · Lobby",
+      "w": 240,
+      "x": 0,
+      "y": 1264
+    },
+    "t-night": {
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "night",
+      "text": "C · Night — role reveal",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "t-propose": {
+      "kind": "title1",
+      "maxW": 3680,
+      "page": "board",
+      "text": "D · Propose → vote → reveal",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "t-quest": {
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "board",
+      "text": "D · Quest → result",
+      "w": 240,
+      "x": 0,
+      "y": 1264
+    },
+    "t-sizes": {
+      "kind": "title1",
+      "maxW": 2694,
+      "page": "sizes",
+      "text": "Size checks, tablet & localisation",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "t-states": {
+      "kind": "title1",
+      "maxW": 2740,
+      "page": "states",
+      "text": "G · Connection, errors & confirms",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "t-sys": {
+      "kind": "title1",
+      "maxW": 7840,
+      "page": "sys",
+      "text": "Design system",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Foundations.dc.html",
+    "Components.dc.html",
+    "Iconography.dc.html",
+    "RoleCards.dc.html",
+    "A1-Splash.dc.html",
+    "A2-Home.dc.html",
+    "A3-Join.dc.html",
+    "A4-JoinErrors.dc.html",
+    "A5-JoinBlocked.dc.html",
+    "A6-Waking.dc.html",
+    "B1-LobbyHost.dc.html",
+    "B2-LobbyHostFew.dc.html",
+    "B3-LobbyGuest.dc.html",
+    "B4-Glossary.dc.html",
+    "C1-RoleHidden.dc.html",
+    "C2-RoleRevealed.dc.html",
+    "C3-NightWaiting.dc.html",
+    "D1-Board.dc.html",
+    "D2-ProposeLeader.dc.html",
+    "D3-ProposeTooMany.dc.html",
+    "D4-ProposeWatch.dc.html",
+    "D5-Vote.dc.html",
+    "D6-VoteLocked.dc.html",
+    "D7-RevealApproved.dc.html",
+    "D8-RevealRejected.dc.html",
+    "D9-QuestPlay.dc.html",
+    "D10-QuestPlayEvil.dc.html",
+    "D11-QuestAway.dc.html",
+    "D12-ResultSuccess.dc.html",
+    "D13-ResultQ4.dc.html",
+    "D14-LadyChoose.dc.html",
+    "D15-LadyResult.dc.html",
+    "D16-LadyWatch.dc.html",
+    "D17-BoardMid.dc.html",
+    "E1-History.dc.html",
+    "E2-History10.dc.html",
+    "E3-HowToPlay.dc.html",
+    "E4-Menu.dc.html",
+    "F1-AssassinPick.dc.html",
+    "F2-AssassinConfirm.dc.html",
+    "F3-AssassinWait.dc.html",
+    "F4-GameOver.dc.html",
+    "G1-Reconnecting.dc.html",
+    "G2-ConnLost.dc.html",
+    "G3-RoomEnded.dc.html",
+    "G4-HostLeft.dc.html",
+    "G5-LeaveConfirm.dc.html",
+    "G6-KickConfirm.dc.html",
+    "S1-Board360.dc.html",
+    "S2-Board430.dc.html",
+    "S3-Tablet.dc.html",
+    "S4-VoteZh.dc.html",
+    "S5-Board130.dc.html",
+    "Handoff.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "sys",
+      "name": "1 · Design system"
+    },
+    {
+      "id": "entry",
+      "name": "2 · Entry & lobby"
+    },
+    {
+      "id": "night",
+      "name": "3 · Night"
+    },
+    {
+      "id": "board",
+      "name": "4 · Board & quests"
+    },
+    {
+      "id": "end",
+      "name": "5 · History & endgame"
+    },
+    {
+      "id": "states",
+      "name": "6 · System states"
+    },
+    {
+      "id": "sizes",
+      "name": "7 · Sizes, tablet & i18n"
+    },
+    {
+      "id": "handoff",
+      "name": "8 · Developer handoff"
+    }
+  ],
+  "title": "Avalon — Mobile UI & UX"
+}

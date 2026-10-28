@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Board — Quest 1, you are the leader</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./rt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#070B16}
+</style>
+</helmet>
+<div class="phone">
+  <div class="topbar">
+    <a class="icon-btn" href="E4-Menu.dc.html" aria-label="Menu: rules, roles, leave"><span class="ic i-menu" aria-hidden="true"></span></a>
+    <span class="room-tag">ROOM KQVX</span>
+    <a class="icon-btn" href="E1-History.dc.html" aria-label="Vote history"><span class="ic i-history" aria-hidden="true"></span></a>
+  </div>
+  <div class="status is-you" role="status" aria-live="polite">
+    <div class="status-top"><span class="status-phase"><span class="ic i-standard ic-16" aria-hidden="true"></span>Quest 1 · Your turn</span><span class="t-label faint">Leader 1 of 7</span></div>
+    <p class="status-main">You lead. Pick 2 knights for Quest 1.</p>
+    <p class="status-wait">Talk it over first. Everyone sees your picks live.</p>
+  </div>
+
+  <div class="content" style="gap: 12px; padding-top: 12px">
+    <div class="panel" style="display: flex; flex-direction: column; gap: 12px; padding: 14px 12px">
+      <div class="qtrack" role="list" aria-label="Quests">
+        <div class="qnode is-current" role="listitem" aria-label="Quest 1, current, 2 knights"><div class="qnode-disc">1</div><span class="qnode-size">2</span></div>
+        <div class="qnode" role="listitem" aria-label="Quest 2, 3 knights"><div class="qnode-disc">2</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem" aria-label="Quest 3, 3 knights"><div class="qnode-disc">3</div><span class="qnode-size">3</span></div>
+        <div class="qnode" role="listitem" aria-label="Quest 4, 4 knights, needs 2 fails to fail"><div class="qnode-disc">4</div><span class="qnode-size">4</span><span class="qnode-tag">2 fails</span></div>
+        <div class="qnode" role="listitem" aria-label="Quest 5, 4 knights"><div class="qnode-disc">5</div><span class="qnode-size">4</span></div>
+      </div>
+      <hr class="rule" style="margin: 0">
+      <div class="rejects" aria-label="Rejected teams in a row: 0 of 5">
+        <span class="rejects-label">Rejected in a row · 0 of 5</span>
+        <span class="pips" aria-hidden="true"><span class="pip"><span>1</span></span><span class="pip"><span>2</span></span><span class="pip"><span>3</span></span><span class="pip"><span>4</span></span><span class="pip"><span>5</span></span></span>
+      </div>
+    </div>
+
+    <div class="ring" role="list" aria-label="Seats, clockwise from you">
+      <div class="ring-table" aria-hidden="true">
+        <span class="eyebrow" style="font-size: 12px">Quest 1</span>
+        <span class="d-m" style="line-height: 1">2 knights</span>
+        <span class="t-label faint" style="line-height: 1.2">1 Fail sinks it</span>
+      </div>
+      <sc-for list="{{seats}}" as="s" hint-placeholder-count="7">
+        <div class="{{s.cls}}" role="listitem" aria-label="{{s.aria}}" style="left: {{s.x}}px; top: {{s.y}}px">
+          <span class="{{s.avCls}}">{{s.i}}<sc-if value="{{s.lead}}" hint-placeholder-val="{{false}}"><span class="av-badge lead"><span class="ic i-standard" aria-hidden="true"></span></span></sc-if><sc-if value="{{s.lady}}" hint-placeholder-val="{{false}}"><span class="av-badge lady"><span class="ic i-lady" aria-hidden="true"></span></span></sc-if><sc-if value="{{s.off}}" hint-placeholder-val="{{false}}"><span class="av-badge off"><span class="ic i-wifioff" aria-hidden="true"></span></span></sc-if></span>
+          <span class="seat-name">{{s.name}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="dock">
+    <button class="{{peekCls}}" type="button" aria-label="Hold to peek at your role" onPointerDown="{{down}}" onPointerUp="{{up}}" onPointerLeave="{{up}}" onPointerCancel="{{up}}" onContextMenu="{{noMenu}}" onKeyDown="{{keyDown}}" onKeyUp="{{keyUp}}" style="touch-action: none">
+      <span class="ic i-hold" aria-hidden="true"></span>{{peekLabel}}
+    </button>
+    <a class="btn btn-primary btn-block" href="D2-ProposeLeader.dc.html"><span class="ic i-standard" aria-hidden="true"></span>Choose 2 knights</a>
+  </div>
+
+  <sc-if value="{{peeking}}" hint-placeholder-val="{{false}}">
+    <div class="peek-sheet anim-rise" role="dialog" aria-label="Your role, private" style="bottom: 164px">
+      <span class="private" style="align-self: center"><span class="ic i-lock" aria-hidden="true"></span>Only you can see this</span>
+      <div class="row" style="gap: 14px">
+        <span class="rcard-emblem" style="color: #17636C; background: rgba(23,99,108,.07)"><span class="ic i-merlin" aria-hidden="true"></span></span>
+        <div class="grow" style="display: flex; flex-direction: column; gap: 4px">
+          <div class="row" style="gap: 8px"><p class="rcard-name">Merlin</p><span class="team-tag good"><span class="ic i-good" aria-hidden="true"></span>Good</span></div>
+          <p class="rcard-ability" style="text-align: left">Evil you see: <b style="color:#962036">Kofi, Sana</b>. One more is hidden (Mordred).</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { peek: false }; }
+  renderVals() {
+    const players = [
+      { name: 'Rowan', you: true, lead: true }, { name: 'Ilse' }, { name: 'Tomas' }, { name: 'Kofi' },
+      { name: 'Mei' }, { name: 'Sana' }, { name: 'Jude', lady: true }
+    ];
+    const n = players.length, cx = 170, cy = 146, rx = 132, ry = 120;
+    const seats = players.map((p, k) => {
+      const a = Math.PI / 2 + k * 2 * Math.PI / n;
+      const tags = [p.you ? 'you' : '', p.lead ? 'leader' : '', p.lady ? 'holds the Lady of the Lake' : '', p.off ? 'offline' : '', p.team ? 'on the proposed team' : ''].filter(Boolean).join(', ');
+      return {
+        name: p.name, i: p.name.charAt(0), lead: !!p.lead, lady: !!p.lady, off: !!p.off,
+        x: Math.round(cx + rx * Math.cos(a)), y: Math.round(cy + ry * Math.sin(a)),
+        cls: 'seat' + (p.team ? ' is-team' : '') + (p.off ? ' is-off' : ''),
+        avCls: 'av av-48' + (p.you ? ' is-you' : '') + (p.off ? ' is-off' : ''),
+        aria: p.name + (tags ? ', ' + tags : '')
+      };
+    });
+    const show = () => this.setState({ peek: true });
+    const hide = () => { if (this.state.peek) this.setState({ peek: false }); };
+    return {
+      seats,
+      peeking: this.state.peek,
+      peekCls: 'peek' + (this.state.peek ? ' is-held' : ''),
+      peekLabel: this.state.peek ? 'Release to hide' : 'Hold to peek at my role',
+      down: (e) => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} show(); },
+      up: hide,
+      noMenu: (e) => e.preventDefault(),
+      keyDown: (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); show(); } },
+      keyUp: (e) => { if (e.key === ' ' || e.key === 'Enter') hide(); }
+    };
+  }
+}
+</script>
+</body>
+</html>
