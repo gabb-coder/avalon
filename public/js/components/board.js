@@ -7,6 +7,7 @@
 import { h, icon, avatar } from '../dom.js';
 import { t, list } from '../i18n.js';
 import { iconButton, roomTag, topbar, chip } from './ui.js';
+import { calm } from '../fx.js';
 
 // ---------- sizes ----------
 
@@ -98,6 +99,11 @@ export function trackPanel(game, opts = {}) {
 
 // ---------- the seat ring ----------
 
+// What the last ring showed, so the next one can animate the changes: the
+// leader token gliding on to the next seat, the Lady crossing the table to
+// her new holder, a newly picked knight's ring rippling out. All public.
+let lastRing = null; // { code, leader, lady, team }
+
 // Seats go clockwise starting from you at the bottom (the D1 maths), so the
 // leader token visibly moves to the next seat after each proposal.
 export function seatRing(app, { team = [], center, size = ringSize(app.root) }) {
@@ -111,6 +117,16 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
   const ladyHolder = g.lady?.holder;
   const leader = g.proposal?.leader || (v.phase === 'propose' || v.phase === 'vote' ? g.leader : null);
 
+  // A new game (Play again keeps the room code) starts from a clean slate.
+  const newGame = g.questIndex === 0 && g.proposals.length === 0 && lastRing?.leader !== leader;
+  const prev = lastRing?.code === v.code && !newGame ? lastRing : null;
+  lastRing = { code: v.code, leader, lady: ladyHolder, team: team.slice() };
+  const moving = prev && !calm(app);
+  const angle = (id) => Math.PI / 2 + (order.indexOf(id) * 2 * Math.PI) / n;
+  // A seat's offset from another, in px (seats sit on the ellipse, so the
+  // badges on their avatars are offset by the same amount).
+  const offset = (a, b) => [geo.rx * (Math.cos(a) - Math.cos(b)), geo.ry * (Math.sin(a) - Math.sin(b))];
+
   const ring = h('div', { class: ['ring', `ring-${size}`], role: 'list', 'aria-label': t('board.seats') });
   ring.append(h('div', { class: 'ring-table', 'aria-hidden': 'true' }, center));
   order.forEach((id, k) => {
@@ -122,9 +138,11 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
     const onTeam = team.includes(id);
     const name = g.names[id];
     const tags = [you && t('board.tagYou'), isLead && t('board.tagLeader'), lady && t('board.tagLady'), off && t('board.tagOffline'), onTeam && t('board.tagTeam')].filter(Boolean);
+    const picked = moving && onTeam && prev.leader === leader && !prev.team.includes(id);
+    const landing = moving && lady && prev.lady && prev.lady !== id;
     const seat = h(
       'div',
-      { class: ['seat', onTeam && 'is-team', off && 'is-off'], role: 'listitem', 'aria-label': [name, ...tags].join(t('common.sep')) },
+      { class: ['seat', onTeam && 'is-team', off && 'is-off', picked && 'is-picked-now', landing && 'is-lady-landing'], role: 'listitem', 'aria-label': [name, ...tags].join(t('common.sep')) },
       avatar(name, {
         size: geo.av,
         you,
@@ -134,14 +152,52 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
       h('span', { class: 'seat-name', text: off ? t('board.away', { name }) : name }),
     );
     const av = seat.firstChild;
-    if (isLead) av.append(h('span', { class: 'av-badge lead' }, icon('standard')));
-    if (lady) av.append(h('span', { class: 'av-badge lady' }, icon('lady')));
+    if (isLead) {
+      const badge = h('span', { class: 'av-badge lead' }, icon('standard'));
+      av.append(badge);
+      // Glide clockwise round the ring from the last leader's seat.
+      if (moving && prev.leader && prev.leader !== id && order.includes(prev.leader)) {
+        const from = angle(prev.leader);
+        let to = a;
+        while (to <= from) to += 2 * Math.PI;
+        const steps = 12;
+        const frames = [];
+        for (let s = 0; s <= steps; s++) {
+          const [dx, dy] = offset(from + ((to - from) * s) / steps, a);
+          const lift = 1 + 0.4 * Math.sin((Math.PI * s) / steps);
+          frames.push({ transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${lift.toFixed(2)})` });
+        }
+        flyBadge(seat, badge, frames, 750);
+      }
+    }
+    if (lady) {
+      const badge = h('span', { class: 'av-badge lady' }, icon('lady'));
+      av.append(badge);
+      // Straight across the table to her new holder, then a ripple.
+      if (landing && order.includes(prev.lady)) {
+        const [dx, dy] = offset(angle(prev.lady), a);
+        flyBadge(seat, badge, [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: `translate(${dx / 2}px, ${dy / 2}px) scale(1.4)` }, { transform: 'none' }], 900);
+        seat.style.setProperty('--land-at', '1050ms');
+      }
+    }
     if (off) av.append(h('span', { class: 'av-badge off' }, icon('wifioff')));
     seat.style.left = `${Math.round(geo.cx + geo.rx * Math.cos(a))}px`;
     seat.style.top = `${Math.round(geo.cy + geo.ry * Math.sin(a))}px`;
     ring.append(seat);
   });
   return ring;
+}
+
+// The token waits a moment (the screen is still rising in), then flies, above
+// the other seats.
+function flyBadge(seat, badge, frames, ms) {
+  seat.style.zIndex = '2';
+  badge.classList.add('is-flying');
+  const anim = badge.animate(frames, { duration: ms, delay: 250, easing: 'cubic-bezier(.45,0,.25,1)', fill: 'backwards' });
+  anim.onfinish = () => {
+    seat.style.zIndex = '';
+    badge.classList.remove('is-flying');
+  };
 }
 
 // ---------- top bar and status helpers ----------

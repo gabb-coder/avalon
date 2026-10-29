@@ -81,7 +81,9 @@ Tick each box as you go.
 ## 8. Comfort and access
 
 - [ ] Menu → Text size 130%: every screen stays readable, with nothing cut off or overlapping.
-- [ ] Menu → Reduce motion: reveals fade instead of flipping, and nothing pulses.
+- [ ] Menu → Reduce motion: reveals fade instead of flipping, nothing pulses, and there are no sparks, embers, smoke, ripples or shaking.
+- [ ] The animations run smoothly on the oldest phone at the table (quest result, game over). Note any stutter, and on which phone.
+- [ ] Nobody can tell anything secret from an animation: the Lady's ripple, the quest cards and the night screen look the same whatever the answer or role.
 - [ ] Turn the phone sideways and back: nothing breaks.
 - [ ] On a tablet, if you have one, team building shows the ring and vote history side by side.
 - [ ] With a screen reader on (VoiceOver or TalkBack), you can find and use the vote buttons.

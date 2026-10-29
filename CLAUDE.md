@@ -112,6 +112,7 @@ public/            the client (served as a static site in production)
   js/prefs.js      localStorage (name, token, session, language, text size, motion, vibration), failure-safe
   js/share.js      copy code / share invite link (with an http fallback)
   js/device.js     screen wake lock during a game; one fixed buzz when it becomes your turn
+  js/fx.js         decorative motion: sparks, embers, smoke, ripples, the slash, shake, the candlelit background
   js/components/   ui (buttons, status, chips, rows, fields, toggles, seg), hold, peek, roleCard,
                    codeInput, overlay (sheet/modal + focus trap), toast,
                    board (quest track, reject counter, seat ring in 3 sizes, game top bar, offline status),
@@ -200,6 +201,18 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Tablet (S3).** At ≥ 768×700 the team-building board becomes two columns: the `xl` ring beside a panel with the quest track, rejects, leader and Lady lines, and the vote history always open underneath (follow-a-player works there too). The top bar has text buttons (Menu, Rules, Roles). Other screens, and the leader's picker, stay a centred phone column, which suits one-handed choices.
 - **Text size 130% (S5).** The status bar's top line wraps, the top bar grows instead of overlapping, and the vote-reveal grid becomes one column (`.ts-lg`), because names only ellipsize in the ring and history header (HANDOFF §6).
 - **Reduced motion** follows Menu → Reduce motion or the phone's setting, live (a media-query listener). The `.reduce-motion` mirror in app.css covers the app's own animations too. Hold to strike keeps its 1.5 s fill, because it is a timer, not decoration.
+- **Motion and effects (after launch, the owner's picks).** `fx.js` holds the effects; the CSS is app.css's "Motion and effects" section. Big moments are cinematic, everything else subtle, and every reveal stays under 3 seconds with Skip.
+  - **Screen changes** rise in (300 ms). A remount (language switch) doesn't.
+  - **Candlelight** on home, join, waking, lobby and night: a flickering glow and drifting embers, behind the screen (`.phone` is `isolation: isolate`, the layer is `z-index: -1`). New players' avatars pop into the lobby.
+  - **The ring** (`seatRing` remembers the last ring it drew): the leader token glides clockwise to the next seat, the Lady flies across the table to her new holder and lands with a ripple, and a newly picked knight's ring ripples out.
+  - **Vote reveal:** each vote slams onto its row, then the verdict lands like a seal, with a jolt and a burst (gold, pale, or embers for a 5th rejection).
+  - **Quest result:** the cards are dealt face down from one pile and cut back and forth (measured after layout, so it works when the row wraps), then turn over 200 ms apart. The last card trembles for an extra beat. Each Success throws gold sparks; each Fail cracks (an SVG line drawn in) and throws embers. The shuffle is decoration: the server already shuffled the cards.
+  - **Lady:** a water ripple spreads over every phone the moment she looks into someone.
+  - **Assassin:** the target's portrait beats like a heart while the strike is held.
+  - **Game over:** after an assassination, a blade slashes across and the named player's card turns over ("Merlin is found" / "The blade missed"). Then gold sparks rise (Good) or crimson smoke rolls in (Evil), and the roles turn over one row at a time. It plays once per game on each phone; Skip in the top bar, or a tap on the card, jumps to the end.
+  - **Privacy.** Every effect follows something the whole table already sees, and looks the same for every role and every answer (the Lady's ripple is identical whatever she shows). `fx.js` never reads the view; a test checks that.
+  - **Skip and cleanup.** Effects are timed with `timeline()`, which Skip cancels along with every scripted animation; changing screens clears the effects layer.
+  - **Reduced motion** turns all of it off; the static end state is the same. A test checks that every `.anim-*` class has a `.reduce-motion` rule.
 - **Toasts with an id.** "X lost connection" is brief (the status bar already shows who is offline), and "X is back" withdraws it.
 - **Accessibility checks.** Besides the tests, each milestone's browser run audits every screen and dialog. It checks:
   - every control has an accessible name, and radios, tabs and switches carry state;
@@ -331,6 +344,8 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 
 - [x] **After launch: Simplified Chinese.** All 600 strings in `zh-Hans.json`, a language picker in Settings and the Menu, the S4 type rules, and Chinese web fonts on demand. Checked in Chromium: every phase of a 7-player game in Chinese at 390×844 and at 360×740 with 130% text, plus switching from Home and mid-game.
 
+- [x] **After launch: animations.** The owner picked all eight proposals, in the "mix" style (cinematic big moments, subtle elsewhere), keeping reveals under 3 seconds. See Architecture notes → Motion and effects. Checked in Chromium: two full 7-player games each at 390×844, 360×740 and 834×1194, plus reduced motion; the Assassin's hold and Skip in a separate run.
+
 ### Additions to the design (screens or states the bundle didn't have)
 
 - **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
@@ -341,6 +356,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **A5 copy.** "Room X is already playing" replaces the design's quest number, which `room:check` doesn't expose.
 - **Host hand-over picker** (G4 "Hand it on", E4 "Hand host to another player"). A sheet with a radio list of players, then "Make X host": the same select-then-confirm pattern.
 - **Home settings** (A2's sliders button). A "Settings" sheet with E4's Display section: language, text size, reduce motion, vibrate.
+- **Animations beyond HANDOFF §4** (owner's request): screen transitions, candlelight, the ring's travelling tokens and pick ripples, the slamming votes and seal, the dealt and cracked quest cards, the Lady's ripples, the heartbeat, the strike card ("Merlin is found" / "The blade missed") and the game-over sparks or smoke.
 - **Language picker** (no artboard): a two-option segmented control, "English" / "中文", at the top of Display.
 - **G3 variants.**
   - "You were removed" (kicked).
@@ -382,4 +398,5 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Lobby back button** leaves right away. The design links it to G5, whose copy is about mid-game ("The table can't finish without you"); in the lobby leaving costs nothing, and the code lets you back in. G5 is used mid-game (Menu → Leave game).
 - **Copy.** "him" becomes "them" for arbitrary players (decision 11), e.g. Morgana's ability "pull them off course".
 - **G1 dims the whole screen, dock included.** The design keeps the dock bright with a disabled "Vote · Waiting for connection" button. Here the whole screen is `inert` and dimmed, which disables every button in every phase in one place; the banner and "Hang tight" say why.
+- **Reveal timings (HANDOFF §4).** The vote verdict lands after the last vote instead of at ~750 ms (under 1.9 s for 10 players), and the quest result, with its deal, takes about 2.8 s for 5 cards instead of 2.4 s. Both stay under the 3-second limit the owner chose to keep.
 - **Tablet layout only for team building.** S3 is the only tablet artboard. Votes, quests, reveals and the rest keep the phone column, centred.

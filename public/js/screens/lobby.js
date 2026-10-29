@@ -12,6 +12,7 @@ import { button, blockedButton, iconButton, chip, panel, seg, toggleRow, topbar,
 import { toast } from '../components/toast.js';
 import { copyCode, shareRoom } from '../share.js';
 import { openGlossary, openKickConfirm, openHostPicker } from './sheets.js';
+import { ambience } from '../fx.js';
 
 const MIN = 5;
 const MAX = 10;
@@ -37,6 +38,10 @@ function setupChips(setup, { lady = false } = {}) {
 function teamCounts(setup, cls = 't-body b') {
   return h('p', { class: cls }, h('span', { class: 'good' }, t('lobby.goodN', { n: setup.good })), ' · ', h('span', { class: 'evil' }, t('lobby.evilN', { n: setup.evil })));
 }
+
+// Who this phone has already seen at the table, so only newcomers pop in
+// (not everyone again on each repaint, or after a language switch).
+let seenPlayers = null; // { code, ids }
 
 export function mount(app) {
   let tab = 'players';
@@ -114,8 +119,11 @@ export function mount(app) {
   function playerRows() {
     const v = view();
     const host = isHost();
+    const known = seenPlayers?.code === v.code ? seenPlayers.ids : null;
+    seenPlayers = { code: v.code, ids: new Set(v.players.map((p) => p.id)) };
     const rows = v.players.map((p) => {
       const you = p.id === v.you;
+      const fresh = known && !known.has(p.id); // just sat down: pops in
       const isTheHost = p.id === v.hostId;
       let meta = null;
       if (!p.connected) meta = t('lobby.connecting');
@@ -132,8 +140,8 @@ export function mount(app) {
       }
       return h(
         'div',
-        { class: ['prow', !p.connected && 'is-off'] },
-        avatar(p.name, { you, off: !p.connected }),
+        { class: ['prow', !p.connected && 'is-off', fresh && 'anim-rise'] },
+        avatar(p.name, { you, off: !p.connected, extra: fresh ? ['anim-pop'] : [] }),
         h('span', { class: 'prow-name' }, h('span', { text: p.name }), meta ? h('span', { class: 'prow-meta' }, meta) : null),
         end ? h('span', { class: 'prow-end' }, end) : null,
       );
@@ -308,6 +316,7 @@ export function mount(app) {
   const el = h(
     'div',
     { class: 'screen-body' },
+    ambience(),
     topbar(
       iconButton({ ic: 'left', label: t('lobby.leave'), onClick: () => app.leaveRoom() }),
       title,

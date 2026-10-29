@@ -5,6 +5,7 @@
 import { h, icon, replace } from '../dom.js';
 import { t } from '../i18n.js';
 import { button, topbar } from '../components/ui.js';
+import { ambience } from '../fx.js';
 
 const TRY_AGAIN_AFTER_MS = 45000;
 
@@ -56,6 +57,7 @@ export function mount(app) {
   const el = h(
     'div',
     { class: 'screen-body' },
+    ambience(),
     topbar(),
     h(
       'div',

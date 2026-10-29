@@ -6,7 +6,7 @@ For personal use with friends. The game title lives in one constant (`GAME_TITLE
 
 ## Status
 
-All 7 milestones are done: the game engine, the real-time server, every screen a game needs on phones and tablets, and everything needed to put it online for free on Render (below). The game is in English and Simplified Chinese (简体中文): each player picks a language under **Settings** (the sliders button on the home screen) or **Menu → Display**. Phones set to Chinese start in Chinese. See `CLAUDE.md` → *Progress*, and `docs/PLAYTEST.md` for a 5-phone playtest checklist.
+All 7 milestones are done: the game engine, the real-time server, every screen a game needs on phones and tablets, and everything needed to put it online for free on Render (below). The game is in English and Simplified Chinese (简体中文): each player picks a language under **Settings** (the sliders button on the home screen) or **Menu → Display**. Phones set to Chinese start in Chinese. The big moments are animated (dealt and cracked quest cards, the Assassin's blade, sparks or smoke at the end); **Menu → Reduce motion** turns all of it off. See `CLAUDE.md` → *Progress*, and `docs/PLAYTEST.md` for a 5-phone playtest checklist.
 
 ## Try it
 
