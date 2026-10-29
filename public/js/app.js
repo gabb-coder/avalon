@@ -30,6 +30,7 @@ import * as result from './screens/result.js';
 import * as gameover from './screens/gameover.js';
 import { connectionLayer } from './screens/connection.js';
 import { keepAwake, turnKey, buzz } from './device.js';
+import { calm, clearFx } from './fx.js';
 import { ringSize, isShort, isTablet, endOfferDue } from './components/board.js';
 import { openEndGameConfirm } from './screens/sheets.js';
 
@@ -404,8 +405,12 @@ function render() {
   if (key !== screenKey) {
     screen?.destroy?.();
     closeOverlay();
+    clearFx(app);
+    // A phase change rises in; the first screen and remounts (language) don't.
+    const moved = screenKey !== null && !calm(app);
     screenKey = key;
     screen = SCREENS[key].mount(app);
+    if (moved) screen.el.classList.add('screen-enter');
     screenHost.replaceChildren(screen.el);
     root.querySelector('.content')?.scrollTo?.(0, 0);
   } else {

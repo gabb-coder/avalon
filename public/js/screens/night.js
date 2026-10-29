@@ -14,6 +14,7 @@ import { peekButton } from '../components/peek.js';
 import { button, blockedButton, iconButton, note, panel, privateBand, progress, roomTag, statusBar, topbar, waitGrid, dots } from '../components/ui.js';
 import { toast } from '../components/toast.js';
 import { openMenu } from './sheets.js';
+import { ambience } from '../fx.js';
 
 export function mount(app) {
   let seen = false; // held at least once: unlocks "I've seen my role"
@@ -164,6 +165,7 @@ export function mount(app) {
   const el = h(
     'div',
     { class: 'screen-body' },
+    ambience(),
     topbar(iconButton({ ic: 'menu', label: t('menu.open'), onClick: () => openMenu(app) }), roomTag(app.view.code)),
     top,
     content,

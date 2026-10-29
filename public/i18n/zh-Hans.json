@@ -578,6 +578,8 @@
   "over.tag": "房间 {code} · 游戏结束",
   "over.goodWins": "正义获胜",
   "over.evilWins": "邪恶获胜",
+  "over.strikeHit": "梅林被找到了",
+  "over.strikeMiss": "刺杀落空",
   "over.reason.assassinMiss": "赢下 3 个任务，刺客也没有猜中。{assassin} 指认了 {guess}，梅林其实是 {merlin}。",
   "over.reason.assassinHit": "正义赢下了 3 个任务，但刺客找到了梅林：{assassin} 指认了 {merlin}。",
   "over.reason.threeFails": "邪恶破坏了 3 个任务。",

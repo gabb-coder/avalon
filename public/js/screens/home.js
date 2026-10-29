@@ -12,6 +12,7 @@ import { prefs } from '../prefs.js';
 import { button, iconButton, panel, textField, topbar } from '../components/ui.js';
 import { GAME_TITLE } from '../../config.js';
 import { openSettings, openHowTo } from './sheets.js';
+import { ambience } from '../fx.js';
 
 export function validName(raw) {
   const name = String(raw || '').replace(/\s+/g, ' ').trim();
@@ -139,6 +140,7 @@ export function mount(app) {
   const el = h(
     'div',
     { class: 'screen-body' },
+    ambience(),
     topbar(null, null, iconButton({ ic: 'sliders', label: t('home.settings'), onClick: () => openSettings(app) })),
     h(
       'div',

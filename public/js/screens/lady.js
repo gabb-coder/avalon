@@ -19,6 +19,7 @@ import { ladyCard } from '../components/roleCard.js';
 import { button, note, panel, privateBand, statusBar, dots } from '../components/ui.js';
 import { gameTopbar, awayStatus } from '../components/board.js';
 import { openMenu, openHistory } from './sheets.js';
+import { ripple } from '../fx.js';
 
 export function mount(app) {
   let pick = null; // the holder's choice before "Look into…"
@@ -28,6 +29,7 @@ export function mount(app) {
   let reveal = null; // the hold binding of "Hold to see the answer"
   let dockKey = null;
   let answerKey = null; // the answer area is rebuilt only when it changes, so a hold isn't cut off
+  let seenTarget; // undefined until the first paint: a reload mid-look doesn't ripple
 
   const band = h('div', { class: 'status-slot' });
   const status = h('div', { class: 'status-slot' });
@@ -203,6 +205,7 @@ export function mount(app) {
   }
 
   function paint() {
+    rippleOnLook();
     const holder = isHolder();
     const answering = holder && !!lady().target;
     paintStatus();
@@ -234,6 +237,14 @@ export function mount(app) {
       replace(dock, peek.el);
     } else if (!answering) replace(dock, chooseDock());
     else replace(dock, button({ label: t('lady.hidePass', { name: g().names[lady().target] }), ic: 'eyeoff', key: 'pass', onClick: pass }));
+  }
+
+  // The moment the Lady looks into someone, a ripple spreads over every
+  // phone: the same on the holder's and everyone else's, whatever the answer.
+  function rippleOnLook() {
+    const target = lady().target ?? null;
+    if (seenTarget === null && target) ripple(app);
+    seenTarget = target;
   }
 
   const el = h('div', { class: 'screen-body' }, gameTopbar(app, { onMenu: () => openMenu(app), onHistory: () => openHistory(app) }), band, status, content, dock);

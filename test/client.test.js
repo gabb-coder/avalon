@@ -185,6 +185,19 @@ describe('shipping rules', () => {
     assert.deepEqual(hexes, []);
   });
 
+  test('every animation has a reduced-motion rule', () => {
+    const css = read('public/css/app.css');
+    const anims = new Set([...(read('design/rt.css') + css).matchAll(/\.(anim-[a-z-]+)\s*\{[^}]*animation:/g)].map((m) => m[1]));
+    assert.ok(anims.size > 10);
+    for (const cls of anims) assert.ok(css.includes(`.reduce-motion .${cls}`), `.${cls} keeps moving when motion is reduced`);
+  });
+
+  test('the effects never look at the view, so they can only show what the table already sees', () => {
+    const src = read('public/js/fx.js');
+    assert.deepEqual([...src.matchAll(/^import .* from '(.*)';$/gm)].map((m) => m[1]), ['./dom.js']);
+    assert.ok(!/\.view\b|\bgame\b|role|ladyResults|evilIds/.test(src.replace(/^\/\/.*$/gm, '')));
+  });
+
   test('no secret role words in board-level markup files (only built while held)', () => {
     // The role card front and the Peek sheet are the only places that render
     // a role; both are created in hold handlers. Make sure no screen renders

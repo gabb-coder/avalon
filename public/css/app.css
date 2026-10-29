@@ -501,3 +501,107 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
   text-transform: none; letter-spacing: .04em;
 }
 :lang(zh) .room-tag { letter-spacing: .08em; }
+
+/* ---------- Motion and effects (fx.js) ----------
+   Decoration only: every effect follows something the whole table already
+   sees and looks the same for every role. Reduced motion turns all of it off
+   (rules at the end of this section); each screen's static end state is the
+   same either way. */
+
+/* The phone is its own stacking context, so the candlelit background
+   (z-index -1) sits above the phone's own background but under the screen. */
+.phone { isolation: isolate; }
+
+/* Screen changes: the new screen rises in, the top bar stays put. Fill mode
+   "backwards" only, so the G1 dimming still applies once it has finished. */
+@keyframes app-screen-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.screen-enter > :not(.topbar):not(.topbar-slot):not(.ambience) { animation: app-screen-in 300ms var(--ease-out) backwards; }
+.screen-enter > .dock { animation-name: rt-fade; }
+
+/* Candlelight: a warm glow that flickers, and embers drifting up. */
+.ambience { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.amb-glow { position: absolute; left: -20%; right: -20%; top: -18%; height: 62%; background: radial-gradient(closest-side, rgba(214,178,94,.14), rgba(214,178,94,0)); animation: amb-flicker 5.3s ease-in-out infinite; }
+.amb-ember { position: absolute; bottom: -8px; width: var(--size, 3px); height: var(--size, 3px); border-radius: 50%; background: var(--gold-hi); box-shadow: 0 0 6px 1px rgba(240,213,140,.55); opacity: 0; animation: amb-rise 12s linear infinite; }
+@keyframes amb-flicker { 0%, 100% { opacity: .75; } 8% { opacity: .6; } 15% { opacity: .9; } 31% { opacity: .7; } 44% { opacity: 1; } 52% { opacity: .65; } 68% { opacity: .85; } 81% { opacity: .62; } }
+@keyframes amb-rise { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: .7; } 70% { opacity: .4; } 100% { transform: translate(var(--dx, 0), -105vh); opacity: 0; } }
+
+/* Effects layer: under sheets (20), toasts (25) and the connection layer (30). */
+.fx-layer { position: absolute; inset: 0; z-index: 15; pointer-events: none; overflow: hidden; }
+.fx-p { position: absolute; border-radius: 50%; }
+.fx-p-gold { background: var(--gold-hi); box-shadow: 0 0 6px 1px rgba(240,213,140,.8); }
+.fx-p-ember { background: var(--evil); box-shadow: 0 0 6px 1px rgba(240,112,127,.75); }
+.fx-p-pale { background: rgba(169,177,209,.95); box-shadow: 0 0 5px rgba(169,177,209,.6); }
+.fx-wave { position: absolute; width: 100px; height: 100px; border-radius: 50%; }
+.fx-wave-gold { box-shadow: 0 0 0 2px rgba(240,213,140,.75), inset 0 0 26px rgba(214,178,94,.45); }
+.fx-wave-ember { box-shadow: 0 0 0 2px rgba(240,112,127,.7), inset 0 0 26px rgba(140,29,48,.6); }
+.fx-wave-pale { box-shadow: 0 0 0 2px rgba(169,177,209,.6), inset 0 0 22px rgba(169,177,209,.25); }
+.fx-ripple { position: absolute; width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(111,208,218,.6), inset 0 0 10px rgba(111,208,218,.2); }
+.fx-smoke { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(140,29,48,.6), rgba(140,29,48,.28) 45%, rgba(140,29,48,0)); }
+.fx-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(240,112,127,.32), rgba(140,29,48,.22) 60%, rgba(10,15,30,0)); }
+.fx-slash { position: absolute; left: 50%; top: 58%; width: 150%; height: 5px; border-radius: 3px; transform-origin: left center; background: linear-gradient(90deg, rgba(240,112,127,0), var(--evil) 30%, var(--on-evil-fill) 60%, var(--evil) 85%, rgba(240,112,127,0)); box-shadow: 0 0 14px 2px rgba(240,112,127,.7); }
+
+/* Vote reveal: each vote slams onto its row, the verdict lands like a seal. */
+.slam { display: inline-flex; }
+@keyframes app-slam { 0% { opacity: 0; transform: translateY(-16px) scale(2); } 50% { opacity: 1; transform: none; } 70% { transform: scale(.86); } 86% { transform: scale(1.06); } 100% { opacity: 1; transform: none; } }
+.anim-slam { animation: app-slam 400ms var(--ease-out) both; }
+@keyframes app-seal { 0% { opacity: 0; transform: scale(2.1) rotate(-7deg); } 55% { opacity: 1; transform: scale(.94) rotate(1.5deg); } 78% { transform: scale(1.03); } 100% { opacity: 1; transform: none; } }
+.anim-seal { animation: app-seal 440ms var(--ease-out) both; }
+
+/* Quest result: two-sided cards, dealt face down, then flipped. */
+.rcard { position: relative; width: 72px; height: 96px; perspective: 600px; flex: none; }
+.rcard-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+.rcard-inner > .rtok { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.rcard-inner > .rtok-back { transform: rotateY(180deg); }
+@keyframes app-cardflip { from { transform: rotateY(180deg); } to { transform: rotateY(0); } }
+.anim-cardflip { animation: app-cardflip 440ms var(--ease-out) both; }
+.rcard.is-dealing { opacity: 0; }
+/* A Fail card is cracked (drawn in as it lands). */
+.rtok .crack { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.crack path { fill: none; stroke: var(--on-evil-fill); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: .55; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.anim-crack path { animation: app-crack 380ms var(--ease-out) var(--crack-at, 0ms) both; }
+@keyframes app-crack { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+/* The board: a picked knight's ring ripples out; the Lady lands with a ripple. */
+.av-badge.is-flying { z-index: 2; }
+.seat.is-picked-now .av::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; box-shadow: 0 0 0 2px var(--gold-hi); pointer-events: none; animation: app-ring-out 650ms var(--ease-out) forwards; }
+.seat.is-lady-landing .av::before { content: ""; position: absolute; inset: -2px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--good); pointer-events: none; opacity: 0; animation: app-ring-out 1000ms var(--ease-out) var(--land-at, 0ms) 2; }
+@keyframes app-ring-out { from { transform: scale(1); opacity: .9; } to { transform: scale(2); opacity: 0; } }
+
+/* Lobby: a new player's avatar pops in. */
+@keyframes app-pop { 0% { opacity: 0; transform: scale(.5); } 100% { transform: none; } } /* ends at the avatar's own opacity (dimmed while connecting) */
+.anim-pop { animation: app-pop 420ms var(--ease-back) both; }
+
+/* F2: a heartbeat while the Assassin holds. */
+@keyframes app-heartbeat {
+  0%, 60%, 100% { transform: scale(1); box-shadow: 0 0 0 2.5px var(--evil), 0 0 0 rgba(240,112,127,0); }
+  14% { transform: scale(1.14); box-shadow: 0 0 0 2.5px var(--evil), 0 0 24px rgba(240,112,127,.75); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.08); box-shadow: 0 0 0 2.5px var(--evil), 0 0 16px rgba(240,112,127,.5); }
+}
+.strike-target.is-beating .av { animation: app-heartbeat 750ms ease-in-out infinite; }
+.strike-target.is-beating .ic { animation: app-heartbeat-ic 750ms ease-in-out infinite; }
+@keyframes app-heartbeat-ic { 0%, 60%, 100% { transform: scale(1); } 14% { transform: scale(1.2); } 42% { transform: scale(1.1); } }
+
+/* F4 after an assassination: the blade, then the named player's card turns over.
+   It sits under the effects layer (15); the top bar, with Skip, stays on top. */
+.screen-body.has-intro > .topbar { position: relative; z-index: 16; }
+.strike-intro { position: absolute; inset: 0; z-index: 14; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: radial-gradient(circle at 50% 45%, rgba(140,29,48,.35), rgba(7,11,22,.92) 70%); cursor: pointer; }
+.si-card { width: 168px; height: 224px; perspective: 900px; }
+.si-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+.si-inner > * { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 18px; }
+.si-inner > .rtok-back { transform: rotateY(180deg); width: auto; height: auto; }
+.si-inner > .rtok-back .ic { width: 56px; height: 56px; }
+.si-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center; background: rgba(18,26,46,.96); }
+.si-front.is-hit { box-shadow: inset 0 0 0 2px var(--evil), 0 0 40px rgba(240,112,127,.45); }
+.si-front.is-miss { box-shadow: inset 0 0 0 2px var(--gold), 0 0 40px rgba(214,178,94,.4); }
+.si-inner.anim-si-flip { animation: app-cardflip 620ms var(--ease-out) 420ms both; }
+.si-verdict.anim-si-verdict { animation: rt-stamp 360ms var(--ease-back) 1000ms both; }
+.strike-intro.is-leaving { animation: app-fade-out 300ms var(--ease-out) forwards; }
+@keyframes app-fade-out { to { opacity: 0; } }
+
+/* Reduced motion: none of the above moves. Reveals fade, effects don't run. */
+.reduce-motion .anim-slam, .reduce-motion .anim-seal, .reduce-motion .anim-cardflip, .reduce-motion .anim-pop,
+.reduce-motion .anim-si-flip, .reduce-motion .anim-si-verdict { animation: rt-fade 150ms linear both !important; }
+.reduce-motion .anim-crack path, .reduce-motion .screen-enter > *, .reduce-motion .amb-glow,
+.reduce-motion .strike-target.is-beating .av, .reduce-motion .strike-target.is-beating .ic { animation: none !important; }
+.reduce-motion .amb-ember, .reduce-motion .seat.is-picked-now .av::after, .reduce-motion .seat.is-lady-landing .av::before, .reduce-motion .fx-layer { display: none; }

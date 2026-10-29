@@ -12,6 +12,7 @@ import { codeInput } from '../components/codeInput.js';
 import { button, iconButton, panel, textField, topbar, blockedButton } from '../components/ui.js';
 import { openSheet } from '../components/overlay.js';
 import { validName } from './home.js';
+import { ambience } from '../fx.js';
 
 export function mount(app) {
   const form = app.joinForm;
@@ -182,6 +183,7 @@ export function mount(app) {
   const el = h(
     'div',
     { class: 'screen-body' },
+    ambience(),
     topbar(iconButton({ ic: 'left', label: t('join.back'), onClick: () => app.go('home') }), h('span', { class: 't-body b' }, t('join.title'))),
     h(
       'div',

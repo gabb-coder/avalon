@@ -44,12 +44,15 @@ export function mount(app) {
   function confirmStrike(id) {
     const name = g().names[id];
     let holder = null;
+    // While held, the target's portrait beats like a heart (decoration; the
+    // fill on the button is the timer).
+    const target = h('div', { class: 'row strike-target', 'aria-hidden': 'true' }, avatar(name, { size: 56, extra: ['av-target'] }), icon('target', 'evil', 'ic-28'));
     openModal(app.root, {
       danger: true,
       top: h('span', { class: 'frame-evil frame-76' }, icon('assassin', 'ic-40')),
       title: t('assassin.confirmTitle', { name }),
       text: t('assassin.confirmText', { name }),
-      extra: h('div', { class: 'row strike-target', 'aria-hidden': 'true' }, avatar(name, { size: 56, extra: ['av-target'] }), icon('target', 'evil', 'ic-28')),
+      extra: target,
       onClose: () => holder?.destroy(),
       actions: (close) => {
         const fill = h('span', { class: 'strike-fill', 'aria-hidden': 'true' });
@@ -66,9 +69,13 @@ export function mount(app) {
           ms: STRIKE_MS,
           onStart: () => {
             btn.classList.add('is-holding');
+            target.classList.add('is-beating');
             fill.style.animationDuration = `${STRIKE_MS}ms`;
           },
-          onCancel: () => btn.classList.remove('is-holding'),
+          onCancel: () => {
+            btn.classList.remove('is-holding');
+            target.classList.remove('is-beating');
+          },
           onDone: async () => {
             if (sent) return;
             sent = true;

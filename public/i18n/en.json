@@ -578,6 +578,8 @@
   "over.tag": "ROOM {code} · GAME OVER",
   "over.goodWins": "Good prevails",
   "over.evilWins": "Evil prevails",
+  "over.strikeHit": "Merlin is found",
+  "over.strikeMiss": "The blade missed",
   "over.reason.assassinMiss": "3 quests won, and the Assassin missed. {assassin} named {guess}; Merlin was {merlin}.",
   "over.reason.assassinHit": "Good won 3 quests, but the Assassin found Merlin: {assassin} named {merlin}.",
   "over.reason.threeFails": "Evil sabotaged 3 quests.",
