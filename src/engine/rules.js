@@ -55,6 +55,9 @@ export function teamOf(role) {
   return ROLES[role].team;
 }
 
+// How well bots play (host's lobby setting; only matters when bots are seated).
+export const BOT_LEVELS = ['easy', 'normal', 'clever'];
+
 // The host's lobby settings. Lady is off by default; Merlin sees Oberon by default.
 export const DEFAULT_CONFIG = {
   percival: false,
@@ -63,6 +66,7 @@ export const DEFAULT_CONFIG = {
   oberon: false,
   lady: false,
   oberonSeenByMerlin: true,
+  botLevel: 'normal',
 };
 
 // The rules config derived from the host's one Oberon setting. It is split into

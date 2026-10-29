@@ -10,7 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { format, setMessages, t, list, gap, pickLanguage, LANGUAGES } from '../public/js/i18n.js';
-import { ERR, ROLE_IDS, PHASES } from '../src/engine/index.js';
+import { ERR, ROLE_IDS, PHASES, BOT_LEVELS } from '../src/engine/index.js';
 import { SERVER_ERRORS } from '../shared/protocol.js';
 import { endOfferDue } from '../public/js/components/board.js';
 import { turnKey } from '../public/js/device.js';
@@ -71,6 +71,7 @@ describe('strings', () => {
     'err.timeout',
     'start.tooFew', 'start.tooManyEvil', 'start.morganaNoPercival',
     ...LANGUAGES.map((l) => `lang.${l}`),
+    ...BOT_LEVELS.flatMap((l) => [`botLevel.${l}`, `botLevel.${l}Hint`]),
   ];
 
   test('every key the client uses exists in en.json', () => {

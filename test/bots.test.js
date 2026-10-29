@@ -4,7 +4,7 @@
 import { test, describe, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { createRoom, reduce, viewFor, checkSetup, MAX_PLAYERS } from '../src/engine/index.js';
+import { createRoom, reduce, viewFor, checkSetup, MAX_PLAYERS, BOT_LEVELS } from '../src/engine/index.js';
 import { botDuty, botMove } from '../server/botBrain.js';
 import { C2S } from '../shared/protocol.js';
 import { act, reject, lobby, NAMES } from './helpers.js';
@@ -48,6 +48,16 @@ describe('bots in the engine', () => {
     let s = addBot(lobby(1), 'b1');
     const r = reduce(s, { type: 'LEAVE', actor: 'p1' });
     assert.ok(r.effects.some((e) => e.type === 'empty'));
+  });
+
+  test('the host sets how well bots play: easy, normal or clever, seen by everyone', () => {
+    let s = addBot(lobby(2), 'b1');
+    assert.equal(viewFor(s, 'p2').config.botLevel, 'normal');
+    s = act(s, { type: 'SET_CONFIG', actor: 'p1', config: { botLevel: 'clever' } });
+    assert.equal(viewFor(s, 'b1').config.botLevel, 'clever');
+    reject(s, { type: 'SET_CONFIG', actor: 'p1', config: { botLevel: 'genius' } }, 'err.badAction');
+    reject(s, { type: 'SET_CONFIG', actor: 'p1', config: { lady: 'clever' } }, 'err.badAction');
+    reject(s, { type: 'SET_CONFIG', actor: 'p2', config: { botLevel: 'easy' } }, 'err.notHost');
   });
 
   test('a bot can be removed like anyone (KICK)', () => {
@@ -94,7 +104,8 @@ describe('the bot brain', () => {
       // Every other valid setup, with a different seed each: about 150 games.
       const configs = [...allConfigs()].filter((c) => checkSetup(c, n).canStart).filter((_, i) => i % 2 === 0);
       configs.forEach((config, i) => {
-        const s = playAllBots(n, config, i * 7919 + n);
+        // Each level in turn.
+        const s = playAllBots(n, { ...config, botLevel: BOT_LEVELS[i % 3] }, i * 7919 + n);
         ends[s.game.winReason] = (ends[s.game.winReason] || 0) + 1;
         games++;
       });
@@ -111,7 +122,7 @@ describe('the bot brain', () => {
 });
 
 describe('bots over sockets', () => {
-  test('a person plays whole games with six bots', async () => {
+  test('a person plays whole games with six bots, at each level', async () => {
     const server = await startServer({ botSpeed: 0 });
     const me = await new Client(server.url).connected();
     const { code } = await me.create(NAMES[0]);
@@ -121,7 +132,10 @@ describe('bots over sockets', () => {
     assert.equal(new Set(me.view.players.map((p) => p.name)).size, 7);
     await me.req(C2S.LOBBY_SET_CONFIG, { config: { lady: true, percival: true, morgana: true } });
 
+    assert.equal((await me.req(C2S.LOBBY_SET_CONFIG, { config: { botLevel: 'genius' } })).code, 'err.badPayload');
     for (let game = 0; game < 3; game++) {
+      // One game at each bot level.
+      assert.ok((await me.req(C2S.LOBBY_SET_CONFIG, { config: { botLevel: BOT_LEVELS[game] } })).ok);
       assert.ok((await me.req(C2S.GAME_START, {})).ok);
       await me.until((v) => v.phase !== 'lobby');
       // The person plays simply; the bots do everything else on their own.

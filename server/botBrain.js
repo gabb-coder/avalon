@@ -9,10 +9,17 @@
 //   botDuty(view)            -> a key for what the bot owes the table now, or null
 //   botMove(view, rng, plan) -> the intent to send: { type, ...payload }
 //
-// The play is plausible rather than clever: Good backs players who haven't
-// been on failed quests and avoids anyone it knows is Evil; Evil gets onto
-// teams and fails quests (one Fail per team, and not always on Quest 1);
-// the Assassin names the Good player who looked best informed.
+// How well bots play is the host's lobby setting, view.config.botLevel
+// (public, like the rest of the config):
+//   easy    simple and mistake-prone: Good approves most teams, Evil fails
+//           every quest it's on, the Assassin guesses at random
+//   normal  plausible: Good backs players who haven't been on failed quests
+//           and avoids anyone it knows is Evil; Evil gets onto teams and fails
+//           quests (one Fail per team, not always on Quest 1); the Assassin
+//           names the Good player who looked best informed
+//   clever  Good weighs every way the Evil seats could be filled against the
+//           quest results and the voting record; Evil hides better; the
+//           Assassin also studies who led clean teams
 
 const GOOD = 'good';
 
@@ -97,8 +104,10 @@ const shuffle = (rng, xs) => {
 
 // ---------- decisions ----------
 
+// ---------- Normal: the default ----------
+
 // The team a leader bot wants (itself first; picks are sent one at a time).
-export function planTeam(view, rng) {
+function planTeamNormal(view, rng) {
   const g = view.game;
   const me = view.you;
   const size = g.quests[g.questIndex].size;
@@ -125,7 +134,7 @@ export function planTeam(view, rng) {
   return team;
 }
 
-function vote(view, rng) {
+function voteNormal(view, rng) {
   const g = view.game;
   const team = g.proposal.team;
   const evil = knownEvil(view);
@@ -152,7 +161,7 @@ function vote(view, rng) {
   return team.includes(view.you) || rng.next() < 0.95;
 }
 
-function card(view, rng) {
+function cardNormal(view, rng) {
   const g = view.game;
   if (g.me.team !== 'evil') return 'success';
   const quest = g.quests[g.questIndex];
@@ -165,7 +174,7 @@ function card(view, rng) {
   return rng.next() < 0.9 ? 'fail' : 'success';
 }
 
-function ladyTarget(view, rng) {
+function ladyNormal(view, rng) {
   const g = view.game;
   const choices = g.seats.filter((id) => id !== view.you && !g.lady.pastHolders.includes(id));
   if (g.me.team === 'evil') return shuffle(rng, choices)[0];
@@ -180,7 +189,7 @@ function ladyTarget(view, rng) {
 // The Assassin's guess: the Good player whose votes looked best informed
 // (rejecting teams with Evil on them, approving clean ones) and who stayed
 // off failed quests.
-function guess(view, rng) {
+function guessNormal(view, rng) {
   const g = view.game;
   const evil = new Set(g.evilIds);
   const targets = shuffle(rng, g.seats.filter((id) => !evil.has(id)));
@@ -196,6 +205,197 @@ function guess(view, rng) {
   }
   return targets.sort((a, b) => score[b] - score[a])[0];
 }
+
+// ---------- Easy: simple and mistake-prone ----------
+
+function planTeamEasy(view, rng) {
+  const g = view.game;
+  const size = g.quests[g.questIndex].size;
+  const ladyEvil = new Set(g.me.ladyResults.filter((r) => r.seenTeam === 'evil').map((r) => r.target));
+  const others = shuffle(rng, g.seats.filter((id) => id !== view.you));
+  const ranked = [...others.filter((id) => !ladyEvil.has(id)), ...others.filter((id) => ladyEvil.has(id))];
+  return [view.you, ...ranked].slice(0, size);
+}
+
+function voteEasy(view, rng) {
+  const g = view.game;
+  const team = g.proposal.team;
+  const evil = knownEvil(view);
+  if (g.rejects >= 4) return g.me.team === 'evil' ? team.some((id) => evil.has(id)) : true;
+  if (g.me.team === 'evil') return team.some((id) => evil.has(id)) || rng.next() < 0.3;
+  if (g.proposal.leader === view.you || team.includes(view.you)) return true;
+  if (g.me.ladyResults.some((r) => r.seenTeam === 'evil' && team.includes(r.target))) return false;
+  // Merlin rarely acts on what they know; everyone else mostly goes along.
+  if (g.me.role === 'merlin' && team.some((id) => evil.has(id)) && rng.next() < 0.25) return false;
+  return rng.next() < 0.75;
+}
+
+// Easy Evil never holds back, so double Fails give it away.
+const cardEasy = (view) => (view.game.me.team === 'evil' ? 'fail' : 'success');
+
+function ladyEasy(view, rng) {
+  const g = view.game;
+  return shuffle(rng, g.seats.filter((id) => id !== view.you && !g.lady.pastHolders.includes(id)))[0];
+}
+
+function guessEasy(view, rng) {
+  const evil = new Set(view.game.evilIds);
+  return shuffle(rng, view.game.seats.filter((id) => !evil.has(id)))[0];
+}
+
+// ---------- Clever: weigh every way the Evil seats could be filled ----------
+
+function* subsets(items, k, start = 0, pick = []) {
+  if (pick.length === k) {
+    yield pick;
+    return;
+  }
+  for (let i = start; i <= items.length - (k - pick.length); i++) yield* subsets(items, k, i + 1, [...pick, items[i]]);
+}
+
+// For a Good bot: the chance each player is Evil, and a way to ask how likely
+// a team is to be clean. Every possible Evil set (at most 210 of them) is
+// kept if it fits what this bot knows (its own seat, Merlin's or Percival's
+// night info, the Lady's answers, each quest's Fail count) and weighed by
+// how well it explains the votes: Evil backs teams with Evil on them and
+// often turns down clean ones; Good mostly backs teams that look clean.
+function worlds(view) {
+  const g = view.game;
+  const nEvil = view.setup.evil;
+  const mustGood = new Set([view.you]);
+  const mustEvil = new Set();
+  const night = g.me.night;
+  if (g.me.role === 'merlin' && night?.kind === 'evil') for (const id of night.seen) mustEvil.add(id);
+  if (night?.kind === 'sure') for (const id of night.seen) mustGood.add(id);
+  const maybePair = night?.kind === 'maybe' ? night.seen : null; // Merlin and Morgana: exactly one is Evil
+  for (const r of g.me.ladyResults) (r.seenTeam === 'evil' ? mustEvil : mustGood).add(r.target);
+  const decided = g.proposals.filter((p) => p.approved && g.quests[p.quest]?.result);
+  const list = [];
+  let total = 0;
+  for (const set of subsets(g.seats.filter((id) => !mustGood.has(id)), nEvil)) {
+    const evil = new Set(set);
+    if ([...mustEvil].some((id) => !evil.has(id))) continue;
+    if (maybePair && maybePair.filter((id) => evil.has(id)).length !== 1) continue;
+    let w = 1;
+    for (const p of decided) {
+      const q = g.quests[p.quest];
+      const onTeam = p.team.filter((id) => evil.has(id)).length;
+      if (q.fails > onTeam) {
+        w = 0;
+        break;
+      }
+      if (q.fails === 0 && onTeam > 0) w *= 0.3 ** onTeam; // Evil on a clean quest held back
+    }
+    if (!w) continue;
+    for (const p of g.proposals) {
+      const dirty = p.team.some((id) => evil.has(id));
+      for (const id of g.seats) {
+        const v = p.votes[id];
+        if (!v || id === view.you) continue;
+        const pApprove = evil.has(id) ? (dirty ? 0.9 : 0.4) : dirty ? 0.6 : 0.85;
+        w *= v === 'approve' ? pApprove : 1 - pApprove;
+      }
+    }
+    list.push({ evil, w });
+    total += w;
+  }
+  const odds = Object.fromEntries(g.seats.map((id) => [id, 0]));
+  if (!total) return null; // nothing fits (Evil played oddly): fall back to Normal's reasoning
+  for (const { evil, w } of list) for (const id of evil) odds[id] += w / total;
+  const clean = (team) => list.reduce((sum, { evil, w }) => sum + (team.some((id) => evil.has(id)) ? 0 : w), 0) / total;
+  return { odds, clean };
+}
+
+function planTeamClever(view, rng) {
+  const g = view.game;
+  if (g.me.team === 'evil') return planTeamNormal(view, rng);
+  const model = worlds(view);
+  if (!model) return planTeamNormal(view, rng);
+  const size = g.quests[g.questIndex].size;
+  // Merlin, leading, quietly leaves out the Evil they know.
+  const avoid = g.me.role === 'merlin' ? knownEvil(view) : new Set();
+  const others = shuffle(rng, g.seats.filter((id) => id !== view.you)).sort((a, b) => (avoid.has(a) ? 1 : 0) - (avoid.has(b) ? 1 : 0) || model.odds[a] - model.odds[b]);
+  return [view.you, ...others].slice(0, size);
+}
+
+function voteClever(view, rng) {
+  const g = view.game;
+  const team = g.proposal.team;
+  const evil = knownEvil(view);
+  const lastChance = g.rejects >= 4;
+  if (g.me.team === 'evil') {
+    const evilOnTeam = team.some((id) => evil.has(id));
+    if (lastChance) return evilOnTeam;
+    return evilOnTeam ? true : rng.next() < 0.85; // blends in: backs clean teams as often as Good does
+  }
+  if (lastChance || g.proposal.leader === view.you) return true;
+  const model = worlds(view);
+  if (!model) return voteNormal(view, rng);
+  // Merlin votes like an ordinary knight reading the table, with the odd
+  // veto: perfect votes would hand the Assassin the answer.
+  if (g.me.role === 'merlin' && team.some((id) => evil.has(id)) && rng.next() < 0.5) return false;
+  const p = model.clean(team);
+  const need = g.rejects >= 3 ? 0.25 : team.includes(view.you) ? 0.35 : 0.5;
+  return p >= need;
+}
+
+function cardClever(view, rng) {
+  const g = view.game;
+  if (g.me.team !== 'evil') return 'success';
+  const quest = g.quests[g.questIndex];
+  const evil = knownEvil(view);
+  const alliesOnTeam = g.questPlay.team.filter((id) => evil.has(id)).sort();
+  if (quest.failsNeeded > 1) return alliesOnTeam.length >= quest.failsNeeded ? 'fail' : 'success';
+  if (alliesOnTeam[0] !== view.you) return 'success';
+  const wins = g.quests.filter((q) => q.result === 'success').length;
+  const losses = g.quests.filter((q) => q.result === 'fail').length;
+  // When a quest decides the game, always strike. Early on, hide now and then.
+  if (wins === 2 || losses === 2) return 'fail';
+  if (g.questIndex === 0) return rng.next() < 0.2 ? 'fail' : 'success';
+  return rng.next() < 0.85 ? 'fail' : 'success';
+}
+
+function ladyClever(view, rng) {
+  const g = view.game;
+  if (g.me.team === 'evil') return ladyNormal(view, rng);
+  const model = worlds(view);
+  if (!model) return ladyNormal(view, rng);
+  // The most useful look: whoever the bot is least sure about.
+  const choices = shuffle(rng, g.seats.filter((id) => id !== view.you && !g.lady.pastHolders.includes(id)));
+  return choices.sort((a, b) => Math.abs(model.odds[a] - 0.5) - Math.abs(model.odds[b] - 0.5))[0];
+}
+
+// The Assassin reads the whole game, knowing who Evil was: Merlin's votes
+// tend to be right, and when Merlin led, the team tended to be clean.
+function guessClever(view, rng) {
+  const g = view.game;
+  const evil = new Set(g.evilIds);
+  const targets = shuffle(rng, g.seats.filter((id) => !evil.has(id)));
+  const score = Object.fromEntries(targets.map((id) => [id, 0]));
+  for (const p of g.proposals) {
+    const dirty = p.team.some((id) => evil.has(id));
+    if (score[p.leader] !== undefined) score[p.leader] += dirty ? -2 : 1;
+    for (const id of targets) {
+      const v = p.votes[id];
+      if (!v) continue;
+      if (dirty) score[id] += v === 'reject' ? 1.5 : -1;
+      else score[id] += v === 'approve' ? 0.5 : -0.5;
+    }
+  }
+  return targets.sort((a, b) => score[b] - score[a])[0];
+}
+
+// ---------- by level ----------
+
+const LEVELS = {
+  easy: { plan: planTeamEasy, vote: voteEasy, card: cardEasy, lady: ladyEasy, guess: guessEasy },
+  normal: { plan: planTeamNormal, vote: voteNormal, card: cardNormal, lady: ladyNormal, guess: guessNormal },
+  clever: { plan: planTeamClever, vote: voteClever, card: cardClever, lady: ladyClever, guess: guessClever },
+};
+const play = (view) => LEVELS[view.config?.botLevel] || LEVELS.normal;
+
+// The team a leader bot wants (itself first).
+export const planTeam = (view, rng) => play(view).plan(view, rng);
 
 // The next intent for this bot. `plan` keeps a leader's chosen team between
 // picks (the bot sends them one at a time, like a person tapping).
@@ -213,16 +413,16 @@ export function botMove(view, rng, plan = {}) {
       return { type: 'PROPOSE', team: plan.team.slice() };
     }
     case 'vote':
-      return { type: 'VOTE', approve: vote(view, rng) };
+      return { type: 'VOTE', approve: play(view).vote(view, rng) };
     case 'vote_reveal':
     case 'quest_result':
       return { type: 'CONTINUE' };
     case 'quest':
-      return { type: 'PLAY', card: card(view, rng) };
+      return { type: 'PLAY', card: play(view).card(view, rng) };
     case 'lady':
-      return g.lady.target ? { type: 'LADY_PASS' } : { type: 'LADY_INSPECT', target: ladyTarget(view, rng) };
+      return g.lady.target ? { type: 'LADY_PASS' } : { type: 'LADY_INSPECT', target: play(view).lady(view, rng) };
     case 'assassination':
-      return { type: 'GUESS', target: guess(view, rng) };
+      return { type: 'GUESS', target: play(view).guess(view, rng) };
     default:
       return null;
   }

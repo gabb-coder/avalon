@@ -64,7 +64,7 @@ Ask before changing anything listed in `docs/HANDOFF.md` §10, "Expensive to cha
 
 | Command | What it does | Status |
 |---|---|---|
-| `npm test` | All tests: engine units, leak tests, ~1,800-game simulation, ~150 all-bot games, socket integration, client checks. About 25 s. Must pass before every hand-off. | works |
+| `npm test` | All tests: engine units, leak tests, ~1,800-game simulation, ~150 all-bot games (all three bot levels), socket integration, client checks. About 30 s. Must pass before every hand-off. | works |
 | `npm run dev` | Server + client on one origin at http://localhost:3000 (and http://<your-computer's-IP>:3000 for phones on the same Wi-Fi), restarting on server changes. Client files need only a browser reload. | works |
 | `npm start` | Production server (Render): listens on `$PORT`, `0.0.0.0`. | works |
 | `npm run demo` | Bots play one full game over real sockets and print it, private info labelled. `npm run demo -- 10` for 10 players. | works |
@@ -260,7 +260,13 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
     - Bots' moves don't count as activity for the idle timer.
     - After a restart (Redis), bots stay connected and their timers start again.
   - **Fair by construction.** `botBrain.js` imports nothing: it gets the view and nothing else, so a bot can't cheat and can't leak more than its seat knows. A test checks that.
-  - **Strategy** (plausible, not clever).
+  - **Bot skill** (`config.botLevel`: `easy` / `normal` / `clever`, default `normal`). The host picks it in the lobby (a three-way control under "Add a bot", shown once a bot is seated); it applies to every bot. It's public (each bot row reads "Bot · Clever"), and it reaches each bot inside its own view (`view.config`), so the brain still needs nothing else.
+    - **Easy:** Good leads itself plus random players, approves most teams, and ignores suspicion; Merlin rarely acts on what they know. Evil fails every quest it's on (so double Fails give it away), and the Assassin guesses at random. Good for learning.
+    - **Normal:** the strategy below.
+    - **Clever:** a Good bot weighs every way the Evil seats could be filled (at most 210 sets). It keeps those that fit what it knows: its own seat, Merlin's and Percival's night info, the Lady's answers, and each quest's Fail count. It weighs each set by how well it explains the votes, then picks the likeliest-clean teams and approves a team when it's probably clean. Merlin, leading, leaves out the Evil they know, but only sometimes vetoes by vote.
+    - **Clever Evil** backs clean teams as often as Good does, hides on Quest 1 more often, and always strikes when a quest decides the game. The Assassin also scores who led clean teams.
+    - **Measured** in bot-against-bot games (each side at its own level): every step up for Good wins more against every Evil level, and every step up for Evil wins more against Normal and Clever Good. All three levels together: Good wins 1% (Easy), 25% (Normal), 30% (Clever).
+  - **Strategy** (Normal; plausible, not clever).
     - Good backs teams that look clean. A player looks suspect for sitting on a failed quest, leading it, or voting it through from outside, and for voting against a quest that then succeeded. Good never backs someone the Lady showed as Evil.
     - Merlin uses their knowledge only some of the time, so their votes don't give them away.
     - Evil gets onto teams, approves teams with Evil on them, and blends in sometimes. One Fail per team (the first ally by id), not always on Quest 1, and two when Quest 4 needs two.
@@ -426,6 +432,11 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - both phones in the lobby, with the guest told who ended it;
   - a new game straight away.
 
+- [x] **After launch: bot skill.** Easy, Normal and Clever, chosen by the host in the lobby and shown on bot rows. Checked:
+  - tests: the setting's rules, legality over all three levels, and a socket game at each level;
+  - bot-against-bot matchups between the levels (1,200 games each);
+  - in Chromium at 360×740, in English and Chinese: the picker, the guest seeing the level, the bot rows.
+
 ### Additions to the design (screens or states the bundle didn't have)
 
 - **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
@@ -438,7 +449,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Home settings** (A2's sliders button). A "Settings" sheet with E4's Display section: language, text size, reduce motion, vibrate.
 - **Animations beyond HANDOFF §4** (owner's request): screen transitions, candlelight, the ring's travelling tokens and pick ripples, the slamming votes and seal, the dealt and cracked quest cards, the Lady's ripples, the heartbeat, the strike card ("Merlin is found" / "The blade missed") and the game-over sparks or smoke.
 - **How to play scenes** (owner's request): E3's still pictures became short scenes, with a Replay button (refresh icon) in each picture's corner. Page 2 shows a small 7-seat table instead of a leader token and three avatars; page 3 shows five sample votes with an "Approved" seal instead of the two vote marks; page 5's track ends on three Successes.
-- **Bots** (no artboard): "Add a bot" under the lobby's player list with a one-line note; a robot badge (top right of the avatar) and "Bot" as the row's meta; removing a bot is one tap, with no G6 dialog.
+- **Bots** (no artboard): "Add a bot" under the lobby's player list with a one-line note; a robot badge (top right of the avatar) and "Bot · Normal" (the skill) as the row's meta; removing a bot is one tap, with no G6 dialog. Once a bot is seated, the host sees a "Bot skill" panel: Easy / Normal / Clever, with a one-line description of the chosen level.
 - **Sound effects and their switch** (no artboard): a "Sound effects" toggle row with a speaker icon, under Vibrate in Display.
 - **Language picker** (no artboard): a two-option segmented control, "English" / "中文", at the top of Display.
 - **G3 variants.**
