@@ -129,7 +129,7 @@ export function mount(app) {
       const fresh = known && !known.has(p.id); // just sat down: pops in
       const isTheHost = p.id === v.hostId;
       let meta = null;
-      if (p.bot) meta = t('lobby.bot');
+      if (p.bot) meta = t('lobby.botMeta', { level: t(`botLevel.${v.config.botLevel}`) });
       else if (!p.connected) meta = t('lobby.connecting');
       else if (you && isTheHost) meta = t('lobby.youHost');
       else if (you) meta = t('lobby.you');
@@ -189,11 +189,31 @@ export function mount(app) {
     const v = view();
     if (!isHost()) return null;
     const full = v.players.length >= MAX;
+    const level = v.config.botLevel;
+    // How well the bots play: one setting for every bot at the table, shown
+    // once there is a bot to apply it to.
+    const skill = v.players.some((p) => p.bot)
+      ? panel(
+          [
+            h('p', { class: 't-body b', id: 'bot-skill-l' }, t('lobby.botSkill')),
+            seg({
+              labelledBy: 'bot-skill-l',
+              value: level,
+              extra: ['seg-3'],
+              options: ['easy', 'normal', 'clever'].map((l) => ({ value: l, label: t(`botLevel.${l}`) })),
+              onChange: (l) => setConfig({ botLevel: l }),
+            }),
+            h('p', { class: 't-label muted' }, t(`botLevel.${level}Hint`)),
+          ],
+          { extra: ['col', 'bot-skill'] },
+        )
+      : null;
     return h(
       'div',
       { class: 'col add-bot' },
       button({ label: t('lobby.addBot'), kind: 'secondary', md: true, ic: 'bot', key: 'add-bot', disabled: full, onClick: addBot }),
       h('p', { class: 't-label faint' }, t(full ? 'lobby.botsFull' : 'lobby.addBotHint')),
+      skill,
     );
   }
 

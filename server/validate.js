@@ -4,6 +4,7 @@
 // are checked by the engine.
 
 import { C2S, CODE_PATTERN, TOKEN_PATTERN } from '../shared/protocol.js';
+import { BOT_LEVELS } from '../src/engine/rules.js';
 
 const ID_MAX = 32;
 const NAME_RAW_MAX = 64; // the engine trims and enforces the real 16-character limit
@@ -65,7 +66,8 @@ export const validators = {
   [C2S.LOBBY_SET_CONFIG](p) {
     if (!isObj(p) || !isObj(p.config)) return null;
     const entries = Object.entries(p.config);
-    if (entries.length === 0 || !entries.every(([k, v]) => CONFIG_KEYS.includes(k) && typeof v === 'boolean')) return null;
+    const okEntry = ([k, v]) => (k === 'botLevel' ? BOT_LEVELS.includes(v) : CONFIG_KEYS.includes(k) && typeof v === 'boolean');
+    if (entries.length === 0 || !entries.every(okEntry)) return null;
     return { config: Object.fromEntries(entries) };
   },
   [C2S.LOBBY_KICK](p) {

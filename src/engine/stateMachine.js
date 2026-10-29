@@ -21,7 +21,7 @@
 
 import {
   MAX_PLAYERS, MAX_REJECTS, WINS_NEEDED, LADY_AFTER_QUEST_INDEXES, QUEST_SIZES,
-  DEFAULT_CONFIG, GOOD, EVIL, teamOf, failsNeeded, checkSetup,
+  DEFAULT_CONFIG, BOT_LEVELS, GOOD, EVIL, teamOf, failsNeeded, checkSetup,
 } from './rules.js';
 import { assignRoles, nightInfoAll, ladySees } from './roles.js';
 import { makeRng } from './rng.js';
@@ -266,7 +266,8 @@ const HANDLERS = {
     const patch = a.config;
     if (!patch || typeof patch !== 'object') return error(ERR.BAD_ACTION);
     for (const [k, v] of Object.entries(patch)) {
-      if (!(k in DEFAULT_CONFIG) || typeof v !== 'boolean') return error(ERR.BAD_ACTION);
+      const ok = k === 'botLevel' ? BOT_LEVELS.includes(v) : k in DEFAULT_CONFIG && typeof v === 'boolean';
+      if (!ok) return error(ERR.BAD_ACTION);
     }
     Object.assign(s.config, patch);
   },

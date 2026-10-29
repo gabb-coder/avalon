@@ -48,6 +48,7 @@ function publicConfig(c) {
     oberon: c.oberon,
     lady: c.lady,
     oberonSeenByMerlin: c.oberonSeenByMerlin,
+    botLevel: c.botLevel ?? 'normal', // public: everyone sees how well the bots play
   };
 }
 
