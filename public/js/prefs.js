@@ -51,4 +51,6 @@ export const prefs = {
 
   get vibrate() { return read('vibrate', true); },
   set vibrate(v) { write('vibrate', v); },
+  get sound() { return read('sound', true); },
+  set sound(v) { write('sound', v); },
 };

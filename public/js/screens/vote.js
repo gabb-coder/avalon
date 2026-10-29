@@ -13,6 +13,7 @@ import { peekButton } from '../components/peek.js';
 import { button, note, panel, progress, statusBar, waitGrid, chip } from '../components/ui.js';
 import { gameTopbar, awayStatus, namesWithYou } from '../components/board.js';
 import { openMenu, openHistory } from './sheets.js';
+import { sound } from '../sound.js';
 
 export function mount(app) {
   let choice = null; // 'approve' | 'reject' before locking
@@ -34,6 +35,7 @@ export function mount(app) {
   async function lock() {
     if (!choice || locking) return;
     locking = true;
+    sound('lock'); // the same click for Approve and Reject
     const ack = await app.request(C2S.VOTE_CAST, { approve: choice === 'approve' });
     locking = false;
     if (!ack.ok && ack.code !== 'err.locked') toast(t(ack.code, ack.params), { kind: 'err' });

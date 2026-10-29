@@ -83,6 +83,8 @@ Tick each box as you go.
 - [ ] Menu → Text size 130%: every screen stays readable, with nothing cut off or overlapping.
 - [ ] Menu → Reduce motion: reveals fade instead of flipping, nothing pulses, and there are no sparks, embers, smoke, ripples or shaking.
 - [ ] The animations run smoothly on the oldest phone at the table (quest result, game over). Note any stutter, and on which phone.
+- [ ] Sound effects play on each phone after its first tap (Android, and iPhones with the ringer on). Menu → Sound effects turns them off. With every phone at the table playing, is it fun or too much?
+- [ ] Nobody can tell anything secret from a sound: choosing a vote or a quest card is silent, and locking in clicks the same whatever was chosen.
 - [ ] Nobody can tell anything secret from an animation: the Lady's ripple, the quest cards and the night screen look the same whatever the answer or role.
 - [ ] Turn the phone sideways and back: nothing breaks.
 - [ ] On a tablet, if you have one, team building shows the ring and vote history side by side.

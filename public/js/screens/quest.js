@@ -12,6 +12,7 @@ import { peekButton } from '../components/peek.js';
 import { button, note, panel, privateBand, statusBar, dots } from '../components/ui.js';
 import { gameTopbar, awayStatus } from '../components/board.js';
 import { openMenu, openHistory } from './sheets.js';
+import { sound } from '../sound.js';
 
 export function mount(app) {
   let card = null; // 'success' | 'fail' before playing
@@ -43,6 +44,7 @@ export function mount(app) {
   async function play() {
     if (!card || sending) return;
     sending = true;
+    sound('lock'); // the same click for Success and Fail
     const ack = await app.request(C2S.QUEST_PLAY, { card });
     sending = false;
     if (!ack.ok && ack.code !== 'err.locked') toast(t(ack.code, ack.params), { kind: 'err' });

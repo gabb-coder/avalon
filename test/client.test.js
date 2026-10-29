@@ -198,6 +198,19 @@ describe('shipping rules', () => {
     assert.ok(!/\.view\b|\bgame\b|role|ladyResults|evilIds/.test(src.replace(/^\/\/.*$/gm, '')));
   });
 
+  test('sounds never carry a secret: no view access, one click for any vote or card, nothing on the night screen', () => {
+    const src = read('public/js/sound.js');
+    assert.deepEqual([...src.matchAll(/^import .* from '(.*)';$/gm)].map((m) => m[1]), ['./prefs.js']);
+    assert.ok(!/\.view\b|\bgame\b|role|ladyResults|evilIds/.test(src.replace(/\/\/.*$/gm, '')));
+    const calls = (file) => [...read(file).matchAll(/\bsound\(([^)]*)\)/g)].map((m) => m[1]);
+    // Choosing Approve/Reject or Success/Fail is private until the reveal.
+    for (const file of ['public/js/screens/vote.js', 'public/js/screens/quest.js']) assert.deepEqual(calls(file), ["'lock'"], file);
+    // Holding your role card, Peek and the night screen make no sound.
+    for (const file of ['public/js/screens/night.js', 'public/js/components/roleCard.js', 'public/js/components/peek.js', 'public/js/components/hold.js']) {
+      assert.deepEqual(calls(file), [], file);
+    }
+  });
+
   test('no secret role words in board-level markup files (only built while held)', () => {
     // The role card front and the Peek sheet are the only places that render
     // a role; both are created in hold handlers. Make sure no screen renders

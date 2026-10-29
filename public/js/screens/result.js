@@ -13,6 +13,7 @@ import { questTrack } from '../components/board.js';
 import { revealTopbar, continueDock } from '../components/reveal.js';
 import { openMenu, openHistory } from './sheets.js';
 import { calm, timeline, burst, shake, cardBack, crack } from '../fx.js';
+import { sound } from '../sound.js';
 
 const DEAL_MS = 560; // face down, shuffled into place
 const STEP_MS = 200; // between flips
@@ -139,6 +140,17 @@ export function mount(app) {
   }
   const cont = continueDock(app, dock, opts);
   const fx = timeline(app);
+  // Sounds: the shuffle, each card turning and what it shows, a swell before
+  // the last, then the verdict. With reduced motion, only the verdict.
+  if (moving) {
+    fx.at(20, () => sound('shuffle'));
+    quest.cards.forEach((c, i) => {
+      fx.at(flipAt(i), () => sound('flip'));
+      fx.at(flipAt(i) + FLIP_MS - 160, () => sound(c === 'success' ? 'success' : 'fail'));
+    });
+    if (n > 1) fx.at(flipAt(n - 1) - 420, () => sound('tension'));
+    fx.at(bannerAt + 210, () => sound(success ? 'questWon' : 'questLost'));
+  } else fx.at(150, () => sound(success ? 'questWon' : 'questLost'));
   // The last card trembles while the table holds its breath.
   if (n > 1) {
     fx.at(flipAt(n - 1) - 420, () =>
