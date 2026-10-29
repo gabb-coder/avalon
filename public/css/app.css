@@ -578,13 +578,13 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .anim-seal { animation: app-seal 440ms var(--ease-out) both; }
 
 /* Quest result: two-sided cards, dealt face down, then flipped. */
-.rcard { position: relative; width: 72px; height: 96px; perspective: 600px; flex: none; }
-.rcard-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
-.rcard-inner > .rtok { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.rcard-inner > .rtok-back { transform: rotateY(180deg); }
+.flip-card { position: relative; width: 72px; height: 96px; perspective: 600px; flex: none; }
+.flip-card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+.flip-card-inner > .rtok { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip-card-inner > .rtok-back { transform: rotateY(180deg); }
 @keyframes app-cardflip { from { transform: rotateY(180deg); } to { transform: rotateY(0); } }
 .anim-cardflip { animation: app-cardflip 440ms var(--ease-out) both; }
-.rcard.is-dealing { opacity: 0; }
+.flip-card.is-dealing { opacity: 0; }
 /* A Fail card is cracked (drawn in as it lands). */
 .rtok .crack { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .crack path { fill: none; stroke: var(--on-evil-fill); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: .55; stroke-dasharray: 1; stroke-dashoffset: 0; }

@@ -44,6 +44,23 @@ export function mount(app) {
       ? replace(hint, icon('hold', 'ic-16'), t('card.holding'))
       : replace(hint, icon('eyeoff', 'ic-16', 'gold'), t('card.tilt'));
 
+  // Short screens (a phone with its browser bars showing) can't fit the
+  // 300×440 card with the band, hint and dock: zoom it down to fit, so the
+  // whole role is always in view. Measured while face down; the front is the
+  // same size.
+  function fitCard() {
+    if (!content.contains(card) || !content.clientHeight) return;
+    card.style.zoom = '';
+    const style = getComputedStyle(content);
+    const room = content.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - parseFloat(style.rowGap || 0) - hint.offsetHeight;
+    const zoom = Math.min(1, room / card.offsetHeight);
+    if (zoom < 1) card.style.zoom = String(Math.max(0.55, zoom).toFixed(3));
+  }
+  const onResize = () => {
+    if (!hold.held) fitCard();
+  };
+  window.addEventListener('resize', onResize);
+
   const hold = bindHold(card, {
     onShow: () => {
       seen = true;
@@ -172,10 +189,12 @@ export function mount(app) {
     dock,
   );
   paint();
+  requestAnimationFrame(fitCard); // once the screen is on the page
   return {
     el,
     update: paint,
     destroy: () => {
+      window.removeEventListener('resize', onResize);
       hold.destroy();
       peek?.destroy();
     },

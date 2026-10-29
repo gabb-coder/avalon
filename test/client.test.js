@@ -185,6 +185,20 @@ describe('shipping rules', () => {
     assert.deepEqual(hexes, []);
   });
 
+  test("app.css doesn't reuse a design component's class name for something else", () => {
+    // A rule that is just `.name { … }` for a class rt.css already defines
+    // restyles that component everywhere. It happened once: quest-result
+    // flip cards were named `.rcard`, rt.css's role card, and squeezed every
+    // role card to 72 px. Only these deliberate shell overrides may do it.
+    const allowed = new Set(['phone', 'peek-sheet', 'toast-slot', 'peek', 'status-top']);
+    const selectors = (css) =>
+      [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{/g)].flatMap((m) => m[1].split(',').map((s) => s.trim()));
+    const single = (s) => /^\.[\w-]+$/.test(s);
+    const rtComponents = new Set(selectors(read('design/rt.css')).filter(single).map((s) => s.slice(1)));
+    const clashes = selectors(read('public/css/app.css')).filter(single).map((s) => s.slice(1)).filter((c) => rtComponents.has(c) && !allowed.has(c));
+    assert.deepEqual([...new Set(clashes)], []);
+  });
+
   test('every animation has a reduced-motion rule', () => {
     const css = read('public/css/app.css');
     const anims = new Set([...(read('design/rt.css') + css).matchAll(/\.(anim-[a-z-]+)\s*\{[^}]*animation:/g)].map((m) => m[1]));

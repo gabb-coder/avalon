@@ -47,8 +47,8 @@ export function mount(app) {
       lines.style.setProperty('--crack-at', `${flipAt(i) + FLIP_MS - 140}ms`);
       front.append(lines);
     }
-    const inner = h('div', { class: 'rcard-inner anim-cardflip', style: { 'animation-delay': `${flipAt(i)}ms` } }, front, cardBack());
-    return h('div', { class: ['rcard', moving && 'is-dealing'] }, inner);
+    const inner = h('div', { class: 'flip-card-inner anim-cardflip', style: { 'animation-delay': `${flipAt(i)}ms` } }, front, cardBack());
+    return h('div', { class: ['flip-card', moving && 'is-dealing'] }, inner);
   });
   const tokens = h('div', { class: 'row result-cards' }, cards);
   tokens.setAttribute('aria-label', t('result.cardsAria', { s: quest.successes, f: quest.fails }));
