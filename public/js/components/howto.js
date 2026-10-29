@@ -86,7 +86,7 @@ export function howToArt(step) {
         const ok = c === 'success';
         const front = h('div', { class: ['rtok', ok ? 'rtok-s' : 'rtok-f'] }, icon(ok ? 'success' : 'fail'), t(ok ? 'card.success' : 'card.fail'));
         if (!ok) front.append(crack());
-        return h('div', { class: 'rcard hs-card' }, h('div', { class: 'rcard-inner' }, front, cardBack()));
+        return h('div', { class: 'flip-card hs-card' }, h('div', { class: 'flip-card-inner' }, front, cardBack()));
       });
     case 5:
       return h(
