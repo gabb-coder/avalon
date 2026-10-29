@@ -313,7 +313,7 @@ export function openHowTo(app) {
 export function openHostPicker(app) {
   const v = app.view;
   let picked = null;
-  const others = v.players.filter((p) => p.id !== v.you);
+  const others = v.players.filter((p) => p.id !== v.you && !p.bot); // bots can't host
   const list = h('div', { class: 'plist', role: 'radiogroup', 'aria-label': t('host.pickLabel') });
   const footer = h('div', { class: 'dock' });
   let closeSheet = () => {};

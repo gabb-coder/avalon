@@ -48,6 +48,7 @@ export function mount(app) {
     const me = s.seats.indexOf(v().you);
     const order = s.seats.map((_, k) => s.seats[(Math.max(0, me) + k) % s.seats.length]);
     const assassinated = s.winReason === 'assassinHit' || s.winReason === 'assassinMiss';
+    const bots = new Set(v().players.filter((p) => p.bot).map((p) => p.id));
     return h(
       'div',
       { class: 'plist' },
@@ -67,7 +68,7 @@ export function mount(app) {
             'span',
             { class: 'prow-name' },
             h('span', { text: you ? t('over.you', { name: s.names[id] }) : s.names[id] }),
-            h('span', { class: 'prow-meta' }, t(`role.${role}.name`), noteKey ? t(noteKey) : ''),
+            h('span', { class: 'prow-meta' }, t(`role.${role}.name`), bots.has(id) ? [t('common.sep'), t('lobby.bot')] : '', noteKey ? t(noteKey) : ''),
           ),
           h('span', { class: 'chip-end' }, chip(t(`team.${team}`), { kind: team, ic: team })),
         );

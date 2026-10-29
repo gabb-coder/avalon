@@ -8,11 +8,17 @@
 // Hidden information: the only game data ever sent is viewFor(state, playerId)
 // for the player on that connection. Session tokens are stored hashed and are
 // never sent to anyone but their owner (once, when issued).
+//
+// Bots: the host can seat bots in the lobby. A bot is an ordinary player with
+// no connection; this class plays it on timers. Each move is decided by
+// botBrain.js from viewFor(state, botId), the same view a phone in that seat
+// would get, and sent through the engine like anyone's intent.
 
 import crypto from 'node:crypto';
 import { createRoom, reduce, viewFor, cleanName, MAX_PLAYERS } from '../src/engine/index.js';
 import { C2S, S2C, SERVER_ERRORS, CODE_ALPHABET, CODE_LENGTH } from '../shared/protocol.js';
 import { log } from './log.js';
+import { botDuty, botMove } from './botBrain.js';
 
 const fail = (code, params = {}) => ({ ok: false, code, params });
 
@@ -38,6 +44,26 @@ export const hashToken = (token) => crypto.createHash('sha256').update(token).di
 const newToken = () => crypto.randomBytes(32).toString('base64url');
 const newPlayerId = () => crypto.randomBytes(6).toString('base64url');
 
+// Bots get knights' and ladies' names from the old tales (public domain).
+const BOT_NAMES = ['Gawain', 'Tristan', 'Elaine', 'Bedivere', 'Galahad', 'Enid', 'Lynette', 'Gareth', 'Isolde', 'Lamorak', 'Bors', 'Kay', 'Dagonet', 'Ector'];
+
+// How long a bot "thinks" before each kind of move, in ms [min, max], scaled
+// by config.botSpeed (tests set 0). Reveals wait long enough for the
+// animations; the Assassin takes a dramatic pause.
+const BOT_DELAYS = {
+  night: [1500, 4000],
+  lead: [2000, 3500], // the first pick
+  pick: [600, 1100], // each further pick, then sending the team
+  vote: [1500, 4500],
+  continue: [3500, 5500],
+  quest: [1500, 3500],
+  lady: [2500, 4000],
+  guess: [4000, 7000],
+};
+
+// Bots' small choices (who to pick, a bluff now and then) need no secrecy.
+const botRng = { next: () => Math.random(), int: (n) => Math.floor(Math.random() * n) };
+
 export class RoomManager {
   constructor({ config, store, transport, now = () => Date.now() }) {
     this.config = config;
@@ -61,6 +87,7 @@ export class RoomManager {
       case C2S.SESSION_RESUME: return this.resume(connId, payload);
       case C2S.ROOM_LEAVE: return this.leave(connId);
       case C2S.LOBBY_KICK: return this.kick(connId, payload);
+      case C2S.LOBBY_ADD_BOT: return this.addBot(connId);
       default: return this.intent(connId, event, payload);
     }
   }
@@ -190,6 +217,20 @@ export class RoomManager {
     return { ok: true };
   }
 
+  // Host only, lobby only (the engine checks both): seat a bot with a free name.
+  addBot(connId) {
+    const conn = this.conns.get(connId);
+    if (!conn) return fail(SERVER_ERRORS.NO_SESSION);
+    const record = this.store.get(conn.code);
+    const taken = new Set(record.state.players.map((p) => p.name.toLocaleLowerCase()));
+    const free = BOT_NAMES.filter((n) => !taken.has(n.toLocaleLowerCase()));
+    const name = free.length ? free[crypto.randomInt(free.length)] : `Bot ${record.state.players.length + 1}`;
+    const result = this.dispatch(conn.code, { type: 'ADD_BOT', actor: conn.playerId, playerId: newPlayerId(), name, now: this.now() });
+    if (!result.ok) return result;
+    this.broadcast(conn.code);
+    return { ok: true };
+  }
+
   intent(connId, event, payload) {
     const toAction = INTENT_ACTIONS[event];
     if (!toAction) return fail(SERVER_ERRORS.BAD_PAYLOAD);
@@ -260,11 +301,14 @@ export class RoomManager {
   restoreAfterRestart() {
     for (const record of [...this.store.values()]) {
       const code = record.code;
+      // Bots are always "connected": they need no phone, and their timers are
+      // started again below.
       for (const p of record.state.players) {
-        if (p.connected) this.dispatch(code, { type: 'SET_CONNECTED', playerId: p.id, connected: false, now: this.now() });
+        if (p.connected && !p.bot) this.dispatch(code, { type: 'SET_CONNECTED', playerId: p.id, connected: false, now: this.now() });
       }
       if (!this.store.has(code)) continue;
-      for (const p of this.store.get(code).state.players) this.holdSeat(code, p.id);
+      for (const p of this.store.get(code).state.players) if (!p.bot) this.holdSeat(code, p.id);
+      this.driveBots(code);
       const phase = this.store.get(code).state.phase;
       if (phase === 'vote_reveal' || phase === 'quest_result') this.applyEffect(code, { type: 'phase', phase });
       log.info('room.restored', { room: code, phase });
@@ -279,18 +323,71 @@ export class RoomManager {
 
   // ---------- engine dispatch and effects ----------
 
-  dispatch(code, action) {
+  dispatch(code, action, { bot = false } = {}) {
     const record = this.store.get(code);
     if (!record) return fail(SERVER_ERRORS.NOT_FOUND, { code });
     const r = reduce(record.state, action);
     if (r.error) return fail(r.error.code, r.error.params);
     record.state = r.state;
-    // Player actions count as activity for the idle timer; system ones don't.
-    if (action.actor || action.type === 'JOIN') this.touch(record);
+    // People's actions count as activity for the idle timer; system and bot ones don't.
+    if ((action.actor && !bot) || action.type === 'JOIN') this.touch(record);
     this.store.set(code, record);
     if (action.type !== 'SET_CONNECTED') log.info('room.action', { room: code, action: action.type });
     for (const effect of r.effects) this.applyEffect(code, effect);
+    if (this.store.has(code)) this.driveBots(code);
     return { ok: true };
+  }
+
+  // ---------- bots ----------
+
+  // After every change: give each bot that now owes the table a move a timer
+  // for it (once per turn; a turn that passes cancels the timer).
+  driveBots(code) {
+    const record = this.store.get(code);
+    if (!record) return;
+    const t = this.timersOf(code);
+    for (const p of record.state.players) {
+      if (!p.bot) continue;
+      const duty = botDuty(viewFor(record.state, p.id));
+      const cur = t.bots.get(p.id);
+      if ((cur?.duty ?? null) === duty) continue;
+      clearTimeout(cur?.timer);
+      if (!duty || t.botStuck.get(p.id) === duty) {
+        t.bots.delete(p.id);
+        continue;
+      }
+      const kind = duty.startsWith('lead') ? (duty.endsWith(':0') ? 'lead' : 'pick') : duty.split(':')[0];
+      const [min, max] = BOT_DELAYS[kind] || [1500, 3000];
+      const ms = Math.round((min + Math.random() * (max - min)) * this.config.botSpeed);
+      t.bots.set(p.id, { duty, timer: this.later(ms, () => this.botAct(code, p.id, duty)) });
+    }
+  }
+
+  botAct(code, botId, duty) {
+    const record = this.store.get(code);
+    if (!record) return;
+    const t = this.timersOf(code);
+    t.bots.delete(botId);
+    const view = viewFor(record.state, botId);
+    if (botDuty(view) !== duty) return this.driveBots(code);
+    // A leader keeps its chosen team between picks.
+    const turn = `${view.game.questIndex}.${view.game.proposals.length}`;
+    const memo = t.botPlans.get(botId);
+    const plan = memo?.turn === turn ? memo.plan : {};
+    t.botPlans.set(botId, { turn, plan });
+    const move = botMove(view, botRng, plan);
+    if (!move) return;
+    const { type, ...rest } = move;
+    const result = this.dispatch(code, { type, ...rest, actor: botId, now: this.now() }, { bot: true });
+    if (result.ok) {
+      if (this.store.has(code)) this.broadcast(code, { throttle: type === 'SELECT' });
+      return;
+    }
+    // A refused move is a bug in the brain. Log it, and don't retry this turn
+    // forever: the table sees the bot waiting, and the host can end the game.
+    log.warn('bot.refused', { room: code, action: type, error: result.code });
+    t.botStuck.set(botId, duty);
+    this.driveBots(code);
   }
 
   applyEffect(code, effect) {
@@ -374,6 +471,7 @@ export class RoomManager {
       clearTimeout(t.hostGrace);
       clearTimeout(t.picks);
       for (const timer of t.seats.values()) clearTimeout(timer);
+      for (const b of t.bots.values()) clearTimeout(b.timer);
     }
     this.timers.delete(code);
     this.lastBroadcast.delete(code);
@@ -396,6 +494,7 @@ export class RoomManager {
       clearTimeout(t.hostGrace);
       clearTimeout(t.picks);
       for (const timer of t.seats.values()) clearTimeout(timer);
+      for (const b of t.bots.values()) clearTimeout(b.timer);
     }
     this.timers.clear();
   }
@@ -424,7 +523,11 @@ export class RoomManager {
   }
 
   timersOf(code) {
-    if (!this.timers.has(code)) this.timers.set(code, { reveal: null, hostGrace: null, picks: null, seats: new Map() });
+    if (!this.timers.has(code)) {
+      // bots: playerId -> { duty, timer }; botPlans: a leader bot's chosen team;
+      // botStuck: a turn a bot's move was refused on (not retried).
+      this.timers.set(code, { reveal: null, hostGrace: null, picks: null, seats: new Map(), bots: new Map(), botPlans: new Map(), botStuck: new Map() });
+    }
     return this.timers.get(code);
   }
 

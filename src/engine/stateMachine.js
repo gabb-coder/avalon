@@ -14,8 +14,8 @@
 // Action types fall into two groups:
 //   player intents (carry `actor`, the acting player's id, set by the server
 //   from the socket's session, never from client input):
-//     JOIN LEAVE KICK SET_CONFIG TRANSFER_HOST START NIGHT_ACK SELECT PROPOSE
-//     VOTE CONTINUE PLAY LADY_INSPECT LADY_PASS GUESS REMATCH END
+//     JOIN LEAVE KICK ADD_BOT SET_CONFIG TRANSFER_HOST START NIGHT_ACK SELECT
+//     PROPOSE VOTE CONTINUE PLAY LADY_INSPECT LADY_PASS GUESS REMATCH END
 //   system actions (only the server's own timers and connection tracking):
 //     SET_CONNECTED HOST_AUTO ADVANCE
 
@@ -40,7 +40,7 @@ export function createRoom({ code, seed }) {
     v: 1,
     code,
     hostId: null,
-    players: [], // seat order = join order: { id, name, connected, disconnectedAt, joinedAt }
+    players: [], // seat order = join order: { id, name, connected, disconnectedAt, joinedAt, bot? }
     config: { ...DEFAULT_CONFIG },
     phase: 'lobby',
     rng: seed >>> 0,
@@ -113,9 +113,10 @@ function seatList(s, ids) {
   return ids.slice();
 }
 
-// The longest-seated connected player other than `exceptId`, or null.
+// The longest-seated connected person other than `exceptId`, or null. Bots
+// are never host: they can't press Start, kick or end the game.
 function nextHost(s, exceptId) {
-  return s.players.find((p) => p.id !== exceptId && p.connected) || null;
+  return s.players.find((p) => p.id !== exceptId && p.connected && !p.bot) || null;
 }
 
 function removePlayer(s, ctx, id, noticeKey) {
@@ -123,11 +124,12 @@ function removePlayer(s, ctx, id, noticeKey) {
   s.players = s.players.filter((x) => x.id !== id);
   notice(ctx, noticeKey, { name: p.name });
   if (s.hostId === id) {
-    const h = nextHost(s, id) || s.players[0] || null;
+    const h = nextHost(s, id) || s.players.find((x) => !x.bot) || null;
     s.hostId = h ? h.id : null;
     if (h) notice(ctx, 'notice.hostChanged', { name: h.name, reason: 'left' });
   }
-  if (s.players.length === 0) ctx.effects.push({ type: 'empty' });
+  // Bots alone don't keep a room open.
+  if (!s.players.some((x) => !x.bot)) ctx.effects.push({ type: 'empty' });
 }
 
 function startPropose(s, advanceLeader) {
@@ -227,6 +229,20 @@ const HANDLERS = {
     else notice(ctx, 'notice.joined', { name });
   },
 
+  // The host fills a seat with a bot. The server picks the id and name; the
+  // bot then plays through the same actions as everyone else.
+  ADD_BOT(s, a, ctx) {
+    const bad = needPhase(s, 'lobby') || needHost(s, a.actor);
+    if (bad) return bad;
+    if (s.players.length >= MAX_PLAYERS) return error(ERR.ROOM_FULL, { code: s.code, n: s.players.length });
+    if (typeof a.playerId !== 'string' || !a.playerId || player(s, a.playerId)) return error(ERR.BAD_ACTION);
+    const name = cleanName(a.name);
+    const badName = nameError(name, s.players);
+    if (badName) return badName;
+    s.players.push({ id: a.playerId, name, connected: true, disconnectedAt: null, joinedAt: a.now ?? 0, bot: true });
+    notice(ctx, 'notice.botJoined', { name });
+  },
+
   // Leaving only removes a seat outside a game. During a game the server treats
   // leaving as a disconnect, so the seat is held for the player to come back.
   LEAVE(s, a, ctx) {
@@ -259,7 +275,7 @@ const HANDLERS = {
     const bad = needHost(s, a.actor);
     if (bad) return bad;
     const to = player(s, a.to);
-    if (!to || to.id === a.actor) return error(ERR.BAD_PLAYER);
+    if (!to || to.id === a.actor || to.bot) return error(ERR.BAD_PLAYER);
     s.hostId = to.id;
     notice(ctx, 'notice.hostChanged', { name: to.name, reason: 'handed' });
   },

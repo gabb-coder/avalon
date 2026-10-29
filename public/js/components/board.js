@@ -115,6 +115,7 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
   const order = g.seats.map((_, k) => g.seats[(Math.max(0, me) + k) % g.seats.length]);
   const n = order.length;
   const conn = Object.fromEntries(v.players.map((p) => [p.id, p.connected]));
+  const botIds = new Set(v.players.filter((p) => p.bot).map((p) => p.id));
   const ladyHolder = g.lady?.holder;
   const leader = g.proposal?.leader || (v.phase === 'propose' || v.phase === 'vote' ? g.leader : null);
 
@@ -139,7 +140,8 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
     const lady = id === ladyHolder;
     const onTeam = team.includes(id);
     const name = g.names[id];
-    const tags = [you && t('board.tagYou'), isLead && t('board.tagLeader'), lady && t('board.tagLady'), off && t('board.tagOffline'), onTeam && t('board.tagTeam')].filter(Boolean);
+    const bot = botIds.has(id);
+    const tags = [you && t('board.tagYou'), bot && t('board.tagBot'), isLead && t('board.tagLeader'), lady && t('board.tagLady'), off && t('board.tagOffline'), onTeam && t('board.tagTeam')].filter(Boolean);
     const picked = moving && onTeam && prev.leader === leader && !prev.team.includes(id);
     const landing = moving && lady && prev.lady && prev.lady !== id;
     const seat = h(
@@ -185,6 +187,7 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
       }
     }
     if (off) av.append(h('span', { class: 'av-badge off' }, icon('wifioff')));
+    if (bot) av.append(botBadge());
     seat.style.left = `${Math.round(geo.cx + geo.rx * Math.cos(a))}px`;
     seat.style.top = `${Math.round(geo.cy + geo.ry * Math.sin(a))}px`;
     ring.append(seat);
@@ -209,6 +212,12 @@ function flyBadge(seat, badge, frames, ms) {
     seat.style.zIndex = '';
     badge.classList.remove('is-flying');
   };
+}
+
+// A bot's mark: a small robot at the top right of its avatar. Decorative:
+// the row or seat's own label says "bot".
+export function botBadge() {
+  return h('span', { class: 'av-badge bot', 'aria-hidden': 'true' }, icon('bot'));
 }
 
 // ---------- top bar and status helpers ----------

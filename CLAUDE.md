@@ -64,7 +64,7 @@ Ask before changing anything listed in `docs/HANDOFF.md` §10, "Expensive to cha
 
 | Command | What it does | Status |
 |---|---|---|
-| `npm test` | All tests: engine units, leak tests, ~1,800-game simulation, socket integration, client checks. About 20 s. Must pass before every hand-off. | works |
+| `npm test` | All tests: engine units, leak tests, ~1,800-game simulation, ~150 all-bot games, socket integration, client checks. About 25 s. Must pass before every hand-off. | works |
 | `npm run dev` | Server + client on one origin at http://localhost:3000 (and http://<your-computer's-IP>:3000 for phones on the same Wi-Fi), restarting on server changes. Client files need only a browser reload. | works |
 | `npm start` | Production server (Render): listens on `$PORT`, `0.0.0.0`. | works |
 | `npm run demo` | Bots play one full game over real sockets and print it, private info labelled. `npm run demo -- 10` for 10 players. | works |
@@ -92,7 +92,8 @@ server/
   app.js           createServer(): Express (helmet CSP, /healthz, static in dev) + Socket.IO (origin check, payload cap)
   socketHandlers.js  per socket: rate limit -> validate -> RoomManager -> ack; crashes are caught per event
   validate.js      shape checks for every intent (types, lengths); strips unknown fields
-  roomManager.js   rooms, codes, tokens, seats, connections, timers; intents -> engine actions -> per-player views
+  roomManager.js   rooms, codes, tokens, seats, connections, timers, bots; intents -> engine actions -> per-player views
+  botBrain.js      what a bot does next, decided from its own seat's view only (no imports)
   roomStore.js     RoomStore interface: in-memory, or Redis-backed (REDIS_URL); createRoomStore()
   rateLimit.js     token bucket per socket
   config.js        environment variables (all listed in .env.example)
@@ -132,7 +133,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 
 - **One reducer per room.** The whole room (lobby players, host, settings, game) is one plain-JSON state object, changed only by `reduce(state, action)`. Reduce never mutates its input. It returns the new state plus `effects` (`phase`, `notice`, `kicked`, `closed`, `empty`) for the server to act on, or the old state plus `error: { code, params }`.
 - **No I/O, clocks or randomness in the engine.** Times arrive in actions (`now`); randomness comes from the seeded RNG whose state lives in the game state. Same seed + same actions = same game (tests rely on this). The server seeds each room from `crypto` and never sends the seed or RNG state anywhere.
-- **Actions.** Player intents carry `actor` (set by the server from the socket's session, never from client input): `JOIN LEAVE KICK SET_CONFIG TRANSFER_HOST START NIGHT_ACK SELECT PROPOSE VOTE CONTINUE PLAY LADY_INSPECT LADY_PASS GUESS REMATCH END`. System actions come only from the server: `SET_CONNECTED HOST_AUTO ADVANCE`.
+- **Actions.** Player intents carry `actor` (set by the server from the socket's session, never from client input): `JOIN LEAVE KICK ADD_BOT SET_CONFIG TRANSFER_HOST START NIGHT_ACK SELECT PROPOSE VOTE CONTINUE PLAY LADY_INSPECT LADY_PASS GUESS REMATCH END`. System actions come only from the server: `SET_CONNECTED HOST_AUTO ADVANCE`.
 - **Hidden information (the most important rule).**
   - The raw state holds every secret: roles, night info, live votes, live quest cards, Lady results. It is never sent anywhere.
   - `viewFor()` builds each player's view field by field from a whitelist; nothing is spread from the state.
@@ -236,6 +237,33 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - **Effects inside the sheet.** Sparks and embers play inside the picture via `burst(…, { host })`, because sheets sit above the phone's effects layer.
   - **Sound.** The scenes are silent (the owner's choice); only the finishing chime sounds.
   - **Example material only.** Sample initials, votes and cards; a test checks the module never reads the view.
+- **Bots (after launch, owner's request).** The host can seat bots in the lobby ("Add a bot"), up to the 10 seats.
+  - **In the engine** a bot is an ordinary player with `bot: true`, added by `ADD_BOT` (host only, lobby only). The server picks its id and a name from the old tales (Gawain, Elaine, Bedivere…).
+    - Bots are always "connected", so no seat hold, host grace or offline status applies to them.
+    - They are never host: they can't be handed the crown, and `HOST_AUTO` and a leaving host skip them.
+    - When the last person leaves, the room closes (`empty`) even with bots seated.
+    - The host removes a bot with the ordinary `KICK`; the client skips the block-from-rejoining dialog for bots.
+    - Views show `bot` per player, so everyone knows who is a bot.
+  - **Playing.** `RoomManager.driveBots()` runs after every accepted action. Each bot that owes the table a move (`botDuty()`: night ack, lead, vote, continue, quest card, Lady, guess) gets one timer per turn, with a human-like pause (`BOT_DELAYS`, scaled by `BOT_SPEED`; tests use 0).
+    - When the timer fires, `botMove()` picks the move from `viewFor(state, botId)`: exactly what a phone in that seat would receive. The move goes through the engine like anyone's.
+    - A bot leader sends its picks one at a time, so the table sees them appear like a person's.
+    - Reveals wait 3.5–5.5 s, so bots don't rush past the animations (they can't end a reveal before the people anyway).
+    - A refused move is logged (`bot.refused`) and not retried that turn; the table can see who it's waiting on.
+    - Bots' moves don't count as activity for the idle timer.
+    - After a restart (Redis), bots stay connected and their timers start again.
+  - **Fair by construction.** `botBrain.js` imports nothing: it gets the view and nothing else, so a bot can't cheat and can't leak more than its seat knows. A test checks that.
+  - **Strategy** (plausible, not clever).
+    - Good backs teams that look clean. A player looks suspect for sitting on a failed quest, leading it, or voting it through from outside, and for voting against a quest that then succeeded. Good never backs someone the Lady showed as Evil.
+    - Merlin uses their knowledge only some of the time, so their votes don't give them away.
+    - Evil gets onto teams, approves teams with Evil on them, and blends in sometimes. One Fail per team (the first ally by id), not always on Quest 1, and two when Quest 4 needs two.
+    - The Assassin names the Good player whose votes looked best informed.
+    - At the 4th rejection Good approves and Evil lets it fail.
+  - **Results.** In all-bot games Good wins about 1 in 4: Evil-favoured, as Avalon is when nobody can talk. A test plays about 150 all-bot games over 5–10 players and every setup, checking every move is legal and every game ends. A socket test plays three games of one person with six bots.
+  - **On screen.**
+    - The lobby has an "Add a bot" button (with a note that bots play by the rules, know only their seat, and can't talk; disabled when the table is full).
+    - A small robot badge sits top right of a bot's avatar in the lobby and on the ring, and the ring seat's label says "bot".
+    - Bots are marked "Bot" in the lobby and in the game-over list.
+    - The host hand-over list leaves bots out.
 - **Toasts with an id.** "X lost connection" is brief (the status bar already shows who is offline), and "X is back" withdraws it.
 - **Accessibility checks.** Besides the tests, each milestone's browser run audits every screen and dialog. It checks:
   - every control has an accessible name, and radios, tabs and switches carry state;
@@ -294,12 +322,13 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Play again:** anyone may press it at game over. The room returns to the lobby with the same players and settings, and the finished game is kept as `lastGame` so others can keep reading F4.
 - **Host:** the first player to join. The host can hand the role on. If the host disconnects, the server (after a grace period) sends `HOST_AUTO`, which gives it to the longest-seated connected player. If the host leaves the lobby, it passes immediately.
 - **Leaving and kicking:** leaving removes you only in the lobby or at game over; mid-game, leaving is treated as a disconnect. Kicking is for the host, in the lobby only.
+- **Bots:** the host may add bots in the lobby; they count as players for every rule (5–10 seats, roles dealt to them like anyone). Bots are never host, and a room with no people left closes.
 
 ## Socket protocol (summary; the source of truth is `shared/protocol.js`)
 
 - **Client → server, entry:** `room:create {name, token?}`, `room:join {code, name, token?}`, `room:check {code, token?}`, `session:resume {code, token}`, `room:leave`.
 - **Client → server, game:**
-  - Lobby: `lobby:setConfig {config}`, `lobby:kick {playerId, block?}`, `host:transfer {playerId}`, `game:start`.
+  - Lobby: `lobby:setConfig {config}`, `lobby:kick {playerId, block?}` (also removes a bot), `lobby:addBot`, `host:transfer {playerId}`, `game:start`.
   - Night and quests: `night:ack`, `team:select {team}`, `team:propose {team}`, `vote:cast {approve}`, `reveal:continue`, `quest:play {card}`.
   - Lady and endgame: `lady:inspect {playerId}`, `lady:pass`, `assassin:guess {playerId}`, `game:rematch`, `game:end`.
 - **Server → client:**
@@ -375,6 +404,13 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 
 - [x] **After launch: How to play scenes.** An animated scene on each of the 6 pages, played once with Replay, and a celebration on "Got it". Checked in Chromium, filming every scene mid-motion: 390×844, 360×740 in Chinese, and reduced motion; Replay, paging mid-scene and "Got it".
 
+- [x] **After launch: bots.** The host can add bots in the lobby. Each plays from its own seat's view only, with human-like pauses and live picks. Checked:
+  - tests: engine rules, about 150 all-bot games, and one person with six bots over sockets;
+  - in Chromium:
+    - add six bots, remove one (no dialog), add another;
+    - a whole game with the bots acting on their own: bot leader's live picks, the ring badges, game over;
+    - a full table in Chinese at 360×740 (button disabled).
+
 ### Additions to the design (screens or states the bundle didn't have)
 
 - **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
@@ -387,6 +423,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Home settings** (A2's sliders button). A "Settings" sheet with E4's Display section: language, text size, reduce motion, vibrate.
 - **Animations beyond HANDOFF §4** (owner's request): screen transitions, candlelight, the ring's travelling tokens and pick ripples, the slamming votes and seal, the dealt and cracked quest cards, the Lady's ripples, the heartbeat, the strike card ("Merlin is found" / "The blade missed") and the game-over sparks or smoke.
 - **How to play scenes** (owner's request): E3's still pictures became short scenes, with a Replay button (refresh icon) in each picture's corner. Page 2 shows a small 7-seat table instead of a leader token and three avatars; page 3 shows five sample votes with an "Approved" seal instead of the two vote marks; page 5's track ends on three Successes.
+- **Bots** (no artboard): "Add a bot" under the lobby's player list with a one-line note; a robot badge (top right of the avatar) and "Bot" as the row's meta; removing a bot is one tap, with no G6 dialog.
 - **Sound effects and their switch** (no artboard): a "Sound effects" toggle row with a speaker icon, under Vibrate in Display.
 - **Language picker** (no artboard): a two-option segmented control, "English" / "中文", at the top of Display.
 - **G3 variants.**

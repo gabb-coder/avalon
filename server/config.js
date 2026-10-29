@@ -30,6 +30,7 @@ export function loadConfig(overrides = {}) {
     connectionLostMs: num('CONNECTION_LOST_SECONDS', 30) * 1000, // client shows G2 after this
     picksThrottleMs: num('PICKS_THROTTLE_MS', 150), // leader's live picks broadcast at most this often
     sweepMs: num('SWEEP_SECONDS', 60) * 1000, // how often idle rooms are looked for
+    botSpeed: num('BOT_SPEED', 1), // bots' thinking time multiplier (0 = instant; tests)
 
     maxRooms: num('MAX_ROOMS', 500), // a cap so a script can't fill memory with empty rooms
     maxPayloadBytes: num('MAX_PAYLOAD_BYTES', 4096),
