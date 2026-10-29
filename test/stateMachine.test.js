@@ -377,11 +377,31 @@ describe('reveals, disconnects and timers', () => {
 });
 
 describe('ending and Play again', () => {
-  test('host ends the game for everyone', () => {
-    const s = started(5);
+  test('the host ends a game: everyone is back in the lobby, same players and settings, no roles revealed', () => {
+    let s = ackAll(started(5, { percival: true }));
+    s = runQuest(s);
     reject(s, { type: 'END', actor: 'p2' }, 'err.notHost');
     const r = reduce(s, { type: 'END', actor: 'p1' });
-    assert.deepEqual(r.effects, [{ type: 'closed', reason: 'hostEnded', by: 'Rowan' }]);
+    assert.equal(r.state.phase, 'lobby');
+    assert.equal(r.state.game, null);
+    assert.equal(r.state.lastGame, null);
+    assert.equal(r.state.hostId, 'p1');
+    assert.deepEqual(r.state.players.map((p) => p.id), s.players.map((p) => p.id));
+    assert.equal(r.state.config.percival, true);
+    assert.deepEqual(r.effects, [
+      { type: 'notice', key: 'notice.gameEnded', params: { name: 'Rowan' } },
+      { type: 'phase', phase: 'lobby', from: s.phase },
+    ]);
+    // A new game can start straight away.
+    assert.equal(act(r.state, { type: 'START', actor: 'p1' }).phase, 'night');
+  });
+
+  test('End game is only for a game in progress', () => {
+    reject(lobby(5), { type: 'END', actor: 'p1' }, 'err.phase');
+    let s = ackAll(started(5));
+    s = runQuest(runQuest(runQuest(s)));
+    s = act(s, { type: 'GUESS', actor: roleIds(s, 'assassin')[0], target: roleIds(s, 'merlin')[0] });
+    reject(s, { type: 'END', actor: 'p1' }, 'err.phase');
   });
 
   test('Play again keeps the room, players and settings; the last game stays readable', () => {

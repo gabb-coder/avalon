@@ -405,9 +405,6 @@ export class RoomManager {
       case 'notice':
         for (const id of this.connsOf(code)) this.transport.send(id, S2C.NOTICE, { key: effect.key, params: effect.params });
         break;
-      case 'closed':
-        this.closeRoom(code, effect.reason, { name: effect.by });
-        break;
       case 'empty':
         this.closeRoom(code, 'empty');
         break;

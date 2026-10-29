@@ -131,7 +131,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 
 ## Architecture notes
 
-- **One reducer per room.** The whole room (lobby players, host, settings, game) is one plain-JSON state object, changed only by `reduce(state, action)`. Reduce never mutates its input. It returns the new state plus `effects` (`phase`, `notice`, `kicked`, `closed`, `empty`) for the server to act on, or the old state plus `error: { code, params }`.
+- **One reducer per room.** The whole room (lobby players, host, settings, game) is one plain-JSON state object, changed only by `reduce(state, action)`. Reduce never mutates its input. It returns the new state plus `effects` (`phase`, `notice`, `kicked`, `empty`) for the server to act on, or the old state plus `error: { code, params }`.
 - **No I/O, clocks or randomness in the engine.** Times arrive in actions (`now`); randomness comes from the seeded RNG whose state lives in the game state. Same seed + same actions = same game (tests rely on this). The server seeds each room from `crypto` and never sends the seed or RNG state anywhere.
 - **Actions.** Player intents carry `actor` (set by the server from the socket's session, never from client input): `JOIN LEAVE KICK ADD_BOT SET_CONFIG TRANSFER_HOST START NIGHT_ACK SELECT PROPOSE VOTE CONTINUE PLAY LADY_INSPECT LADY_PASS GUESS REMATCH END`. System actions come only from the server: `SET_CONNECTED HOST_AUTO ADVANCE`.
 - **Hidden information (the most important rule).**
@@ -148,12 +148,11 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - If the away player is the host, a grace timer sends `HOST_AUTO`.
 - **Timers live in RoomManager, never in the engine:** seat hold, host grace, reveal fallback (`ADVANCE` with `revealSeq`, so stale timers are harmless), the live-picks throttle, and the idle sweep. All of them are configurable, and tests shrink them to milliseconds.
 - **Room lifecycle.** Codes: 4 letters from `CODE_ALPHABET` (no I or O), with collision checks. A room is deleted when:
-  - the host ends the game;
   - a seat expires mid-game;
   - nobody has played for `ROOM_IDLE_MINUTES`;
   - the last player leaves.
   
-  Connected players get `room:closed { reason }` (`hostEnded`, `seatExpired`, `idle`, `kicked`, `empty`). A resume to a deleted room gets `code.notFound`, which the client shows as G3.
+  Connected players get `room:closed { reason }` (`seatExpired`, `idle`, `kicked`, `empty`). Ending a game doesn't close the room: everyone goes back to the lobby. A resume to a deleted room gets `code.notFound`, which the client shows as G3.
 - **Robustness.**
   - Every handler and timer is wrapped, so a bug is logged and acked as `err.server` without touching other rooms. `uncaughtException` is logged, not fatal.
   - Payloads are capped (`maxHttpBufferSize`), and so is the number of open rooms (`MAX_ROOMS`).
@@ -196,7 +195,14 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - "Hide & pass" removes it before sending `lady:pass`. Afterwards it lives in Peek.
   - A test checks that only `screens/lady.js` builds the card, and only in its shown or held branch.
 - **Assassination (F1–F3).** The phone turns crimson (`.phone-tense`) while this screen is mounted. The Assassin picks a non-Evil player (allies locked and marked Evil), then F2's dialog needs one unbroken 1.5 s hold (`bindHoldToConfirm` in `hold.js`, built on `bindHold`, so any way of letting go cancels; keyboard Space/Enter works too). Everyone else sees the Evil team (Oberon included) and who is choosing.
-- **Ending a game (decision 3).** The host's Menu has "End game for everyone" during a game, with a confirm. The status bar also offers it once the table has waited `hostEndAfterMs` on an offline player it needs (`endOfferDue()` in `board.js`; `app.js` sets a timer to repaint at that moment, because no update arrives then). The host's own G3 says "You ended the game".
+- **Ending a game (decision 3, revised by the owner).** `END` (host only, during a game) sends the room back to the lobby: same players (bots too), same settings, `game` and `lastGame` cleared, so no role is revealed.
+  - **Where the host finds it.**
+    - Settings (the sliders icon in every game screen's top bar; "Settings" on the tablet's bar), under "Host".
+    - The Menu.
+    - The status bar, once the table has waited `hostEndAfterMs` on an offline player it needs (`endOfferDue()` in `board.js`; `app.js` sets a timer to repaint at that moment, because no update arrives then).
+  - **The warning.** All three open one dialog first: "End this game?", where "Yes, end the game" is danger and "Keep playing" is focused.
+  - **Afterwards.** Everyone else gets the toast "Rowan ended the game. Everyone is back in the lobby." A new game can start straight away.
+  - **Settings during a game.** The sliders icon sits beside History (or Skip). The Settings sheet is Home's Display section (language, text size, motion, vibration, sound), plus End game for the host. Like every sheet, it closes when the phase moves on.
 - **Connection (G1, G2).** `app.offlineSince` is set when a room's socket drops.
   - **G1** (`screens/connection.js`): for the first `connectionLostMs` (30 s) the game screen dims and becomes `inert` (no taps, out of the tab order), open sheets close, a banner counts the attempts ("Attempt 2 · your seat, role and vote are held") and "Hang tight" sits over the middle.
   - **G2** (`screens/lost.js`): after that, the "Connection lost" screen with Try again, Back to home, and the seat-hold countdown. The countdown starts when this phone lost the connection, which is no later than when the server noticed, so it can only err on the short side.
@@ -332,7 +338,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Client → server, game:**
   - Lobby: `lobby:setConfig {config}`, `lobby:kick {playerId, block?}` (also removes a bot), `lobby:addBot`, `host:transfer {playerId}`, `game:start`.
   - Night and quests: `night:ack`, `team:select {team}`, `team:propose {team}`, `vote:cast {approve}`, `reveal:continue`, `quest:play {card}`.
-  - Lady and endgame: `lady:inspect {playerId}`, `lady:pass`, `assassin:guess {playerId}`, `game:rematch`, `game:end`.
+  - Lady and endgame: `lady:inspect {playerId}`, `lady:pass`, `assassin:guess {playerId}`, `game:rematch`, `game:end` (host, during a game: back to the lobby).
 - **Server → client:**
   - `server:hello`: timings plus `serverNow`.
   - `state:update`: this player's `viewFor()`.
@@ -344,7 +350,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 
 1. **Reveals:** each player taps Continue or Skip. The server advances when every connected player has continued, with a 20-second fallback timer.
 2. **Seat expiry:** a held seat expiring mid-game closes the room (G3, "X didn't come back"), as G5 says. In the lobby the player is simply removed.
-3. **Ending the game:** the host can always end it from the Menu (with a confirm). After 2 minutes waiting on an offline player, it is also offered in the status bar.
+3. **Ending the game:** the host can always end it, from Settings or the Menu, after a warning. After 2 minutes waiting on an offline player, it is also offered in the status bar. Revised after launch: ending returns everyone to the lobby (same players and settings, no roles revealed) instead of closing the room.
 4. **Play again:** the first tap moves the room to the lobby. Anyone still on F4 keeps reading the summary (`lastGame`).
 5. **The Lady and Oberon:** one setting drives both `merlinSeesOberon` and `ladySeesOberonAsEvil`, kept as two flags so they can be split later.
 6. **The Lady after a deciding quest:** skipped if that quest decided the game. The first holder is the seat before the first leader.
@@ -413,6 +419,13 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
     - a whole game with the bots acting on their own: bot leader's live picks, the ring badges, game over;
     - a full table in Chinese at 360×740 (button disabled).
 
+- [x] **After launch: Settings and End game in the game.** A Settings button on every game screen. The host's End game, after a warning, returns everyone to the lobby instead of closing the room. Checked in Chromium with a host, a guest and bots at 360×740, 390×844 and 834×1194:
+  - Settings on the night and board screens;
+  - End game for the host only;
+  - the warning and "Keep playing";
+  - both phones in the lobby, with the guest told who ended it;
+  - a new game straight away.
+
 ### Additions to the design (screens or states the bundle didn't have)
 
 - **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
@@ -432,7 +445,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - "You were removed" (kicked).
   - "Your seat in room X was given up while you were away" (`seatGone`).
   - The server-restart sentence for a resume that finds no room.
-  - Separate sentences for `hostEnded`, `seatExpired`, `idle` and `empty`.
+  - Separate sentences for `seatExpired`, `idle` and `empty`.
 - **Night-info notes for every role and config.** The design shows one example per role. The new notes:
   - Merlin, when nothing is hidden: "You see every Evil player at the table."
   - Percival without Morgana gets the heading "Merlin is".
@@ -441,8 +454,8 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Lady results in Peek.** "The Lady showed you: Sana · Evil" (HANDOFF §9: the Lady result is kept in Peek).
 - **Lady, while the holder is still choosing.** D16 only shows "Rowan is looking into Sana". Before the holder picks, watchers see "Rowan holds the Lady and is choosing", with an empty "?" seat in place of the target.
 - **Lady, hidden again.** "Hold to see the answer again" (see Architecture notes), and the line "This was the last look of the game" when the Lady was used after Quest 4.
-- **End game confirm.** The design has the Menu button but no dialog. It uses the G5/G6 danger-dialog pattern: "End the game for everyone?", with the danger action first and "Keep playing" under it. The status-bar offer is a small red link under the waiting line.
-- **G3 for the host who ended the game:** "You ended the game. Room X has closed for everyone."
+- **End game confirm.** The design has the Menu button but no dialog. It uses the G5/G6 danger-dialog pattern: "End this game?" ("Everyone goes back to the room's lobby, and nobody's role is revealed…"), with "Yes, end the game" first and "Keep playing" under it. The status-bar offer is a small red link under the waiting line.
+- **Settings during a game** (owner's request): a sliders icon in the game top bar beside History, opening Settings (Display, plus End game for the host). The tablet bar has a "Settings" text button.
 - **Menu subtitle** adds "· Quest N" during a game, as in E4.
 - **Reveals after Continue.** Decision 1 needs this state: "Waiting for N more players to finish reading" with dots, in the dock.
 - **Endings from a reveal.**

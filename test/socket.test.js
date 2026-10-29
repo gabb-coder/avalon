@@ -333,13 +333,19 @@ describe('connections and timers', () => {
     await finish(server, clients);
   });
 
-  test('host ends the game for everyone', async () => {
+  test('host ends the game: every phone is back in the lobby, room still open', async () => {
     const { server, clients } = await room(5);
     await clients[0].req(C2S.GAME_START);
     assert.equal((await clients[1].req(C2S.GAME_END)).code, 'err.notHost');
     assert.ok((await clients[0].req(C2S.GAME_END)).ok);
     await sleep(30);
-    for (const c of clients) assert.deepEqual(c.closed, { reason: 'hostEnded', name: 'Rowan' });
+    for (const c of clients) {
+      assert.equal(c.closed, null);
+      assert.equal(c.view.phase, 'lobby');
+      assert.equal(c.view.game, null);
+      assert.equal(c.view.players.length, 5);
+    }
+    assert.ok((await clients[0].req(C2S.GAME_START)).ok);
     await finish(server, clients);
   });
 });

@@ -10,6 +10,7 @@ import { h, replace } from '../dom.js';
 import { t, list } from '../i18n.js';
 import { toast } from './toast.js';
 import { button, note, dots, iconButton, roomTag, topbar } from './ui.js';
+import { settingsButton } from './board.js';
 
 const ANIMS = ['anim-rise', 'anim-stamp', 'anim-coin', 'anim-slam', 'anim-seal', 'anim-cardflip', 'anim-crack', 'is-dealing'];
 
@@ -36,7 +37,7 @@ export function revealTopbar(app, { container, totalMs, onMenu, onHistory, fx = 
   replace(right, h('button', { type: 'button', class: 'btn btn-ghost btn-md btn-skip', on: { click: () => finish(true) } }, t('reveal.skip')));
   const reduced = app.root.classList.contains('reduce-motion');
   const timer = setTimeout(() => finish(false), reduced ? 200 : totalMs);
-  const bar = topbar(iconButton({ ic: 'menu', label: t('menu.openFull'), onClick: onMenu }), roomTag(app.view.code), right);
+  const bar = topbar(iconButton({ ic: 'menu', label: t('menu.openFull'), onClick: onMenu }), roomTag(app.view.code), h('div', { class: 'row topbar-right' }, settingsButton(app), right));
   return {
     el: bar,
     finish,

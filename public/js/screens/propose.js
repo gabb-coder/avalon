@@ -163,7 +163,12 @@ export function mount(app) {
         button({ label: t('tab.rules'), kind: 'ghost', md: true, block: false, ic: 'book', onClick: () => openHowTo(app) }),
       ),
       h('div', { class: 'row topbar-group' }, icon('logo', 'gold', 'ic-28'), roomTag(v().code)),
-      button({ label: t('tab.roles'), kind: 'ghost', md: true, block: false, ic: 'cards', onClick: () => openGlossary(app) }),
+      h(
+        'div',
+        { class: 'row topbar-group' },
+        button({ label: t('tab.roles'), kind: 'ghost', md: true, block: false, ic: 'cards', onClick: () => openGlossary(app) }),
+        button({ label: t('tab.settings'), kind: 'ghost', md: true, block: false, ic: 'sliders', key: 'settings', onClick: () => app.openSettings() }),
+      ),
     );
   }
 

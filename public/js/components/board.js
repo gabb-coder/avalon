@@ -222,13 +222,18 @@ export function botBadge() {
 
 // ---------- top bar and status helpers ----------
 
-// Menu · ROOM KQVX · History (or Skip during a reveal).
+// Menu · ROOM KQVX · Settings, History (or Skip during a reveal).
 export function gameTopbar(app, { onMenu, onHistory, right } = {}) {
   return topbar(
     iconButton({ ic: 'menu', label: t('menu.openFull'), onClick: onMenu }),
     roomTag(app.view.code),
-    right || iconButton({ ic: 'history', label: t('board.history'), onClick: onHistory }),
+    h('div', { class: 'row topbar-right' }, settingsButton(app), right || iconButton({ ic: 'history', label: t('board.history'), onClick: onHistory })),
   );
+}
+
+// Settings during a game: display options, and the host's End game.
+export function settingsButton(app) {
+  return iconButton({ ic: 'sliders', label: t('home.settings'), key: 'settings', onClick: () => app.openSettings() });
 }
 
 // Who is offline right now, and who of them the table is waiting on (D17).
