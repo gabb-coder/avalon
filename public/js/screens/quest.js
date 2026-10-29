@@ -6,7 +6,7 @@
 
 import { C2S } from '../../shared/protocol.js';
 import { h, icon, avatar, replace } from '../dom.js';
-import { t, list } from '../i18n.js';
+import { t, gap, list } from '../i18n.js';
 import { toast } from '../components/toast.js';
 import { peekButton } from '../components/peek.js';
 import { button, note, panel, privateBand, statusBar, dots } from '../components/ui.js';
@@ -91,7 +91,7 @@ export function mount(app) {
       replace(
         content,
         isEvil()
-          ? panel([icon('evil', 'evil'), h('p', { class: 't-label muted' }, h('b', { class: 'text-1' }, t('quest.evilMay')), ' ', t(quest.failsNeeded === 2 ? 'quest.evilHintTwo' : 'quest.evilHint', { q: q() }))], { extra: ['row', 'row-top', 'evil-panel'] })
+          ? panel([icon('evil', 'evil'), h('p', { class: 't-label muted' }, h('b', { class: 'text-1' }, t('quest.evilMay')), gap(), t(quest.failsNeeded === 2 ? 'quest.evilHintTwo' : 'quest.evilHint', { q: q() }))], { extra: ['row', 'row-top', 'evil-panel'] })
           : h('p', { class: 't-label muted center pretty' }, t('quest.countOnly')),
       );
       return;

@@ -104,11 +104,12 @@ public/            the client (served as a static site in production)
   css/rt.css       design/rt.css, unchanged (a test checks it)
   css/app.css      production shell, the design's inline styles as classes (tokens only), button-typography fix
   i18n/en.json     every string; copy-deck keys where they exist
+  i18n/zh-Hans.json  the same keys in Simplified Chinese (a test keeps them in step)
   js/app.js        shell: connection, session, routing, render loop, display prefs
   js/net.js        Socket.IO connection + request() with acks; /healthz waking ping
-  js/i18n.js       t(key, params), ICU subset (plural/select/#) via Intl.PluralRules
+  js/i18n.js       t(key, params), tParts() for messages with a bold name, gap(), list(); ICU subset (plural/select/#) via Intl.PluralRules; the language list and pickLanguage()
   js/dom.js        h() builder (textContent only), icon(), avatar(), replace() with focus restore
-  js/prefs.js      localStorage (name, token, session, text size, motion, vibration), failure-safe
+  js/prefs.js      localStorage (name, token, session, language, text size, motion, vibration), failure-safe
   js/share.js      copy code / share invite link (with an http fallback)
   js/device.js     screen wake lock during a game; one fixed buzz when it becomes your turn
   js/components/   ui (buttons, status, chips, rows, fields, toggles, seg), hold, peek, roleCard,
@@ -209,7 +210,18 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **History sheet.** It subscribes to view updates while open (`app.subscribe`), so votes appear live. Columns start with you, like the ring. Tapping a name follows that column.
 - **Session on the phone.** `prefs.token` (one per phone) and `prefs.session = { code, playerId, active }`. On load, an active session goes straight back into the room (sleeping tabs reload all the time). Leaving mid-game (G5) keeps the session inactive, so Home offers "Back to room?" after a `room:check`. A failed resume shows G3 (`gone`/`seatGone`).
 - **Waking (A6).** The page pings `/healthz` on open. Create, join or resume while the socket is down shows A6 after 600 ms, runs the task as soon as the socket connects, and offers "Try again" after 45 s.
-- **Strings.** Every string goes through `t()`. A test scans the client for `t('…')` keys and checks them, plus every runtime-built key and every server error code, against en.json.
+- **Strings.** Every string goes through `t()`. A test scans the client for `t('…')`/`tParts('…')` keys and checks them, plus every runtime-built key and every server error code, against en.json.
+- **Languages: English and Simplified Chinese.**
+  - **Choosing.** The picker sits at the top of Display, both in Home → Settings (the sliders button) and in the in-game Menu. Each language's name is shown in itself: "English", "中文".
+  - **Default.** The choice is kept on the phone (`prefs.lang`). Without one, a phone set to any Chinese starts in Chinese, and everything else in English (`pickLanguage`).
+  - **Switching** loads the other strings file, sets `<html lang>`, redraws the screen and reopens the sheet. It works mid-game: only this phone's text changes, because the server sends keys, never words.
+  - **Sentences built from parts.** Never glue translated pieces with English punctuation. A message with a bold name uses `tParts()` (e.g. `"{choice}: {text}"` / `"{choice}：{text}"`). Two sentences are joined with `gap()`: a space in English, nothing in Chinese. Name lists use `Intl.ListFormat` (`Kofi、Mei和Jude`).
+  - **Chinese type (HANDOFF §6, S4).** `:lang(zh)` turns off capitals and wide letter-spacing on the eyebrow-style labels, and switches the display font to Noto Serif SC. The Noto Serif SC / Noto Sans SC web fonts load only once Chinese is chosen, and Google serves only the characters in use.
+  - **Tests** keep `zh-Hans.json` in step with en.json:
+    - the same keys;
+    - no placeholder English doesn't supply;
+    - every message renders;
+    - nothing was left in English.
 - **Error codes** are i18n keys: copy-deck keys (`name.taken`, `pick.tooMany`, `fail.locked`, `start.tooManyEvil`…) for things players can trigger, `err.*` for things a well-behaved client never sends.
 
 ## Game rules as implemented
@@ -311,6 +323,8 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
     - a local rehearsal of the two-origin setup: cold start with A6, CORS `/healthz`, CSP `<meta>`, no names in logs;
     - tests for the build, the yaml CSP, the Redis store and a restart.
 
+- [x] **After launch: Simplified Chinese.** All 600 strings in `zh-Hans.json`, a language picker in Settings and the Menu, the S4 type rules, and Chinese web fonts on demand. Checked in Chromium: every phase of a 7-player game in Chinese at 390×844 and at 360×740 with 130% text, plus switching from Home and mid-game.
+
 ### Additions to the design (screens or states the bundle didn't have)
 
 - **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
@@ -320,7 +334,8 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - The disabled reason "Enter the 4-letter code and your name" before anything is typed.
 - **A5 copy.** "Room X is already playing" replaces the design's quest number, which `room:check` doesn't expose.
 - **Host hand-over picker** (G4 "Hand it on", E4 "Hand host to another player"). A sheet with a radio list of players, then "Make X host": the same select-then-confirm pattern.
-- **Home settings** (A2's sliders button). A "Settings" sheet with E4's Display section: text size, reduce motion, vibrate.
+- **Home settings** (A2's sliders button). A "Settings" sheet with E4's Display section: language, text size, reduce motion, vibrate.
+- **Language picker** (no artboard): a two-option segmented control, "English" / "中文", at the top of Display.
 - **G3 variants.**
   - "You were removed" (kicked).
   - "Your seat in room X was given up while you were away" (`seatGone`).
@@ -362,4 +377,3 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Copy.** "him" becomes "them" for arbitrary players (decision 11), e.g. Morgana's ability "pull them off course".
 - **G1 dims the whole screen, dock included.** The design keeps the dock bright with a disabled "Vote · Waiting for connection" button. Here the whole screen is `inert` and dimmed, which disables every button in every phase in one place; the banner and "Hang tight" say why.
 - **Tablet layout only for team building.** S3 is the only tablet artboard. Votes, quests, reveals and the rest keep the phone column, centred.
-- **Chinese (S4)** is not built: the milestones above don't include it. Every string already goes through `t()` and en.json, so it is a matter of adding `zh-Hans.json`, a language switch and the CJK type rules from HANDOFF §6.

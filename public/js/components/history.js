@@ -74,10 +74,10 @@ export function historyGrid(data, { you, focus = null, onFocus = null } = {}) {
           const onTeam = p.team.includes(id);
           const lead = p.leader === id;
           const label = [
-            `${data.names[id]}: ${t(vote === 'approve' ? 'history.cellApprove' : 'history.cellReject')}`,
+            t('history.cellVote', { name: data.names[id], vote: t(vote === 'approve' ? 'history.cellApprove' : 'history.cellReject') }),
             onTeam && t('history.cellTeam'),
             lead && t('history.cellLeader'),
-          ].filter(Boolean).join(', ');
+          ].filter(Boolean).join(t('common.sep'));
           return h(
             'div',
             { class: ['hcell', onTeam && 'on-team', focus === id && 'is-focus'], role: 'cell', 'aria-label': label },

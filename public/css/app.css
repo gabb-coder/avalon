@@ -382,8 +382,8 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .prow-named { box-shadow: inset 0 0 0 1.5px rgba(240,112,127,.5); }
 .prow-you { box-shadow: inset 0 0 0 1.5px var(--gold); }
 .chip-end { margin-right: 4px; flex: none; }
-.over-leave { flex: 1; }
-.over-again { flex: 2; }
+.over-leave { flex: 1 0 auto; white-space: nowrap; } /* never squeezed to one character per line (130% text) */
+.over-again { flex: 2 1 auto; white-space: nowrap; }
 
 /* History sheet (E1, E2) */
 .sheet-full { max-height: 95%; height: 95%; }
@@ -485,3 +485,19 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 /* Names wrap rather than ellipsize outside the ring and history header (HANDOFF §6),
    so the two-column vote grid becomes one column at 130%. */
 .ts-lg .vote-grid { grid-template-columns: minmax(0, 1fr); }
+
+/* ---------- Simplified Chinese (S4, HANDOFF §6) ----------
+   <html lang="zh-Hans"> is set when Chinese is chosen. Chinese has no
+   capitals, and wide letter-spacing breaks up characters, so the eyebrow-style
+   labels lose both. The display font becomes Noto Serif SC (S4): Cormorant has
+   no Chinese, and mixing it with a Chinese fallback looks patchy. The Noto
+   fonts load only when Chinese is chosen (app.js). */
+:root:lang(zh) {
+  --font-display: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-ui: "Atkinson Hyperlegible Next", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+}
+:lang(zh) .eyebrow, :lang(zh) .status-phase, :lang(zh) .field-label, :lang(zh) .rcard-intel-h, :lang(zh) .team-tag,
+:lang(zh) .private, :lang(zh) .hquest .qh, :lang(zh) .hrow.head .hstick, :lang(zh) .hqrow > div {
+  text-transform: none; letter-spacing: .04em;
+}
+:lang(zh) .room-tag { letter-spacing: .08em; }

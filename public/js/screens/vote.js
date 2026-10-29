@@ -7,7 +7,7 @@
 
 import { C2S } from '../../shared/protocol.js';
 import { h, icon, avatar, replace } from '../dom.js';
-import { t } from '../i18n.js';
+import { t, tParts } from '../i18n.js';
 import { toast } from '../components/toast.js';
 import { peekButton } from '../components/peek.js';
 import { button, note, panel, progress, statusBar, waitGrid, chip } from '../components/ui.js';
@@ -100,8 +100,8 @@ export function mount(app) {
     const rejectText = game.rejects >= 4 ? t('vote.rejectExplainLast') : t('vote.rejectExplain', { name: game.names[next], n: game.rejects });
     return panel(
       [
-        h('div', { class: 'row row-top' }, icon('check', 'ic-20', 'approve-ink'), h('p', { class: 't-label muted' }, h('b', { class: 'text-1' }, t('vote.approve')), ': ', t('vote.approveExplain', { q: q() }))),
-        h('div', { class: 'row row-top' }, icon('cross', 'ic-20', 'reject-ink'), h('p', { class: ['t-label', game.rejects >= 4 ? 'evil' : 'muted'] }, h('b', { class: 'text-1' }, t('vote.reject')), ': ', rejectText)),
+        h('div', { class: 'row row-top' }, icon('check', 'ic-20', 'approve-ink'), h('p', { class: 't-label muted' }, tParts('vote.explainLine', { choice: h('b', { class: 'text-1' }, t('vote.approve')), text: t('vote.approveExplain', { q: q() }) }))),
+        h('div', { class: 'row row-top' }, icon('cross', 'ic-20', 'reject-ink'), h('p', { class: ['t-label', game.rejects >= 4 ? 'evil' : 'muted'] }, tParts('vote.explainLine', { choice: h('b', { class: 'text-1' }, t('vote.reject')), text: rejectText }))),
       ],
       { extra: ['col', 'vote-explain'] },
     );

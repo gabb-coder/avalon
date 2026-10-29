@@ -5,7 +5,7 @@
 // kept in the page "hidden"; it is rebuilt from the view each time.
 
 import { h, icon, initial } from '../dom.js';
-import { t, list } from '../i18n.js';
+import { t, tParts, gap, list } from '../i18n.js';
 import { privateLabel, teamTag } from './ui.js';
 import { GAME_TITLE } from '../../config.js';
 
@@ -47,7 +47,7 @@ export function nightIntel(view) {
 export function roleAria(view) {
   const { role } = view.game.me;
   const intel = nightIntel(view);
-  const who = intel.names.length ? `${intel.heading}: ${list(intel.names.map((n) => n.name))}.` : intel.note;
+  const who = intel.names.length ? t('peek.seenText', { heading: intel.heading, names: list(intel.names.map((n) => n.name)) }) : intel.note;
   return t('card.ariaHeld', { role: t(`role.${role}.name`), team: t(`team.${ROLE_TEAM[role]}`), who });
 }
 
@@ -105,7 +105,7 @@ export function peekSheet(view) {
   const { role, ladyResults } = g.me;
   const team = ROLE_TEAM[role];
   const intel = nightIntel(view);
-  const seen = intel.names.length ? [intel.heading, ': ', h('b', { class: `ink-${intel.names[0].kind}` }, list(intel.names.map((n) => n.name))), '. '] : [];
+  const seen = intel.names.length ? [tParts('peek.seen', { heading: intel.heading, names: h('b', { class: `ink-${intel.names[0].kind}` }, list(intel.names.map((n) => n.name))) }), gap()] : [];
   return h(
     'div',
     { class: ['peek-sheet', 'anim-rise', team], role: 'dialog', 'aria-label': t('peek.aria') },

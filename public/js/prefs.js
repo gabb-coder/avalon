@@ -39,6 +39,10 @@ export const prefs = {
   get session() { return read('session', null); },
   set session(v) { write('session', v); },
 
+  // 'en' | 'zh-Hans', or null: follow the phone's language (see i18n.js).
+  get lang() { return read('lang', null); },
+  set lang(v) { write('lang', v); },
+
   get textScale() { return read('textScale', 1); }, // 1 | 1.15 | 1.3
   set textScale(v) { write('textScale', v); },
 

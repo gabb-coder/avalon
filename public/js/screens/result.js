@@ -4,7 +4,7 @@
 // Only counts and the already-shuffled cards are shown, never who played what.
 
 import { h, icon } from '../dom.js';
-import { t } from '../i18n.js';
+import { t, gap } from '../i18n.js';
 import { panel, statusBar } from '../components/ui.js';
 import { questTrack } from '../components/board.js';
 import { revealTopbar, continueDock } from '../components/reveal.js';
@@ -42,7 +42,7 @@ export function mount(app) {
 
   let special = null;
   if (despite) {
-    special = panel([h('span', { class: 'qnode-tag tag-lg' }, t('board.twoFailsTag')), h('p', { class: 't-label muted' }, h('b', { class: 'text-1' }, t('result.q4Title', { q })), ' ', t('result.q4Text', { n: quest.fails }))], {
+    special = panel([h('span', { class: 'qnode-tag tag-lg' }, t('board.twoFailsTag')), h('p', { class: 't-label muted' }, h('b', { class: 'text-1' }, t('result.q4Title', { q })), gap(), t('result.q4Text', { n: quest.fails }))], {
       extra: ['row', 'text-left', 'full-width', 'evil-ring-panel', 'anim-rise'],
     });
     special.style.animationDelay = `${cardsEnd + 100}ms`;
