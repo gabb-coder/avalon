@@ -294,6 +294,12 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 12. **Shared protocol file:** `shared/protocol.js` is the single source. The Render static site build copies it into `public/shared/`; local dev serves `/shared` directly.
 13. **Security headers:** the static site's CSP is set through `headers` in render.yaml; helmet covers what Express serves.
 
+## Working agreement with the owner
+
+- **Merge every change.** Once a change is finished (tests pass, checked in the browser where it touches the UI), open a pull request from the working branch into `main` and merge it, without asking first. This is the owner's standing instruction. Render then redeploys both services from `main`.
+- A merge restarts the game server. Without `REDIS_URL` that ends games in progress, so say in the hand-off that the change is going live.
+- After a merge, the next change starts from the latest `main`: reset the working branch to `origin/main` first.
+
 ## Progress
 
 - [x] **Milestone 1: engine and tests.** rules, roles, night info, state machine, viewFor, leak tests, simulation.
