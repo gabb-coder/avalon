@@ -31,6 +31,7 @@ export function viewFor(state, viewerId) {
       name: p.name,
       connected: p.connected,
       disconnectedAt: p.disconnectedAt,
+      bot: !!p.bot,
     })),
     config: publicConfig(state.config),
     setup: checkSetup(state.config, state.players.length),

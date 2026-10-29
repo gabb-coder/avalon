@@ -14,6 +14,7 @@ import { copyCode, shareRoom } from '../share.js';
 import { openGlossary, openKickConfirm, openHostPicker } from './sheets.js';
 import { ambience } from '../fx.js';
 import { sound } from '../sound.js';
+import { botBadge } from '../components/board.js';
 
 const MIN = 5;
 const MAX = 10;
@@ -128,7 +129,8 @@ export function mount(app) {
       const fresh = known && !known.has(p.id); // just sat down: pops in
       const isTheHost = p.id === v.hostId;
       let meta = null;
-      if (!p.connected) meta = t('lobby.connecting');
+      if (p.bot) meta = t('lobby.bot');
+      else if (!p.connected) meta = t('lobby.connecting');
       else if (you && isTheHost) meta = t('lobby.youHost');
       else if (you) meta = t('lobby.you');
       else if (isTheHost) meta = t('lobby.host');
@@ -138,12 +140,17 @@ export function mount(app) {
       else if (!p.connected) end = h('span', { class: 'spinner spinner-end', role: 'img', 'aria-label': t('lobby.connecting') });
       // B2: a player still connecting shows a spinner; connected guests can be removed.
       if (host && !you && p.connected) {
-        end = iconButton({ ic: 'kick', danger: true, label: t('lobby.kick', { name: p.name }), key: `kick-${p.id}`, onClick: () => openKickConfirm(app, p) });
+        // A bot goes at once: there's no one to block, and adding one back is a tap.
+        end = p.bot
+          ? iconButton({ ic: 'kick', danger: true, label: t('lobby.removeBot', { name: p.name }), key: `kick-${p.id}`, onClick: () => removeBot(p) })
+          : iconButton({ ic: 'kick', danger: true, label: t('lobby.kick', { name: p.name }), key: `kick-${p.id}`, onClick: () => openKickConfirm(app, p) });
       }
+      const av = avatar(p.name, { you, off: !p.connected, extra: fresh ? ['anim-pop'] : [] });
+      if (p.bot) av.append(botBadge());
       return h(
         'div',
         { class: ['prow', !p.connected && 'is-off', fresh && 'anim-rise'] },
-        avatar(p.name, { you, off: !p.connected, extra: fresh ? ['anim-pop'] : [] }),
+        av,
         h('span', { class: 'prow-name' }, h('span', { text: p.name }), meta ? h('span', { class: 'prow-meta' }, meta) : null),
         end ? h('span', { class: 'prow-end' }, end) : null,
       );
@@ -163,6 +170,33 @@ export function mount(app) {
     return h('div', { class: 'plist' }, rows);
   }
 
+  // The host can fill seats with bots (they play from their own seat's view).
+  let addingBot = false;
+  async function addBot() {
+    if (addingBot) return;
+    addingBot = true;
+    const ack = await app.request(C2S.LOBBY_ADD_BOT, {});
+    addingBot = false;
+    if (!ack.ok) toast(t(ack.code, ack.params), { kind: 'err' });
+  }
+
+  async function removeBot(p) {
+    const ack = await app.request(C2S.LOBBY_KICK, { playerId: p.id });
+    if (!ack.ok) toast(t(ack.code, ack.params), { kind: 'err' });
+  }
+
+  function botRow() {
+    const v = view();
+    if (!isHost()) return null;
+    const full = v.players.length >= MAX;
+    return h(
+      'div',
+      { class: 'col add-bot' },
+      button({ label: t('lobby.addBot'), kind: 'secondary', md: true, ic: 'bot', key: 'add-bot', disabled: full, onClick: addBot }),
+      h('p', { class: 't-label faint' }, t(full ? 'lobby.botsFull' : 'lobby.addBotHint')),
+    );
+  }
+
   function playersTab() {
     const n = view().players.length;
     return [
@@ -173,6 +207,7 @@ export function mount(app) {
         n >= MIN ? chip(t('lobby.ready'), { kind: 'good', ic: 'check' }) : chip(t('lobby.more', { n: MIN - n }), { kind: 'warn', ic: 'users' }),
       ),
       playerRows(),
+      botRow(),
       n < MIN ? h('p', { class: 't-label faint center' }, t('lobby.codeLasts')) : null,
     ];
   }

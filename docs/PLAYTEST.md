@@ -25,6 +25,7 @@ Tick each box as you go.
 - [ ] Without the block, a removed player can rejoin. (Get back to 5 players.)
 - [ ] The host hands the host role to another player from the Menu. The crown moves.
 - [ ] Phone 2 reloads the page in the lobby: it comes straight back in, same seat.
+- [ ] The host adds two bots ("Add a bot"), removes one, and starts a game with them. The bots act on their own after a short pause (the leader's picks appear one by one), and the game never waits on a bot for long. Afterwards: did their play feel believable?
 
 ## 3. Night (roles)
 

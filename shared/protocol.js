@@ -38,8 +38,10 @@ export const C2S = {
 
   /** Host only, lobby only. { config: { percival?, morgana?, mordred?, oberon?, lady?, oberonSeenByMerlin? } } */
   LOBBY_SET_CONFIG: 'lobby:setConfig',
-  /** Host only, lobby only. { playerId: string, block?: boolean } */
+  /** Host only, lobby only. { playerId: string, block?: boolean } (also removes a bot) */
   LOBBY_KICK: 'lobby:kick',
+  /** Host only, lobby only. Seats a bot that plays from its own view, like a phone would. {} */
+  LOBBY_ADD_BOT: 'lobby:addBot',
   /** Host only. { playerId: string } */
   HOST_TRANSFER: 'host:transfer',
   /** Host only. {} */

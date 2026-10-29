@@ -73,6 +73,7 @@ export const validators = {
     if (p.block !== undefined && typeof p.block !== 'boolean') return null;
     return { playerId: p.playerId, block: !!p.block };
   },
+  [C2S.LOBBY_ADD_BOT]: empty,
   [C2S.HOST_TRANSFER]: (p) => (isObj(p) && isId(p.playerId) ? { playerId: p.playerId } : null),
   [C2S.GAME_START]: empty,
   [C2S.NIGHT_ACK]: empty,

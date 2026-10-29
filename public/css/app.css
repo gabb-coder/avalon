@@ -49,6 +49,13 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 /* A speaker, for Menu → Sound effects (drawn like rt.css's mask icons). */
 .i-sound { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9.5h3.5L12 5.5v13l-4.5-4H4z'/%3E%3Cpath d='M15.5 9a4.2 4.2 0 0 1 0 6M18.2 6.4a8 8 0 0 1 0 11.2'/%3E%3C/svg%3E"); }
 
+/* A robot head, for bots (Add a bot, and the badge on a bot's avatar). */
+.i-bot { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='8' width='15' height='11' rx='3'/%3E%3Cpath d='M12 8V4.5M9.5 13h.01M14.5 13h.01M9.5 16h5M2.5 12.5v2M21.5 12.5v2'/%3E%3Ccircle cx='12' cy='3.8' r='1'/%3E%3C/svg%3E"); }
+/* The bot badge sits top right (lead and offline badges are bottom right, the Lady bottom left). */
+.av-badge.bot { top: -4px; bottom: auto; right: -4px; width: 18px; height: 18px; background: var(--surface-3); color: var(--text-2); box-shadow: 0 0 0 2px var(--bg), inset 0 0 0 1px var(--line); }
+.av-badge.bot .ic { width: 12px; height: 12px; }
+.add-bot { gap: 6px; }
+
 /* ---------- Small helpers ---------- */
 .gold-hi { color: var(--gold-hi); }
 .row-top { align-items: flex-start; }
