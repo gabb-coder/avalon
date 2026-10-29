@@ -198,6 +198,12 @@ describe('shipping rules', () => {
     assert.ok(!/\.view\b|\bgame\b|role|ladyResults|evilIds/.test(src.replace(/^\/\/.*$/gm, '')));
   });
 
+  test("How to play's scenes use only example material, never the view", () => {
+    const src = read('public/js/components/howto.js');
+    assert.deepEqual([...src.matchAll(/^import .* from '(.*)';$/gm)].map((m) => m[1]), ['../dom.js', '../i18n.js', '../fx.js']);
+    assert.ok(!/\bapp\.view\b|\.game\b|ladyResults|evilIds|\bme\./.test(src.replace(/\/\/.*$/gm, '')));
+  });
+
   test('sounds never carry a secret: no view access, one click for any vote or card, nothing on the night screen', () => {
     const src = read('public/js/sound.js');
     assert.deepEqual([...src.matchAll(/^import .* from '(.*)';$/gm)].map((m) => m[1]), ['./prefs.js']);

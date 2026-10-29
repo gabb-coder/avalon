@@ -117,7 +117,8 @@ public/            the client (served as a static site in production)
   js/components/   ui (buttons, status, chips, rows, fields, toggles, seg), hold, peek, roleCard,
                    codeInput, overlay (sheet/modal + focus trap), toast,
                    board (quest track, reject counter, seat ring in 3 sizes, game top bar, offline status),
-                   history (vote grid, legend, follow-a-player), reveal (Skip + Continue dock)
+                   history (vote grid, legend, follow-a-player), reveal (Skip + Continue dock),
+                   howto (E3's pictures and their animated scenes)
   js/screens/      splash A1, home A2, join A3–A5, waking A6, lobby B1–B3+G4, night C1–C3,
                    propose D1–D4+D17, vote D5–D6, reveal D7–D8, quest D9–D11, result D12–D13,
                    lady D14–D16, assassin F1–F3, gameover F4, ended G3, connection (G1 overlay),
@@ -221,6 +222,20 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - **Autoplay.** Browsers allow sound only after a tap, so the audio starts on the first tap and resumes after interruptions. It doesn't play while the page is hidden. iPhones on silent stay silent.
   - **Speakers.** Phone speakers barely play below 200 Hz, so every low sound (thuds, heartbeat, gongs) also has a body an octave or two up. A limiter keeps overlapping sounds from clipping.
   - **Setting.** On by default; Menu → Sound effects (and Home → Settings) turns it off (`prefs.sound`).
+- **How to play (E3) scenes (after launch, owner's picks).** Each page's picture plays a short scene once when the page opens, with a Replay button in its corner; "Got it" throws gold sparks and plays a bright chime.
+  - **The scenes.**
+    1. Six roles are dealt face down, then gather into Good and Evil.
+    2. The crown goes round a small table of 7 and its leader picks three knights.
+    3. Five votes slam down and "Approved" lands like a seal.
+    4. Three cards are dealt and cut, then turned over, and the Fail cracks.
+    5. The quest track fills to three Successes.
+    6. The Assassin takes aim and a blade cuts through Merlin.
+  - **How they're built** (`components/howto.js`). Each picture is built in its final state, and the scene only adds Web Animations that fill "backwards", plus props (`.hs-temp`) that are invisible outside their animation and removed at the end. So stopping mid-scene (page change, closing, Replay) or not playing at all (reduced motion, which also hides Replay) leaves the same picture.
+  - **Positions** come from layout offsets, not screen boxes, because the page is still rising in when the scene starts.
+  - **Easing.** A Web Animation's `easing` option applies to the whole animation, unlike CSS where it applies between keyframes. So multi-step moves that need a fast start and a slow fade put the easing on the keyframes and run linear overall (the blade).
+  - **Effects inside the sheet.** Sparks and embers play inside the picture via `burst(…, { host })`, because sheets sit above the phone's effects layer.
+  - **Sound.** The scenes are silent (the owner's choice); only the finishing chime sounds.
+  - **Example material only.** Sample initials, votes and cards; a test checks the module never reads the view.
 - **Toasts with an id.** "X lost connection" is brief (the status bar already shows who is offline), and "X is back" withdraws it.
 - **Accessibility checks.** Besides the tests, each milestone's browser run audits every screen and dialog. It checks:
   - every control has an accessible name, and radios, tabs and switches carry state;
@@ -358,6 +373,8 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - every sound rendered offline: all audible, no clipping;
   - full games with sound on, and with reduced motion: the sounds started on time, and none before the first tap.
 
+- [x] **After launch: How to play scenes.** An animated scene on each of the 6 pages, played once with Replay, and a celebration on "Got it". Checked in Chromium, filming every scene mid-motion: 390×844, 360×740 in Chinese, and reduced motion; Replay, paging mid-scene and "Got it".
+
 ### Additions to the design (screens or states the bundle didn't have)
 
 - **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
@@ -369,6 +386,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Host hand-over picker** (G4 "Hand it on", E4 "Hand host to another player"). A sheet with a radio list of players, then "Make X host": the same select-then-confirm pattern.
 - **Home settings** (A2's sliders button). A "Settings" sheet with E4's Display section: language, text size, reduce motion, vibrate.
 - **Animations beyond HANDOFF §4** (owner's request): screen transitions, candlelight, the ring's travelling tokens and pick ripples, the slamming votes and seal, the dealt and cracked quest cards, the Lady's ripples, the heartbeat, the strike card ("Merlin is found" / "The blade missed") and the game-over sparks or smoke.
+- **How to play scenes** (owner's request): E3's still pictures became short scenes, with a Replay button (refresh icon) in each picture's corner. Page 2 shows a small 7-seat table instead of a leader token and three avatars; page 3 shows five sample votes with an "Approved" seal instead of the two vote marks; page 5's track ends on three Successes.
 - **Sound effects and their switch** (no artboard): a "Sound effects" toggle row with a speaker icon, under Vibrate in Display.
 - **Language picker** (no artboard): a two-option segmented control, "English" / "中文", at the top of Display.
 - **G3 variants.**

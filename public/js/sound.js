@@ -213,6 +213,8 @@ const SOUNDS = {
     noise(o, t, { type: 'lowpass', freq: 350, peak: 0.35, attack: 0.4, decay: 1.6 });
     notes(o, t + 0.1, [C3, Eb3, C3 * 1.5, C3 * 2], { type: 'sawtooth', lowpass: 900, peak: 0.11, attack: 0.25, decay: 1.8 });
   },
+  // Finishing How to play: a bright little run up.
+  ready: (o, t) => notes(o, t, [G5, C6, E6], { type: 'triangle', peak: 0.17, decay: 0.6 }, 0.07),
   // The Lady looks into someone: a water drop and its echoes.
   water: (o, t) => {
     tone(o, t, 380, { to: 1100, peak: 0.26, attack: 0.003, decay: 0.12 });
