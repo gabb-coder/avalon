@@ -31,6 +31,7 @@ import * as gameover from './screens/gameover.js';
 import { connectionLayer } from './screens/connection.js';
 import { keepAwake, turnKey, buzz } from './device.js';
 import { calm, clearFx } from './fx.js';
+import { unlockAudio, sound } from './sound.js';
 import { ringSize, isShort, isTablet, endOfferDue } from './components/board.js';
 import { openEndGameConfirm } from './screens/sheets.js';
 
@@ -304,10 +305,14 @@ function onState(view) {
   else if (view.phase !== 'lobby') app.holdSummary = false; // a new game started
   document.title = GAME_TITLE; // never encodes anything about the game
   scheduleEndOffer();
-  // Buzz when a new turn of this player's starts (not on the first view after
-  // a load or reconnect: that turn may already have buzzed).
+  // Buzz and chime when a new turn of this player's starts (not on the first
+  // view after a load or reconnect: that turn may already have buzzed).
   const turn = turnKey(view);
-  if (prev && turn && turn !== lastTurn) buzz();
+  if (prev && turn && turn !== lastTurn) {
+    buzz();
+    sound('turn');
+  }
+  if (prev?.phase === 'lobby' && view.phase === 'night') sound('night');
   lastTurn = turn;
   if (app.route === 'room') render();
 }
@@ -476,6 +481,7 @@ let connLayer;
 
 async function boot() {
   applyDisplayPrefs();
+  unlockAudio();
   // Follow the phone's own Reduce motion setting if it changes mid-game.
   window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change', applyDisplayPrefs);
   trackViewport();

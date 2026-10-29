@@ -139,6 +139,15 @@ function displaySection(app, reopen) {
             prefs.vibrate = on;
           },
         }),
+        toggleRow({
+          ic: 'sound',
+          title: t('menu.sound'),
+          desc: t('menu.soundDesc'),
+          checked: prefs.sound,
+          onChange: (on) => {
+            prefs.sound = on;
+          },
+        }),
       ],
       { extra: ['panel-rows'] },
     ),

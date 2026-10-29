@@ -14,6 +14,7 @@ import { t } from '../i18n.js';
 import { toast } from '../components/toast.js';
 import { peekButton } from '../components/peek.js';
 import { bindHoldToConfirm } from '../components/hold.js';
+import { sound } from '../sound.js';
 import { openModal } from '../components/overlay.js';
 import { button, chip, note, statusBar } from '../components/ui.js';
 import { gameTopbar, awayStatus } from '../components/board.js';
@@ -44,6 +45,11 @@ export function mount(app) {
   function confirmStrike(id) {
     const name = g().names[id];
     let holder = null;
+    let beat = null; // the heartbeat sound, every 750 ms like the portrait
+    const stopBeat = () => {
+      clearInterval(beat);
+      beat = null;
+    };
     // While held, the target's portrait beats like a heart (decoration; the
     // fill on the button is the timer).
     const target = h('div', { class: 'row strike-target', 'aria-hidden': 'true' }, avatar(name, { size: 56, extra: ['av-target'] }), icon('target', 'evil', 'ic-28'));
@@ -53,7 +59,10 @@ export function mount(app) {
       title: t('assassin.confirmTitle', { name }),
       text: t('assassin.confirmText', { name }),
       extra: target,
-      onClose: () => holder?.destroy(),
+      onClose: () => {
+        stopBeat();
+        holder?.destroy();
+      },
       actions: (close) => {
         const fill = h('span', { class: 'strike-fill', 'aria-hidden': 'true' });
         const btn = h(
@@ -70,15 +79,19 @@ export function mount(app) {
           onStart: () => {
             btn.classList.add('is-holding');
             target.classList.add('is-beating');
+            sound('heartbeat');
+            beat = setInterval(() => sound('heartbeat'), 750);
             fill.style.animationDuration = `${STRIKE_MS}ms`;
           },
           onCancel: () => {
             btn.classList.remove('is-holding');
             target.classList.remove('is-beating');
+            stopBeat();
           },
           onDone: async () => {
             if (sent) return;
             sent = true;
+            stopBeat();
             btn.classList.add('is-struck');
             btn.disabled = true;
             const ack = await app.request(C2S.ASSASSIN_GUESS, { playerId: id });

@@ -113,6 +113,7 @@ public/            the client (served as a static site in production)
   js/share.js      copy code / share invite link (with an http fallback)
   js/device.js     screen wake lock during a game; one fixed buzz when it becomes your turn
   js/fx.js         decorative motion: sparks, embers, smoke, ripples, the slash, shake, the candlelit background
+  js/sound.js      sound effects, synthesised with Web Audio (no audio files); Menu → Sound effects
   js/components/   ui (buttons, status, chips, rows, fields, toggles, seg), hold, peek, roleCard,
                    codeInput, overlay (sheet/modal + focus trap), toast,
                    board (quest track, reject counter, seat ring in 3 sizes, game top bar, offline status),
@@ -213,6 +214,13 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - **Privacy.** Every effect follows something the whole table already sees, and looks the same for every role and every answer (the Lady's ripple is identical whatever she shows). `fx.js` never reads the view; a test checks that.
   - **Skip and cleanup.** Effects are timed with `timeline()`, which Skip cancels along with every scripted animation; changing screens clears the effects layer.
   - **Reduced motion** turns all of it off; the static end state is the same. A test checks that every `.anim-*` class has a `.reduce-motion` rule.
+- **Sound effects (after launch, owner's request).** `sound.js` makes every sound from oscillators and filtered noise with the Web Audio API: no audio files, nothing to license, nothing new in the CSP.
+  - **When.** Your turn (two rising bells, with the buzz), the night beginning, a player joining, a pick on the ring, the leader token's glide, the lock-in click, each vote slamming down and the verdict, the shuffle, each card turning and its chime or crack, the swell before the last card, the quest verdict, the Lady's water drop and landing, the Assassin's heartbeat (in step with the portrait), the slash, "Merlin is found" / "The blade missed", and the two endings.
+  - **Timing.** Reveal sounds ride the same `timeline()` as the effects, so Skip silences what hasn't played. With reduced motion only the verdict sounds.
+  - **Privacy.** A sound carries further than a glance, so the rule is stricter than for pictures. Sounds only follow public moments, and are the same for every role and answer. Choosing a vote or a card is silent, and locking in makes one identical click. Holding your role card, Peek and the night screen are silent. `sound.js` never reads the view. A test checks all of this.
+  - **Autoplay.** Browsers allow sound only after a tap, so the audio starts on the first tap and resumes after interruptions. It doesn't play while the page is hidden. iPhones on silent stay silent.
+  - **Speakers.** Phone speakers barely play below 200 Hz, so every low sound (thuds, heartbeat, gongs) also has a body an octave or two up. A limiter keeps overlapping sounds from clipping.
+  - **Setting.** On by default; Menu → Sound effects (and Home → Settings) turns it off (`prefs.sound`).
 - **Toasts with an id.** "X lost connection" is brief (the status bar already shows who is offline), and "X is back" withdraws it.
 - **Accessibility checks.** Besides the tests, each milestone's browser run audits every screen and dialog. It checks:
   - every control has an accessible name, and radios, tabs and switches carry state;
@@ -346,6 +354,10 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 
 - [x] **After launch: animations.** The owner picked all eight proposals, in the "mix" style (cinematic big moments, subtle elsewhere), keeping reveals under 3 seconds. See Architecture notes → Motion and effects. Checked in Chromium: two full 7-player games each at 390×844, 360×740 and 834×1194, plus reduced motion; the Assassin's hold and Skip in a separate run.
 
+- [x] **After launch: sound effects.** About 25 synthesised sounds for the game's moments, timed with the animations, with a Menu switch. Checked in Chromium:
+  - every sound rendered offline: all audible, no clipping;
+  - full games with sound on, and with reduced motion: the sounds started on time, and none before the first tap.
+
 ### Additions to the design (screens or states the bundle didn't have)
 
 - **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
@@ -357,6 +369,7 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Host hand-over picker** (G4 "Hand it on", E4 "Hand host to another player"). A sheet with a radio list of players, then "Make X host": the same select-then-confirm pattern.
 - **Home settings** (A2's sliders button). A "Settings" sheet with E4's Display section: language, text size, reduce motion, vibrate.
 - **Animations beyond HANDOFF §4** (owner's request): screen transitions, candlelight, the ring's travelling tokens and pick ripples, the slamming votes and seal, the dealt and cracked quest cards, the Lady's ripples, the heartbeat, the strike card ("Merlin is found" / "The blade missed") and the game-over sparks or smoke.
+- **Sound effects and their switch** (no artboard): a "Sound effects" toggle row with a speaker icon, under Vibrate in Display.
 - **Language picker** (no artboard): a two-option segmented control, "English" / "中文", at the top of Display.
 - **G3 variants.**
   - "You were removed" (kicked).

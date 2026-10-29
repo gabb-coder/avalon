@@ -18,6 +18,7 @@ import { questTrack } from '../components/board.js';
 import { historyGrid, historyLegend } from '../components/history.js';
 import { ROLE_TEAM } from '../components/roleCard.js';
 import { calm, timeline, slash, burst, shake, riseSparks, smoke, cardBack } from '../fx.js';
+import { sound } from '../sound.js';
 
 const ROW_STEP_MS = 90;
 const INTRO_MS = 1400; // the strike's card, before the ending itself
@@ -143,7 +144,8 @@ export function mount(app) {
   // ---------- the ending, played once ----------
 
   const endKey = [v().code, s.winReason, s.guess, s.seats.map((id) => s.roles[id]).join()].join('|');
-  const play = live() && !calm(app) && celebrated !== endKey;
+  const fresh = live() && celebrated !== endKey;
+  const play = fresh && !calm(app);
   celebrated = endKey;
   const fx = timeline(app);
   let intro = null;
@@ -192,8 +194,13 @@ export function mount(app) {
       );
       el.classList.add('has-intro');
       el.append(intro);
-      fx.at(60, () => slash(app));
+      fx.at(60, () => {
+        slash(app);
+        sound('slash');
+      });
+      fx.at(420, () => sound('flip'));
       fx.at(1040, () => {
+        sound(hit ? 'merlinFound' : 'bladeMissed');
         burst(app, card, { kind: hit ? 'ember' : 'gold', count: 22, reach: 150 });
         shake(app, card, { px: hit ? 8 : 4 });
       });
@@ -204,10 +211,17 @@ export function mount(app) {
         el.classList.remove('has-intro');
       });
     }
-    fx.at(at, () => (good ? riseSparks(app) : smoke(app)));
+    fx.at(at, () => {
+      if (good) riseSparks(app);
+      else smoke(app);
+      sound(good ? 'goodWins' : 'evilWins');
+    });
     fx.at(at + 220, () => burst(app, banner.firstChild, { kind: good ? 'gold' : 'ember', count: 18, reach: 120 }));
     fx.at(rowsAt + s.seats.length * ROW_STEP_MS + 500, () => replace(right, spacer()));
   }
+
+  // Reduced motion: no ending to watch, but it still sounds once.
+  if (fresh && !play) fx.at(150, () => sound(good ? 'goodWins' : 'evilWins'));
 
   paint();
   rowsAt = null; // later paints (tabs, updates) show the rows as they are

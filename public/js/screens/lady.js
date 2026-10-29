@@ -20,6 +20,7 @@ import { button, note, panel, privateBand, statusBar, dots } from '../components
 import { gameTopbar, awayStatus } from '../components/board.js';
 import { openMenu, openHistory } from './sheets.js';
 import { ripple } from '../fx.js';
+import { sound } from '../sound.js';
 
 export function mount(app) {
   let pick = null; // the holder's choice before "Look into…"
@@ -243,7 +244,10 @@ export function mount(app) {
   // phone: the same on the holder's and everyone else's, whatever the answer.
   function rippleOnLook() {
     const target = lady().target ?? null;
-    if (seenTarget === null && target) ripple(app);
+    if (seenTarget === null && target) {
+      ripple(app);
+      sound('water');
+    }
     seenTarget = target;
   }
 

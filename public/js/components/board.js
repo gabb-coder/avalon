@@ -8,6 +8,7 @@ import { h, icon, avatar } from '../dom.js';
 import { t, list } from '../i18n.js';
 import { iconButton, roomTag, topbar, chip } from './ui.js';
 import { calm } from '../fx.js';
+import { sound } from '../sound.js';
 
 // ---------- sizes ----------
 
@@ -127,6 +128,7 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
   // badges on their avatars are offset by the same amount).
   const offset = (a, b) => [geo.rx * (Math.cos(a) - Math.cos(b)), geo.ry * (Math.sin(a) - Math.sin(b))];
 
+  let newPick = false;
   const ring = h('div', { class: ['ring', `ring-${size}`], role: 'list', 'aria-label': t('board.seats') });
   ring.append(h('div', { class: 'ring-table', 'aria-hidden': 'true' }, center));
   order.forEach((id, k) => {
@@ -168,6 +170,7 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
           frames.push({ transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${lift.toFixed(2)})` });
         }
         flyBadge(seat, badge, frames, 750);
+        later(250, 'glide');
       }
     }
     if (lady) {
@@ -178,14 +181,22 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
         const [dx, dy] = offset(angle(prev.lady), a);
         flyBadge(seat, badge, [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: `translate(${dx / 2}px, ${dy / 2}px) scale(1.4)` }, { transform: 'none' }], 900);
         seat.style.setProperty('--land-at', '1050ms');
+        later(1050, 'drop');
       }
     }
     if (off) av.append(h('span', { class: 'av-badge off' }, icon('wifioff')));
     seat.style.left = `${Math.round(geo.cx + geo.rx * Math.cos(a))}px`;
     seat.style.top = `${Math.round(geo.cy + geo.ry * Math.sin(a))}px`;
     ring.append(seat);
+    if (picked) newPick = true;
   });
+  if (newPick) sound('tick');
   return ring;
+}
+
+// A sound timed with the tokens' flight.
+function later(ms, name) {
+  setTimeout(() => sound(name), ms);
 }
 
 // The token waits a moment (the screen is still rising in), then flies, above

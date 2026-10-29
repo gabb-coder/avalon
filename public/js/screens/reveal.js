@@ -10,7 +10,8 @@ import { rejectCounter } from '../components/board.js';
 import { revealTopbar, continueDock } from '../components/reveal.js';
 import { historyLegend } from '../components/history.js';
 import { openMenu, openHistory } from './sheets.js';
-import { timeline, burst, shake } from '../fx.js';
+import { calm, timeline, burst, shake } from '../fx.js';
+import { sound } from '../sound.js';
 
 export function mount(app) {
   const v = app.view;
@@ -111,6 +112,12 @@ export function mount(app) {
   }
   const cont = continueDock(app, dock, { label, ic, hint });
   const fx = timeline(app);
+  const verdict = p.approved ? 'approved' : lost ? 'doom' : 'rejected';
+  if (calm(app)) fx.at(150, () => sound(verdict)); // everything appears at once: just the verdict
+  else {
+    order.forEach((_, k) => fx.at(cellAt(k) + 110 + 190, () => sound('slam')));
+    fx.at(landAt, () => sound(verdict));
+  }
   fx.at(landAt, () => {
     shake(app, content, { px: p.approved ? 4 : 6 });
     burst(app, seal, { kind: p.approved ? 'gold' : lost ? 'ember' : 'pale', count: p.approved ? 16 : 10, reach: 80 });

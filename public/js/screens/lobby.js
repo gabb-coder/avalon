@@ -13,6 +13,7 @@ import { toast } from '../components/toast.js';
 import { copyCode, shareRoom } from '../share.js';
 import { openGlossary, openKickConfirm, openHostPicker } from './sheets.js';
 import { ambience } from '../fx.js';
+import { sound } from '../sound.js';
 
 const MIN = 5;
 const MAX = 10;
@@ -121,6 +122,7 @@ export function mount(app) {
     const host = isHost();
     const known = seenPlayers?.code === v.code ? seenPlayers.ids : null;
     seenPlayers = { code: v.code, ids: new Set(v.players.map((p) => p.id)) };
+    if (known && v.players.some((p) => !known.has(p.id))) sound('pop');
     const rows = v.players.map((p) => {
       const you = p.id === v.you;
       const fresh = known && !known.has(p.id); // just sat down: pops in
