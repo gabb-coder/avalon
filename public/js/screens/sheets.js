@@ -11,6 +11,9 @@ import { toast } from '../components/toast.js';
 import { button, seg, toggleRow, panel, teamChip, note } from '../components/ui.js';
 import { ROLE_TEAM } from '../components/roleCard.js';
 import { historyGrid, historyLegend, focusSummary } from '../components/history.js';
+import { howToArt, playScene } from '../components/howto.js';
+import { calm, burst } from '../fx.js';
+import { sound } from '../sound.js';
 
 // ---------- B4 · Role glossary ----------
 
@@ -251,53 +254,24 @@ export function openHistory(app) {
 
 const HOWTO_STEPS = 6;
 
-function howToArt(step) {
-  const frame = (team, ic) => h('span', { class: `frame-${team} frame-72` }, icon(ic, 'ic-40'));
-  switch (step) {
-    case 1:
-      return [
-        h('div', { class: 'col howto-team' }, frame('good', 'good'), h('span', { class: 't-body b good' }, t('team.good'))),
-        h('span', { class: 'd-m faint' }, t('howto.vs')),
-        h('div', { class: 'col howto-team' }, frame('evil', 'evil'), h('span', { class: 't-body b evil' }, t('team.evil'))),
-      ];
-    case 2:
-      return [
-        h('span', { class: 'tok tok-leader tok-56' }, icon('standard', 'ic-32')),
-        icon('arrow', 'gold'),
-        h('div', { class: 'stack' }, ['I', 'T', 'M'].map((c) => avatar(c, { size: 48, extra: ['av-ring'] }))),
-      ];
-    case 3:
-      return [
-        h('span', { class: 'vm vm-a vm-72' }, icon('check', 'ic-40')),
-        h('span', { class: 'vm vm-r vm-72' }, icon('cross', 'ic-40')),
-      ];
-    case 4:
-      return ['s', 's', 'f'].map((c) =>
-        h('div', { class: ['rtok', c === 's' ? 'rtok-s' : 'rtok-f'] }, icon(c === 's' ? 'success' : 'fail'), t(c === 's' ? 'card.success' : 'card.fail')),
-      );
-    case 5:
-      return h(
-        'div',
-        { class: 'qtrack howto-track' },
-        ['success', 'fail', 'success', 'current', 'next'].map((s, i) =>
-          h(
-            'div',
-            { class: ['qnode', s === 'success' && 'is-success', s === 'fail' && 'is-fail', s === 'current' && 'is-current'] },
-            h('div', { class: 'qnode-disc' }, s === 'success' || s === 'fail' ? icon(s, 'ic-28') : String(i + 1)),
-          ),
-        ),
-      );
-    default:
-      return [frame('evil', 'assassin'), icon('target', 'evil', 'ic-32'), frame('good', 'merlin')];
-  }
-}
-
 export function openHowTo(app) {
   let step = 1;
+  let stopScene = () => {};
   const content = h('div', { class: 'col howto' });
   const footer = h('div', { class: 'dock dock-row howto-dock' });
   let closeSheet = () => {};
+  // Each page's picture plays a short scene into its final state, once; Replay
+  // plays it again. Reduced motion shows the final picture, with no Replay.
+  const play = (art) => {
+    stopScene();
+    stopScene = playScene(app, step, art);
+  };
   const paint = () => {
+    stopScene();
+    const art = h('div', { class: 'panel howto-art' }, howToArt(step));
+    if (!calm(app)) {
+      art.append(h('button', { type: 'button', class: 'howto-replay', 'aria-label': t('howto.replay'), key: 'howto-replay', on: { click: () => play(art) } }, icon('refresh')));
+    }
     replace(
       content,
       h('div', { class: 'row howto-dots', 'aria-hidden': 'true' }, Array.from({ length: HOWTO_STEPS }, (_, i) => h('span', { class: ['howto-dot', i < step && 'is-on'] }))),
@@ -305,7 +279,7 @@ export function openHowTo(app) {
       h(
         'div',
         { class: 'col anim-rise howto-page' },
-        h('div', { class: 'panel howto-art' }, howToArt(step)),
+        art,
         h('h3', { class: 't-title' }, t(`howto.${step}.title`)),
         h('p', { class: 't-body-l muted pretty' }, t(`howto.${step}.text`)),
       ),
@@ -315,12 +289,21 @@ export function openHowTo(app) {
       button({ label: t('common.back'), kind: 'secondary', md: true, block: false, disabled: step === 1, extra: ['howto-back'], key: 'howto-back', onClick: () => { step -= 1; paint(); } }),
       step < HOWTO_STEPS
         ? h('button', { type: 'button', class: 'btn btn-primary howto-next', key: 'howto-next', on: { click: () => { step += 1; paint(); } } }, t('common.next'), icon('right'))
-        : button({ label: t('howto.done'), block: false, extra: ['howto-next'], key: 'howto-next', onClick: () => closeSheet() }),
+        : button({ label: t('howto.done'), block: false, extra: ['howto-next'], key: 'howto-next', onClick: finish }),
     );
+    // The page is on screen (after the first paint, once the sheet is open).
+    if (content.isConnected) requestAnimationFrame(() => play(art));
   };
+  // "Got it": a burst of gold sparks and a bright chime as the sheet closes.
+  function finish() {
+    burst(app, footer.querySelector('.howto-next'), { kind: 'gold', count: 26, reach: 150 });
+    sound('ready');
+    closeSheet();
+  }
   paint();
-  const sheet = openSheet(app.root, { title: t('howto.title'), closeLabel: t('howto.close'), body: content, footer, height: 'tall' });
+  const sheet = openSheet(app.root, { title: t('howto.title'), closeLabel: t('howto.close'), body: content, footer, height: 'tall', onClose: () => stopScene() });
   closeSheet = sheet.close;
+  requestAnimationFrame(() => play(content.querySelector('.howto-art')));
 }
 
 // ---------- Host hand-over (G4 "Hand it on", E4 "Hand host to another player") ----------

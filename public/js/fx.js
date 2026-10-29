@@ -18,9 +18,9 @@ const rand = (a, b) => a + Math.random() * (b - a);
 
 // Effects sit in their own layer over the screen: no pointer events, hidden
 // from screen readers, removed when they finish (or on Skip / screen change).
-function layer(app, ms) {
+function layer(app, ms, host = app.root) {
   const el = h('div', { class: 'fx-layer', 'aria-hidden': 'true' });
-  app.root.append(el);
+  host.append(el);
   setTimeout(() => el.remove(), ms);
   return el;
 }
@@ -29,10 +29,10 @@ export function clearFx(app) {
   app.root.querySelectorAll('.fx-layer').forEach((el) => el.remove());
 }
 
-// Where an element's centre is, relative to the phone.
-function centreOf(app, el) {
+// Where an element's centre is, relative to the phone (or another host).
+function centreOf(host, el) {
   const r = el.getBoundingClientRect();
-  const p = app.root.getBoundingClientRect();
+  const p = host.getBoundingClientRect();
   return { x: r.left - p.left + r.width / 2, y: r.top - p.top + r.height / 2 };
 }
 
@@ -57,11 +57,12 @@ export function timeline(app) {
 
 // A burst of particles thrown out from an element: gold sparks (Success,
 // Approved, Good) or embers that fall away (Fail, Evil). A ring of light
-// spreads behind them.
-export function burst(app, el, { kind = 'gold', count = 14, reach = 90 } = {}) {
+// spreads behind them. `host` keeps the burst inside an element (How to play's
+// pictures, which sit in a sheet above the phone's effects layer).
+export function burst(app, el, { kind = 'gold', count = 14, reach = 90, host = app.root } = {}) {
   if (calm(app) || !el.isConnected) return;
-  const { x, y } = centreOf(app, el);
-  const fx = layer(app, 1400);
+  const { x, y } = centreOf(host, el);
+  const fx = layer(app, 1400, host);
   const wave = h('span', { class: ['fx-wave', `fx-wave-${kind}`] });
   wave.style.left = `${x}px`;
   wave.style.top = `${y}px`;
@@ -160,7 +161,7 @@ export function ripple(app, el = null, { rings = 3, size = 0 } = {}) {
   if (calm(app)) return;
   const fx = layer(app, 1900);
   const box = app.root.getBoundingClientRect();
-  const { x, y } = el?.isConnected ? centreOf(app, el) : { x: box.width / 2, y: box.height / 2 };
+  const { x, y } = el?.isConnected ? centreOf(app.root, el) : { x: box.width / 2, y: box.height / 2 };
   const scale = (size || Math.max(box.width, box.height) * 1.2) / 100;
   for (let i = 0; i < rings; i++) {
     const ring = h('span', { class: 'fx-ripple' });
