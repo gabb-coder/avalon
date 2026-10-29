@@ -67,7 +67,7 @@ export const C2S = {
   ASSASSIN_GUESS: 'assassin:guess',
   /** Play again (anyone, at game over). {} */
   GAME_REMATCH: 'game:rematch',
-  /** Host only: end the game for everyone and close the room. {} */
+  /** Host only, during a game: end it; everyone goes back to the lobby (same players, roles not revealed). {} */
   GAME_END: 'game:end',
 };
 
@@ -87,7 +87,7 @@ export const S2C = {
   NOTICE: 'notice',
   /**
    * The room is gone for this player.
-   * { reason: 'hostEnded' | 'seatExpired' | 'idle' | 'kicked' | 'empty', name?: string }
+   * { reason: 'seatExpired' | 'idle' | 'kicked' | 'empty', name?: string }
    */
   ROOM_CLOSED: 'room:closed',
 };

@@ -33,7 +33,7 @@ import { keepAwake, turnKey, buzz } from './device.js';
 import { calm, clearFx } from './fx.js';
 import { unlockAudio, sound } from './sound.js';
 import { ringSize, isShort, isTablet, endOfferDue } from './components/board.js';
-import { openEndGameConfirm } from './screens/sheets.js';
+import { openEndGameConfirm, openSettings } from './screens/sheets.js';
 
 const SCREENS = { splash, home, join, waking, ended, lobby, night, propose, vote, reveal, quest, result, gameover, lady, assassin, lost };
 
@@ -73,7 +73,6 @@ const app = {
   // the lobby, but this player keeps reading the game-over summary (F4, from
   // view.lastGame) until they press Play again or Leave themselves.
   holdSummary: false,
-  endedByMe: false,
   offlineSince: null, // when this phone lost the room's connection (G1, then G2 after 30 s)
   attempt: 0, // reconnect attempts since then (G1's banner) // this player pressed "End game for everyone" (G3 says "You ended…")
   net: null,
@@ -127,6 +126,10 @@ const app = {
 
   confirmEndGame() {
     openEndGameConfirm(this);
+  },
+
+  openSettings() {
+    openSettings(this);
   },
 
   // Rebuild the current screen from scratch (e.g. to show a server's refusal
@@ -341,6 +344,10 @@ function onNotice({ key, params }) {
     case 'notice.kicked':
       if (params.name !== myName()) toast(t('notice.kicked', params), { ic: 'kick' });
       break;
+    // The host ended the game: everyone else is told why they're in the lobby.
+    case 'notice.gameEnded':
+      if (params.name !== myName()) toast(t('notice.gameEnded', params), { ic: 'cross' });
+      break;
     // The status bar keeps showing who is offline, so these are brief, and
     // "X is back" withdraws "X lost connection".
     case 'notice.away':
@@ -358,8 +365,7 @@ function onNotice({ key, params }) {
 function onClosed({ reason, name }) {
   const code = prefs.session?.code;
   app.forgetRoom();
-  app.endedInfo = { reason: reason === 'hostEnded' && app.endedByMe ? 'hostEndedYou' : reason, name, code };
-  app.endedByMe = false;
+  app.endedInfo = { reason, name, code };
   closeOverlay();
   clearToasts();
   app.go('ended');

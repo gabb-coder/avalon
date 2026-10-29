@@ -72,12 +72,13 @@ Tick each box as you go.
   - the others see it as offline;
   - it comes back by itself, with its role and vote intact.
 - [ ] Airplane mode for 40 seconds: "Connection lost" appears with a countdown, and the game resumes when the network returns.
-- [ ] While that player is offline and needed (say, they haven't voted), the game waits for them. After 2 minutes, the host's status bar offers "End game for everyone".
+- [ ] While that player is offline and needed (say, they haven't voted), the game waits for them. After 2 minutes, the host's status bar offers "End game".
 - [ ] Lock a phone for 2 minutes mid-game and unlock it: it picks up where it was.
 - [ ] The screen doesn't dim or lock during a game, but does in the lobby.
 - [ ] "Vibrate on my turn" buzzes on Android when it's your turn (leader, vote, quest). Turning it off in the Menu stops it. iPhones never vibrate (a Safari limit).
 - [ ] Menu → Leave game mid-game: Home offers "Back to room?" and rejoining works.
-- [ ] The host ends the game from the Menu: everyone sees the room closed, and the host's phone says they ended it.
+- [ ] Every game screen has a Settings button (sliders, top right). The host's Settings has "End game" at the bottom; a guest's doesn't.
+- [ ] The host taps End game: a warning comes first, and "Keep playing" backs out. "Yes, end the game" brings every phone back to the lobby with the same players, nobody's role revealed, and the others see "… ended the game". A new game can start straight away.
 
 ## 8. Comfort and access
 

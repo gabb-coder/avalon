@@ -157,8 +157,19 @@ function displaySection(app, reopen) {
   ];
 }
 
+// Settings: Home's sliders button, and the sliders button in a game's top
+// bar. During a game the host also finds End game here.
 export function openSettings(app) {
-  openSheet(app.root, { title: t('settings.title'), body: displaySection(app, () => openSettings(app)) });
+  const v = app.view;
+  const hostInGame = v && midGame(v) && v.hostId === v.you;
+  const body = [
+    ...displaySection(app, () => openSettings(app)),
+    hostInGame ? h('p', { class: 'eyebrow menu-eyebrow' }, t('menu.host')) : null,
+    hostInGame
+      ? panel([button({ label: t('menu.endGame'), kind: 'ghost', md: true, ic: 'cross', key: 'settings-end', extra: ['menu-action', 'menu-end'], onClick: () => openEndGameConfirm(app) })], { extra: ['menu-actions'] })
+      : null,
+  ];
+  openSheet(app.root, { title: t('settings.title'), body });
 }
 
 // A Menu row: an <a>-like full-width button with icon, title, meta and chevron.
@@ -408,9 +419,10 @@ export function openLeaveConfirm(app) {
   });
 }
 
-// ---------- End game for everyone (host; E4, and the status bar after 2 minutes) ----------
-// Decision 3: the host can always end a game from the Menu, with this confirm.
-// The server closes the room; everyone (the host too) lands on G3.
+// ---------- End game (host; Settings, the Menu, and the status bar after 2 minutes) ----------
+// Decision 3: the host can always end a game, after this warning. Everyone
+// goes back to the lobby with the same players and settings; nobody's role
+// is revealed. The new phase moves every phone (and closes this dialog).
 
 export function openEndGameConfirm(app) {
   const n = app.view.players.length;
@@ -425,10 +437,8 @@ export function openEndGameConfirm(app) {
         kind: 'danger',
         ic: 'cross',
         onClick: async () => {
-          app.endedByMe = true;
           const ack = await app.request(C2S.GAME_END);
-          if (!ack.ok) {
-            app.endedByMe = false;
+          if (!ack.ok && ack.code !== 'err.phase') {
             close();
             toast(t(ack.code, ack.params), { kind: 'err' });
           }

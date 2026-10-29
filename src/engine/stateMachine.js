@@ -500,10 +500,15 @@ const HANDLERS = {
     s.phase = 'lobby';
   },
 
-  // The host ends the game for everyone; the server closes the room.
+  // The host ends a game in progress: everyone goes back to the lobby with
+  // the same players and settings, ready for a new game. Nobody's role is
+  // revealed, so there's no summary to keep (unlike Play again).
   END(s, a, ctx) {
-    const bad = needHost(s, a.actor);
+    const bad = needHost(s, a.actor) || (s.game && s.phase !== 'game_over' ? null : error(ERR.PHASE));
     if (bad) return bad;
-    ctx.effects.push({ type: 'closed', reason: 'hostEnded', by: player(s, a.actor).name });
+    s.game = null;
+    s.lastGame = null;
+    s.phase = 'lobby';
+    notice(ctx, 'notice.gameEnded', { name: player(s, a.actor).name });
   },
 };
