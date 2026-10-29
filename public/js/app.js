@@ -6,7 +6,7 @@
 
 import { C2S } from '../shared/protocol.js';
 import { GAME_TITLE } from '../config.js';
-import { loadLocale, t } from './i18n.js';
+import { loadLocale, pickLanguage, t } from './i18n.js';
 import { prefs } from './prefs.js';
 import { createNet, wakeServer } from './net.js';
 import { h } from './dom.js';
@@ -113,6 +113,14 @@ const app = {
     if (s) prefs.session = { ...s, active: false };
     this.view = null;
     this.go('home');
+  },
+
+  // Switch language right away: load the strings, then redraw the screen.
+  async setLanguage(lang) {
+    await loadLocale(lang);
+    prefs.lang = lang;
+    applyLanguage(lang);
+    this.remount();
   },
 
   confirmEndGame() {
@@ -427,6 +435,20 @@ function trackDock() {
   else root.style.setProperty('--dock-h', '24px');
 }
 
+// <html lang> drives the Chinese type rules in app.css (and screen readers'
+// pronunciation). The Chinese web fonts are fetched only when Chinese is used.
+let cjkFonts = null;
+function applyLanguage(lang) {
+  document.documentElement.lang = lang;
+  if (lang.startsWith('zh') && !cjkFonts) {
+    cjkFonts = h('link', {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@600;700&display=swap',
+    });
+    document.head.append(cjkFonts);
+  }
+}
+
 // Text size (100/115/130%) and Reduce motion, from the Menu or Home settings.
 export function applyDisplayPrefs() {
   root.style.setProperty('--ts', String(prefs.textScale));
@@ -460,13 +482,14 @@ async function boot() {
   // and always loads instantly; only the game server sleeps).
   startWaking();
 
+  const lang = pickLanguage(prefs.lang, navigator.languages || [navigator.language]);
   try {
-    await loadLocale('en');
+    await loadLocale(lang);
   } catch {
     root.replaceChildren(h('p', { class: 't-body center boot-error' }, 'Could not load the app. Check your connection and reload.'));
     return;
   }
-  document.documentElement.lang = 'en';
+  applyLanguage(lang);
   connLayer = connectionLayer(root, screenHost);
   booted = true;
   render();

@@ -8,7 +8,7 @@
 // the app resumes the seat and the game screen comes back by itself.
 
 import { h, icon, replace } from '../dom.js';
-import { t } from '../i18n.js';
+import { t, gap } from '../i18n.js';
 import { button } from '../components/ui.js';
 
 const TRY_MS = 4000;
@@ -26,9 +26,9 @@ export function mount(app) {
     if (left > 0) {
       const m = Math.floor(left / 60000);
       const s = String(Math.floor((left % 60000) / 1000)).padStart(2, '0');
-      replace(held, h('b', { class: 'text-1' }, t('lost.held', { time: `${m}:${s}` })), ' ', t('lost.heldText'));
+      replace(held, h('b', { class: 'text-1' }, t('lost.held', { time: `${m}:${s}` })), gap(), t('lost.heldText'));
     } else {
-      replace(held, h('b', { class: 'text-1' }, t('lost.heldOver')), ' ', t('lost.heldOverText'));
+      replace(held, h('b', { class: 'text-1' }, t('lost.heldOver')), gap(), t('lost.heldOverText'));
     }
   }
 
@@ -63,7 +63,7 @@ export function mount(app) {
       { class: 'content content-center', role: 'alert' },
       h('div', { class: 'lost-icon' }, icon('wifioff', 'lost-ic')),
       h('h1', { class: 'd-l' }, t('lost.title')),
-      h('p', { class: 't-body-l muted pretty lost-text' }, t('net.lost', { code: app.view?.code || app.session?.code || '', s: Math.round(lostMs / 1000) }), ' ', t('lost.check')),
+      h('p', { class: 't-body-l muted pretty lost-text' }, t('net.lost', { code: app.view?.code || app.session?.code || '', s: Math.round(lostMs / 1000) }), gap(), t('lost.check')),
       h('div', { class: 'panel row text-left full-width lost-panel' }, icon('hourglass', 'gold'), held),
     ),
     dock,

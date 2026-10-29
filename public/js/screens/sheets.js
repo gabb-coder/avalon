@@ -4,7 +4,7 @@
 
 import { C2S } from '../../shared/protocol.js';
 import { h, icon, avatar, replace } from '../dom.js';
-import { t } from '../i18n.js';
+import { t, currentLocale, LANGUAGES } from '../i18n.js';
 import { prefs } from '../prefs.js';
 import { openSheet, openModal, closeOverlay } from '../components/overlay.js';
 import { toast } from '../components/toast.js';
@@ -80,8 +80,19 @@ export function openGlossary(app) {
 }
 
 // ---------- E4 · Display settings (part of the Menu; Home's settings button) ----------
+// `reopen` opens the same sheet again after a language switch, since
+// switching redraws everything in the new language.
 
-function displaySection(app) {
+function displaySection(app, reopen) {
+  const language = seg({
+    labelledBy: 'lang-l',
+    value: currentLocale(),
+    options: LANGUAGES.map((lang) => ({ value: lang, label: t(`lang.${lang}`) })),
+    onChange: async (lang) => {
+      await app.setLanguage(lang);
+      reopen();
+    },
+  });
   const ts = h('div');
   const paintTs = () =>
     replace(
@@ -105,6 +116,7 @@ function displaySection(app) {
   paintTs();
   return [
     h('p', { class: 'eyebrow menu-eyebrow' }, t('menu.display')),
+    panel([h('p', { class: 't-body b', id: 'lang-l' }, t('menu.language')), language], { extra: ['col'] }),
     panel([h('p', { class: 't-body b', id: 'ts-l' }, t('menu.textSize')), ts], { extra: ['col'] }),
     panel(
       [
@@ -134,7 +146,7 @@ function displaySection(app) {
 }
 
 export function openSettings(app) {
-  openSheet(app.root, { title: t('settings.title'), body: displaySection(app) });
+  openSheet(app.root, { title: t('settings.title'), body: displaySection(app, () => openSettings(app)) });
 }
 
 // A Menu row: an <a>-like full-width button with icon, title, meta and chevron.
@@ -160,7 +172,7 @@ export function openMenu(app) {
     menuRow({ ic: 'book', title: t('menu.howTo'), meta: t('menu.howToMeta'), onClick: () => openHowTo(app) }),
     menuRow({ ic: 'cards', title: t('menu.roles'), meta: t('menu.rolesMeta'), onClick: () => openGlossary(app) }),
     v.game ? menuRow({ ic: 'history', title: t('menu.history'), meta: t('menu.historyMeta', { n: proposals }), onClick: () => openHistory(app) }) : null,
-    ...displaySection(app),
+    ...displaySection(app, () => openMenu(app)),
     ...(isHost
       ? [
           h('p', { class: 'eyebrow menu-eyebrow' }, t('menu.host')),

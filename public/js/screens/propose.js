@@ -8,7 +8,7 @@
 
 import { C2S } from '../../shared/protocol.js';
 import { h, icon, avatar, replace } from '../dom.js';
-import { t, list } from '../i18n.js';
+import { t, tParts, list } from '../i18n.js';
 import { toast } from '../components/toast.js';
 import { peekButton } from '../components/peek.js';
 import { button, blockedButton, iconButton, note, roomTag, statusBar, topbar } from '../components/ui.js';
@@ -125,7 +125,7 @@ export function mount(app) {
       wait: away
         ? away.wait
         : picks.length
-          ? [t('board.pickedSoFar'), ' ', h('b', { class: 'text-1', text: list(picks.map((id) => game.names[id])) }), ' · ', left > 0 ? t('board.toGo', { n: left }) : t('board.allPicked')]
+          ? tParts('board.pickedLine', { names: h('b', { class: 'text-1', text: list(picks.map((id) => game.names[id])) }), rest: left > 0 ? t('board.toGo', { n: left }) : t('board.allPicked') })
           : t('board.noPicksYet'),
     });
   }
@@ -174,7 +174,7 @@ export function mount(app) {
     const leader = game.proposal.leader;
     const next = game.seats[(game.seats.indexOf(leader) + 1) % game.seats.length];
     const rows = [
-      h('div', { class: 'row tab-info' }, h('span', { class: 'tok tok-leader' }, icon('standard')), h('p', { class: 't-body grow' }, h('b', { text: nameOf(leader, true) }), ' ', t(leader === v().you ? 'tab.youLead' : 'tab.leads', { next: nameOf(next) }))),
+      h('div', { class: 'row tab-info' }, h('span', { class: 'tok tok-leader' }, icon('standard')), h('p', { class: 't-body grow' }, tParts(leader === v().you ? 'tab.youLead' : 'tab.leads', { name: h('b', { text: nameOf(leader, true) }), next: nameOf(next) }))),
     ];
     if (game.lady) {
       const holder = game.lady.holder;
@@ -184,7 +184,7 @@ export function mount(app) {
           'div',
           { class: 'row tab-info' },
           h('span', { class: 'tok tok-lady' }, icon('lady')),
-          h('p', { class: 't-body grow' }, h('b', { text: nameOf(holder, true) }), ' ', t(holder === v().you ? 'tab.youHoldLady' : 'tab.holdsLady'), use <= 3 ? t('tab.ladyUse', { q: use + 1 }) : ''),
+          h('p', { class: 't-body grow' }, tParts(holder === v().you ? 'tab.youHoldLady' : 'tab.holdsLady', { name: h('b', { text: nameOf(holder, true) }) }), use <= 3 ? t('tab.ladyUse', { q: use + 1 }) : ''),
         ),
       );
     }

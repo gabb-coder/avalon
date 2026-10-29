@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { format, setMessages, t } from '../public/js/i18n.js';
+import { format, setMessages, t, list, gap, pickLanguage, LANGUAGES } from '../public/js/i18n.js';
 import { ERR, ROLE_IDS, PHASES } from '../src/engine/index.js';
 import { SERVER_ERRORS } from '../shared/protocol.js';
 import { endOfferDue } from '../public/js/components/board.js';
@@ -18,6 +18,7 @@ import { turnKey } from '../public/js/device.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const en = JSON.parse(read('public/i18n/en.json'));
+const zh = JSON.parse(read('public/i18n/zh-Hans.json'));
 
 function clientFiles(dir = 'public/js') {
   return fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((e) =>
@@ -69,12 +70,13 @@ describe('strings', () => {
     ...Object.values(SERVER_ERRORS),
     'err.timeout',
     'start.tooFew', 'start.tooManyEvil', 'start.morganaNoPercival',
+    ...LANGUAGES.map((l) => `lang.${l}`),
   ];
 
   test('every key the client uses exists in en.json', () => {
     const used = new Set(dynamicKeys);
     for (const file of clientFiles()) {
-      for (const m of read(file).matchAll(/\bt\(\s*'([a-zA-Z0-9_.]+)'/g)) used.add(m[1]);
+      for (const m of read(file).matchAll(/\b(?:t|tParts)\(\s*'([a-zA-Z0-9_.]+)'/g)) used.add(m[1]);
     }
     const missing = [...used].filter((k) => !(k in en));
     assert.deepEqual(missing, [], `missing strings: ${missing.join(', ')}`);
@@ -89,6 +91,69 @@ describe('strings', () => {
 
   test('the full game title never appears in strings (branding guardrail)', () => {
     assert.ok(!JSON.stringify(en).includes('Resistance'));
+    assert.ok(!JSON.stringify(zh).includes('Resistance') && !JSON.stringify(zh).includes('抵抗'));
+  });
+});
+
+describe('Simplified Chinese', () => {
+  // Top-level argument names in a message: "{name}", "{n, plural, …}".
+  const args = (msg) => {
+    const out = new Set();
+    let depth = 0;
+    for (let i = 0; i < msg.length; i++) {
+      if (msg[i] === '{') {
+        if (depth === 0) out.add(msg.slice(i + 1).match(/^\s*(\w+)/)[1]);
+        depth++;
+      } else if (msg[i] === '}') depth--;
+    }
+    return out;
+  };
+
+  test('zh-Hans.json has exactly the same keys as en.json', () => {
+    assert.deepEqual(Object.keys(zh).sort(), Object.keys(en).sort());
+  });
+
+  test('every Chinese message uses only placeholders the English one is given', () => {
+    for (const key of Object.keys(en)) {
+      const extra = [...args(zh[key])].filter((a) => !args(en[key]).has(a));
+      assert.deepEqual(extra, [], `${key} uses ${extra.join(', ')}`);
+    }
+  });
+
+  test('every Chinese message renders without leftover braces', () => {
+    for (const [key, msg] of Object.entries(zh)) {
+      const out = format(msg, { n: 2, total: 7, code: 'KQVX', name: 'Rowan', names: 'Kofi、Mei', p: 7, e: 3, r: 4, q: 1, x: 1, host: 'Rowan', roles: '莫德雷德', role: '梅林', team: '正义', who: 'x', sees: 'y', title: 'Avalon', max: 10, min: 5, current: 'yes', fails: 1 }, 'zh-Hans');
+      assert.ok(!/[{}]/.test(out), `${key} rendered as "${out}"`);
+    }
+  });
+
+  test('no message was left in English', () => {
+    // Strings that are only placeholders, codes and symbols are allowed.
+    const ok = new Set(['lang.en', 'peek.ladyResult', 'history.rowLabel', 'board.pickedOf']);
+    for (const [key, msg] of Object.entries(zh)) {
+      if (ok.has(key)) continue;
+      // Render with Chinese sample values, so only the message's own words are left in Latin letters.
+      const text = format(msg, { n: 2, total: 7, code: '码', name: '甲', names: '甲、乙', host: '甲', holder: '甲', target: '乙', next: '乙', guess: '乙', assassin: '甲', merlin: '丙', roles: '丙', role: '丙', team: '正义', who: '丁', sees: '丁', heading: '丁', vote: '同意', choice: '同意', rest: '丁', title: '阿', time: '4:00', current: 'yes' }, 'zh-Hans');
+      assert.ok(/[\u4e00-\u9fff]/.test(text) || !/[a-z]{3}/i.test(text), `${key} looks untranslated: "${msg}"`);
+    }
+  });
+
+  test('the starting language: the saved choice, else Chinese for a Chinese phone, else English', () => {
+    assert.equal(pickLanguage('zh-Hans', ['en-GB']), 'zh-Hans');
+    assert.equal(pickLanguage('en', ['zh-CN']), 'en');
+    assert.equal(pickLanguage(null, ['zh-CN', 'en']), 'zh-Hans');
+    assert.equal(pickLanguage(null, ['zh-TW']), 'zh-Hans');
+    assert.equal(pickLanguage(null, ['fr-FR', 'en-US']), 'en');
+    assert.equal(pickLanguage('klingon', []), 'en');
+  });
+
+  test('names are listed the Chinese way', () => {
+    setMessages({}, 'zh-Hans');
+    assert.equal(list(['Kofi', 'Mei', 'Jude']), 'Kofi、Mei和Jude');
+    assert.equal(gap(), '');
+    setMessages(en, 'en');
+    assert.equal(list(['Kofi', 'Mei', 'Jude']), 'Kofi, Mei and Jude');
+    assert.equal(gap(), ' ');
   });
 });
 

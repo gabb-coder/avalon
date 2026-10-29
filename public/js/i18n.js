@@ -11,6 +11,17 @@
 let messages = {};
 let locale = 'en';
 
+// The languages with a strings file in public/i18n/. Each one's name is
+// shown in its own language in the picker ("English", "中文").
+export const LANGUAGES = ['en', 'zh-Hans'];
+
+// The language to start in: the player's choice if they made one, else
+// Chinese for a phone set to any Chinese, else English.
+export function pickLanguage(saved, browserLangs = []) {
+  if (LANGUAGES.includes(saved)) return saved;
+  return browserLangs.some((l) => /^zh\b/i.test(l)) ? 'zh-Hans' : 'en';
+}
+
 export async function loadLocale(lang = 'en') {
   const res = await fetch(`i18n/${lang}.json`, { cache: 'no-cache' });
   if (!res.ok) throw new Error(`could not load strings for ${lang}`);
@@ -113,6 +124,34 @@ function render(parts, params, lang, hashValue) {
     }
   }
   return out;
+}
+
+export function currentLocale() {
+  return locale;
+}
+
+// The space between two sentences: none in Chinese, where 。 already
+// separates them.
+export function gap() {
+  return locale.startsWith('zh') ? '' : ' ';
+}
+
+// Like t(), but params may be DOM nodes (e.g. a bold name). Returns an array
+// of strings and nodes for h(), so each language keeps its own word order
+// and punctuation around the node.
+export function tParts(key, params = {}) {
+  const nodes = [];
+  const plain = {};
+  for (const [k, v] of Object.entries(params)) {
+    if (v && typeof v === 'object' && 'nodeType' in v) {
+      plain[k] = `\u0000${nodes.length}\u0000`;
+      nodes.push(v);
+    } else plain[k] = v;
+  }
+  return t(key, plain)
+    .split('\u0000')
+    .map((part, i) => (i % 2 ? nodes[Number(part)] : part))
+    .filter((part) => part !== '');
 }
 
 // Join names as "Kofi", "Kofi and Mei", "Kofi, Mei and Jude" (localised).

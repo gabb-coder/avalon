@@ -124,7 +124,7 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
     const tags = [you && t('board.tagYou'), isLead && t('board.tagLeader'), lady && t('board.tagLady'), off && t('board.tagOffline'), onTeam && t('board.tagTeam')].filter(Boolean);
     const seat = h(
       'div',
-      { class: ['seat', onTeam && 'is-team', off && 'is-off'], role: 'listitem', 'aria-label': [name, ...tags].join(', ') },
+      { class: ['seat', onTeam && 'is-team', off && 'is-off'], role: 'listitem', 'aria-label': [name, ...tags].join(t('common.sep')) },
       avatar(name, {
         size: geo.av,
         you,

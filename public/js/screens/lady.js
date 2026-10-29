@@ -11,7 +11,7 @@
 
 import { C2S } from '../../shared/protocol.js';
 import { h, icon, avatar, replace } from '../dom.js';
-import { t, list } from '../i18n.js';
+import { t, tParts, gap, list } from '../i18n.js';
 import { toast } from '../components/toast.js';
 import { peekButton } from '../components/peek.js';
 import { bindHold } from '../components/hold.js';
@@ -129,7 +129,7 @@ export function mount(app) {
     return panel(
       [
         h('span', { class: 'tok tok-lady' }, icon('lady')),
-        h('p', { class: 't-label muted grow' }, h('b', { class: 'text-1', text: t('lady.passesTo', { name: target }) }), ' ', more ? t('lady.nextUse', { q: next }) : t('lady.lastUse')),
+        h('p', { class: 't-label muted grow' }, h('b', { class: 'text-1', text: t('lady.passesTo', { name: target }) }), gap(), more ? t('lady.nextUse', { q: next }) : t('lady.lastUse')),
       ],
       { extra: ['row', 'lady-pass'] },
     );
@@ -176,7 +176,7 @@ export function mount(app) {
       ),
       h('p', { class: 't-body-l muted pretty narrow' }, target ? t(target === v().you ? 'lady.watchTextYou' : 'lady.watchText', { holder: holderName, target: game.names[target] }) : t('lady.watchChoosing', { holder: holderName })),
       panel(
-        [icon('arrow', 'gold'), h('p', { class: 't-label muted' }, target ? [t('lady.nextHolder'), ' ', h('b', { class: 'text-1', text: game.names[target] }), '. '] : null, t('lady.heldBy', { names: past }))],
+        [icon('arrow', 'gold'), h('p', { class: 't-label muted' }, target ? [tParts('lady.nextHolder', { name: h('b', { class: 'text-1', text: game.names[target] }) }), gap()] : null, t('lady.heldBy', { names: past }))],
         { extra: ['row', 'text-left', 'full-width', 'lady-pass'] },
       ),
     ];

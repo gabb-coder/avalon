@@ -85,6 +85,8 @@ Tick each box as you go.
 - [ ] Turn the phone sideways and back: nothing breaks.
 - [ ] On a tablet, if you have one, team building shows the ring and vote history side by side.
 - [ ] With a screen reader on (VoiceOver or TalkBack), you can find and use the vote buttons.
+- [ ] One player switches to 中文 (Home → Settings, or Menu → Display) mid-game: their phone changes language at once and the game carries on; everyone else stays in their own language.
+- [ ] A Chinese speaker reads through a whole game in Chinese and notes any wording that feels unnatural.
 
 ## Afterwards
 
