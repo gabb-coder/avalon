@@ -208,6 +208,14 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - **G2** (`screens/lost.js`): after that, the "Connection lost" screen with Try again, Back to home, and the seat-hold countdown. The countdown starts when this phone lost the connection, which is no later than when the server noticed, so it can only err on the short side.
   - The socket keeps retrying the whole time. When it gets through, the app resumes the seat and the game screen comes back by itself. "Back to home" keeps the seat (Home offers "Back to room?").
 - **Wake lock and vibration (`device.js`).** The screen wake lock is held while a game is on (not in the lobby or at game over) and taken again when the page comes back to the front. A short buzz (one fixed pattern) fires when a new turn of yours starts: leader, voter, team member, Lady holder, Assassin. These are all turns the table can already see are yours, so a buzz never carries a secret. Off via Menu → Vibrate on my turn.
+- **Every screen size (after launch, owner's request).** Checked from a folded phone (280 px) to a 2560 px desktop, phones held sideways, and 130% text. The CSS is app.css's last section.
+  - **Narrow phones.** The seat ring zooms down to fit its box (`fitWidth()` in `board.js`, watching the box with a ResizeObserver; zoom scales the layout, so the tokens' flights still line up). The night card zooms to fit the width as well as the height. Under 360 px the vote reveal is one column (two would cut names to a letter) and the room code is smaller.
+  - **Two buttons side by side** (Peek + Votes, Leave + Play again, Back + Next) wrap onto two lines instead of being cut off, with the main action on top.
+  - **Short screens** (under 700 px tall): the vote and quest cards and the quest emblem are smaller, so the team and status stay in view.
+  - **Centred screens that overflow** use `justify-content: safe center` (or `safe flex-end`), so their top can still be scrolled to instead of being cut off.
+  - **Phones held sideways** (landscape, under 540 px tall): the phone becomes two columns under the top bar. The content (board, card, lists) is on the left; the status and the dock are on the right, with toasts and Peek over that column. The dock always gets its full height; if the status can't also fit (big text), it scrolls. Sheets stay at most 560 px wide. The board puts the ring above the quest track, and the game-over intro covers both columns.
+  - **Tablets:** the S3 board's ring shrinks to leave the side panel at least 300 px, and the quest track there is compact under 900 px wide (iPad mini).
+  - **Role card at 130% text:** the front grows taller rather than cut off Merlin's last line.
 - **Tablet (S3).** At ≥ 768×700 the team-building board becomes two columns: the `xl` ring beside a panel with the quest track, rejects, leader and Lady lines, and the vote history always open underneath (follow-a-player works there too). The top bar has text buttons (Menu, Rules, Roles). Other screens, and the leader's picker, stay a centred phone column, which suits one-handed choices.
 - **Text size 130% (S5).** The status bar's top line wraps, the top bar grows instead of overlapping, and the vote-reveal grid becomes one column (`.ts-lg`), because names only ellipsize in the ring and history header (HANDOFF §6).
 - **Reduced motion** follows Menu → Reduce motion or the phone's setting, live (a media-query listener). The `.reduce-motion` mirror in app.css covers the app's own animations too. Hold to strike keeps its 1.5 s fill, because it is a timer, not decoration.
@@ -437,6 +445,8 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
   - bot-against-bot matchups between the levels (1,200 games each);
   - in Chromium at 360×740, in English and Chinese: the picker, the guest seeing the level, the bot rows.
 
+- [x] **After launch: every screen size.** Checked in Chromium by playing a full 10-player game on about 30 screen sizes, nine at a time, with an automatic check on every screen for anything cut off, sticking out sideways or out of reach: 280×653 (folded phone), 320×568, 360×740, 375×667, 390×844, 412×915, 430×932, sideways phones (667×375, 844×390, 932×430), tablets (768×1024, 820×1180, 1024×1366, 1180×820, 1024×768), laptops and desktops (1024×600, 1280×720, 1366×768, 1920×1080, 2560×1440), plus 130% text and Chinese at the smallest and sideways sizes.
+
 ### Additions to the design (screens or states the bundle didn't have)
 
 - **A2 name entry.** A2 only shows a remembered name ("Playing as Rowan · Change"). On a first visit, or after "Change", the A3 name field (label, n/16 counter, message) appears in that panel's place, with "Save name" when editing.
@@ -493,4 +503,5 @@ test/              *.test.js are tests; helpers.js, bots.js, leakCheck.js, leakS
 - **Copy.** "him" becomes "them" for arbitrary players (decision 11), e.g. Morgana's ability "pull them off course".
 - **G1 dims the whole screen, dock included.** The design keeps the dock bright with a disabled "Vote · Waiting for connection" button. Here the whole screen is `inert` and dimmed, which disables every button in every phase in one place; the banner and "Hang tight" say why.
 - **Reveal timings (HANDOFF §4).** The vote verdict lands after the last vote instead of at ~750 ms (under 1.9 s for 10 players), and the quest result, with its deal, takes about 2.8 s for 5 cards instead of 2.4 s. Both stay under the 3-second limit the owner chose to keep.
+- **Phones held sideways** have no artboard. They get a two-column layout (content left, status and buttons right) rather than a squeezed phone column.
 - **Tablet layout only for team building.** S3 is the only tablet artboard. Votes, quests, reveals and the rest keep the phone column, centred.

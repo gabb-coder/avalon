@@ -194,7 +194,27 @@ export function seatRing(app, { team = [], center, size = ringSize(app.root) }) 
     if (picked) newPick = true;
   });
   if (newPick) sound('tick');
+  fitWidth(ring, geo.w);
   return ring;
+}
+
+// The ring is drawn at fixed sizes. Where its box is narrower (a folded phone
+// at 280 px, a tablet's board beside its side panel), zoom it down to fit.
+// Zoom scales the layout too, so the tokens' flights still line up.
+function fitWidth(el, natural) {
+  let box = null;
+  const fit = () => {
+    if (!el.isConnected) return ro.disconnect();
+    const cs = getComputedStyle(box);
+    const room = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const zoom = Math.min(1, room / natural);
+    el.style.zoom = zoom < 0.999 && room > 0 ? zoom.toFixed(3) : '';
+  };
+  const ro = new ResizeObserver(fit);
+  requestAnimationFrame(() => {
+    box = el.parentElement;
+    if (box) ro.observe(box);
+  });
 }
 
 // A sound timed with the tokens' flight.
