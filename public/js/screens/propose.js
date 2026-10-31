@@ -218,11 +218,11 @@ export function mount(app) {
       h(
         'div',
         { class: 'tab-grid' },
-        seatRing(app, { team, center: tableCenter(), size: 'xl' }),
+        h('div', { class: 'ring-cell' }, seatRing(app, { team, center: tableCenter(), size: 'xl' })),
         h(
           'div',
           { class: 'col tab-side' },
-          h('div', { class: 'panel col tab-panel' }, h('p', { class: 'eyebrow eyebrow-12' }, t('board.quests')), questTrack(g(), { compact: false, phase: v().phase }), h('hr', { class: 'rule rule-flat' }), rejectCounter(g().rejects)),
+          h('div', { class: 'panel col tab-panel' }, h('p', { class: 'eyebrow eyebrow-12' }, t('board.quests')), questTrack(g(), { compact: window.innerWidth < 900, phase: v().phase }), h('hr', { class: 'rule rule-flat' }), rejectCounter(g().rejects)),
           tabletInfo(),
         ),
       ),

@@ -54,7 +54,8 @@ export function mount(app) {
     card.style.zoom = '';
     const style = getComputedStyle(content);
     const room = content.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - parseFloat(style.rowGap || 0) - hint.offsetHeight;
-    const zoom = Math.min(1, room / card.offsetHeight);
+    const across = content.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    const zoom = Math.min(1, room / card.offsetHeight, across / card.offsetWidth);
     if (zoom < 1) card.style.zoom = String(Math.max(0.55, zoom).toFixed(3));
   }
   const onResize = () => {
